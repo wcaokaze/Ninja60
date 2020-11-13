@@ -2,6 +2,10 @@
 試作2号
 ================================================================================
 
+![1](https://raw.githubusercontent.com/wcaokaze/Ninja60/master/試作2号/1.JPG)
+
+![2](https://raw.githubusercontent.com/wcaokaze/Ninja60/master/試作2号/2.JPG)
+
 Elecrowに発注。
 厚さ1.6mm、緑色。
 
