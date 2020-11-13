@@ -2,6 +2,12 @@
 試作1号
 ================================================================================
 
+![1](https://raw.githubusercontent.com/wcaokaze/Ninja60/master/試作1号/1.JPG)
+
+![2](https://raw.githubusercontent.com/wcaokaze/Ninja60/master/試作1号/2.JPG)
+
+![3](https://raw.githubusercontent.com/wcaokaze/Ninja60/master/試作1号/3.JPG)
+
 [SU120](https://github.com/e3w2q/su120-keyboard)で作った試作品。
 
 ファームウェアはSU120ではなく
