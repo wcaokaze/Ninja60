@@ -1,17 +1,27 @@
-top_size = 14;
-bottom_size = 15;
-height = 8;
+$fs = 0.1;
 
-difference() {
-    hull() {
-        translate([0, 0, height])
-            cube([top_size, top_size, 0.01], center = true);
-        cube([bottom_size, bottom_size, 0.01], center = true);
+module keycap() {
+    module round_rect(w, h, r) {
+        minkowski() {
+            cube([w - r * 2, h - r * 2, 0.01], center = true);
+            cylinder(r = r, h = 0.001);
+        }
     }
 
-    hull() {
-        translate([0, 0, height - 1.5])
-            cube([top_size - 3, top_size - 3, 0.01], center = true);
-        cube([bottom_size - 3, bottom_size - 3, 0.01], center = true);
+    module round_rect_pyramid(top_size, bottom_size, height) {
+        hull() {
+            translate([0, 0, height]) {
+                round_rect(top_size, top_size, 1);
+            }
+
+            round_rect(bottom_size, bottom_size, 1);
+        }
+    }
+
+    difference() {
+        round_rect_pyramid(14, 15, 8);
+        round_rect_pyramid(11, 12, 6.5);
     }
 }
+
+keycap();
