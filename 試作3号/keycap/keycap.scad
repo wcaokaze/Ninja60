@@ -1,5 +1,5 @@
 $fs = 0.1;
-$fa = 5;
+$fa = 10;
 
 module keycap(x, y) {
     module round_rect(w, h, r) {
@@ -9,9 +9,9 @@ module keycap(x, y) {
         }
     }
 
-    module round_rect_pyramid(top_size, bottom_size, dish_position_z) {
+    module round_rect_pyramid(top_size, bottom_size, height) {
         hull() {
-            translate([0, 0, dish_position_z + 3.5]) {
+            translate([0, 0, height]) {
                 round_rect(top_size, top_size, 1);
             }
 
@@ -19,20 +19,23 @@ module keycap(x, y) {
         }
     }
 
-    pitch = 16;
+    key_pitch = 16;
+    thickness = 1.5;
+    top_size = 12;
+    bottom_size = 15.25;
     height = 5;
     dish_r = 20;
 
     tilt_xr = 512;
     tilt_yr = 200;
-    tilt_xa = acos(pitch * x / tilt_xr);
-    tilt_ya = acos(pitch * y / tilt_yr);
+    tilt_xa = acos(key_pitch * x / tilt_xr);
+    tilt_ya = acos(key_pitch * y / tilt_yr);
 
     dish_position_z = tilt_xr + tilt_yr
             - tilt_xr * sin(tilt_xa) - tilt_yr * sin(tilt_ya);
 
     difference() {
-        round_rect_pyramid(12, 15, height + dish_position_z + 1);
+        round_rect_pyramid(top_size, bottom_size, height + dish_position_z + 4.5);
 
         translate([
                 -dish_r * cos(tilt_xa),
@@ -41,6 +44,12 @@ module keycap(x, y) {
         ]) {
             sphere(dish_r);
         }
+
+        round_rect_pyramid(
+                top_size - thickness * 2,
+                bottom_size - thickness * 2,
+                height + dish_position_z - thickness
+        );
     }
 }
 
