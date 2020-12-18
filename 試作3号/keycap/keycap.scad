@@ -22,8 +22,10 @@ module keycap(x, y) {
     module stem_holder() {
         module pillar() {
             union() {
-                translate([0, 0, 11 / 2 + 4]) cube([16.0,  1.5, 11], center = true);
-                translate([0, 0, 11 / 2 + 4]) cube([ 1.5, 16.0, 11], center = true);
+                translate([ 0, -1.5 / 2, 4 + (x > 0 ? 1 : 0)]) cube([8.0, 1.5, 11]);
+                translate([-8, -1.5 / 2, 4 + (x < 0 ? 1 : 0)]) cube([8.0, 1.5, 11]);
+                translate([-1.5 / 2,  0, 4 + (y > 0 ? 1 : 0)]) cube([1.5, 8.0, 11]);
+                translate([-1.5 / 2, -8, 4 + (y < 0 ? 1 : 0)]) cube([1.5, 8.0, 11]);
             }
         }
 
