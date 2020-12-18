@@ -9,9 +9,9 @@ module keycap(x, y) {
         }
     }
 
-    module round_rect_pyramid(top_size, bottom_size, height) {
+    module round_rect_pyramid(top_size, bottom_size, dish_position_z) {
         hull() {
-            translate([0, 0, height]) {
+            translate([0, 0, dish_position_z + 3.5]) {
                 round_rect(top_size, top_size, 1);
             }
 
@@ -28,14 +28,16 @@ module keycap(x, y) {
     tilt_xa = acos(pitch * x / tilt_xr);
     tilt_ya = acos(pitch * y / tilt_yr);
 
+    dish_position_z = tilt_xr + tilt_yr
+            - tilt_xr * sin(tilt_xa) - tilt_yr * sin(tilt_ya);
+
     difference() {
-        round_rect_pyramid(15, 15, 20);
+        round_rect_pyramid(12, 15, height + dish_position_z + 1);
 
         translate([
                 -dish_r * cos(tilt_xa),
                 -dish_r * cos(tilt_ya),
-                height + dish_r + tilt_xr + tilt_yr
-                        - tilt_xr * sin(tilt_xa) - tilt_yr * sin(tilt_ya)
+                height + dish_position_z + dish_r
         ]) {
             sphere(dish_r);
         }
