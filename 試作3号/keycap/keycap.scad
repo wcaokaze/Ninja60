@@ -19,11 +19,28 @@ module keycap(x, y) {
         }
     }
 
-    module stem() {
+    module stem_holder() {
+        module pillar() {
+            union() {
+                translate([0, 0, 11 / 2 + 4]) cube([16.0,  1.5, 11], center = true);
+                translate([0, 0, 11 / 2 + 4]) cube([ 1.5, 16.0, 11], center = true);
+            }
+        }
+
+        module stem() {
+            union() {
+                translate([0, 0, 15 / 2]) cube([1.10, 4.00, 15], center = true);
+                translate([0, 0, 15 / 2]) cube([4.00, 1.30, 15], center = true);
+            }
+        }
+
         difference() {
-            cylinder(d = 5.5, h = 15);
-            translate([0, 0, 15 / 2]) cube([1.10, 4.00, 15], center = true);
-            translate([0, 0, 15 / 2]) cube([4.00, 1.30, 15], center = true);
+            union() {
+                pillar();
+                cylinder(d = 5.5, h = 15);
+            }
+
+            stem();
         }
     }
 
@@ -72,12 +89,12 @@ module keycap(x, y) {
 
         intersection() {
             outer();
-            stem();
+            stem_holder();
         }
     }
 }
 
-keycap(0, 0);
+keycap(4, 2);
 /*
 for (x = [-2 : 4]) {
     for (y = [-1 : 2]) {
