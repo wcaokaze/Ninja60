@@ -37,6 +37,7 @@ module keycap(x, y) {
         difference() {
             union() {
                 pillar();
+                translate([0, 0, 4]) cylinder(d = 8, h = 11);
                 cylinder(d = 5.5, h = 15);
             }
 
