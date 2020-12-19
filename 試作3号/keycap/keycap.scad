@@ -22,10 +22,10 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false) {
     module stem_holder() {
         module pillar() {
             union() {
-                translate([  0, -1.5 / 2, 4 + (x > 0 ? 1 : 0)]) cube([32.0,  1.5, 11]);
-                translate([-32, -1.5 / 2, 4 + (x < 0 ? 1 : 0)]) cube([32.0,  1.5, 11]);
-                translate([-1.5 / 2,   0, 4 + (y > 0 ? 1 : 0)]) cube([ 1.5, 32.0, 11]);
-                translate([-1.5 / 2, -32, 4 + (y < 0 ? 1 : 0)]) cube([ 1.5, 32.0, 11]);
+                translate([  0, -1.5 / 2, 3.5 + (x > 0 ? 1 : 0)]) cube([32.0,  1.5, 11]);
+                translate([-32, -1.5 / 2, 3.5 + (x < 0 ? 1 : 0)]) cube([32.0,  1.5, 11]);
+                translate([-1.5 / 2,   0, 3.5 + (y > 0 ? 1 : 0)]) cube([ 1.5, 32.0, 11]);
+                translate([-1.5 / 2, -32, 3.5 + (y < 0 ? 1 : 0)]) cube([ 1.5, 32.0, 11]);
             }
         }
 
@@ -39,7 +39,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false) {
         difference() {
             union() {
                 pillar();
-                translate([0, 0, 4]) cylinder(d = 8, h = 11);
+                translate([0, 0, 3.5]) cylinder(d = 8, h = 11);
                 cylinder(d = 5.5, h = 15);
             }
 
