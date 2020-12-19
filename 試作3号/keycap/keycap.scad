@@ -72,7 +72,11 @@ module keycap(x, y, u, is_cylindrical = false) {
                     height + dish_position_z + 4.5);
 
             if (is_cylindrical) {
-                translate([0, 0, height + dish_position_z + dish_r]) {
+                translate([
+                        -dish_r * cos(tilt_xa),
+                        0,
+                        height + dish_position_z + dish_r
+                ]) {
                     minkowski() {
                         cube([key_pitch * (u - 1) + 0.001, 0.001, 0.001], center = true);
                         rotate([-tilt_ya, 0, 0]) {
@@ -123,7 +127,7 @@ for (x = [-2 : 4]) {
 }
 
 translate([-1.625 * 16, -2 * 16]) keycap(-1.625, -2, 1.75);
-translate([-0.125 * 16, -2 * 16]) keycap( 0.000,  1, 1.25, is_cylindrical = true);
-translate([ 1.250 * 16, -2 * 16]) keycap( 0.000,  1, 1.50, is_cylindrical = true);
-translate([ 2.750 * 16, -2 * 16]) keycap( 0.000,  1, 1.50, is_cylindrical = true);
-translate([ 4.000 * 16, -2 * 16]) keycap( 0.000,  1, 1.00, is_cylindrical = true);
+translate([-0.125 * 16, -2 * 16]) keycap(-2.500,  1, 1.25, is_cylindrical = true);
+translate([ 1.250 * 16, -2 * 16]) keycap(-1.500,  1, 1.50, is_cylindrical = true);
+translate([ 2.750 * 16, -2 * 16]) keycap( 1.500,  1, 1.50, is_cylindrical = true);
+translate([ 4.000 * 16, -2 * 16]) keycap( 3.000,  1, 1.00, is_cylindrical = true);
