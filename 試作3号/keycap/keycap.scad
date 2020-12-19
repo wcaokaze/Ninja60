@@ -56,8 +56,8 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false) {
     height = 5;
     dish_r = 20;
 
-    tilt_xr = 512;
-    tilt_yr = 200;
+    tilt_xr = 250;
+    tilt_yr = 180;
     tilt_xa = acos(key_pitch * x / tilt_xr);
     tilt_ya = acos(key_pitch * y / tilt_yr);
 
@@ -69,7 +69,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false) {
             round_rect_pyramid(
                     top_w, top_h,
                     bottom_w, bottom_h,
-                    height + dish_position_z + 4.5);
+                    height + dish_position_z + 5);
 
             if (is_cylindrical) {
                 translate([
@@ -130,15 +130,30 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false) {
     }
 }
 
-for (x = [-2 : 3]) {
-    for (y = [-1 : 2]) {
-        translate([x * 16, y * 16, 0]) keycap(x, y);
+translate([-4.5 * 16, 0, 0]) {
+    for (x = [-2 : 3]) {
+        for (y = [-1 : 2]) {
+            translate([x * 16, y * 16, 0]) keycap(x, y);
+        }
     }
+
+    translate([ 4.000 * 16, -0.500 * 16]) keycap(x =  4.000, y =  0, h = 2.00, is_cylindrical = true);
+    translate([-1.625 * 16, -2.000 * 16]) keycap(x = -1.625, y = -2, w = 1.75);
+    translate([-0.125 * 16, -2.000 * 16]) keycap(x = -2.000, y =  1, w = 1.25, is_cylindrical = true);
+    translate([ 1.250 * 16, -2.000 * 16]) keycap(x = -1.250, y =  1, w = 1.50, is_cylindrical = true);
+    translate([ 2.750 * 16, -2.000 * 16]) keycap(x =  1.250, y =  1, w = 1.50, is_cylindrical = true);
+    translate([ 4.000 * 16, -2.000 * 16]) keycap(x =  2.500, y =  1, w = 1.00, is_cylindrical = true);
 }
 
-translate([ 4.000 * 16, -0.500 * 16]) keycap(x =  4.000, y =  0, h = 2.00, is_cylindrical = true);
-translate([-1.625 * 16, -2.000 * 16]) keycap(x = -1.625, y = -2, w = 1.75);
-translate([-0.125 * 16, -2.000 * 16]) keycap(x = -2.500, y =  1, w = 1.25, is_cylindrical = true);
-translate([ 1.250 * 16, -2.000 * 16]) keycap(x = -1.500, y =  1, w = 1.50, is_cylindrical = true);
-translate([ 2.750 * 16, -2.000 * 16]) keycap(x =  1.500, y =  1, w = 1.50, is_cylindrical = true);
-translate([ 4.000 * 16, -2.000 * 16]) keycap(x =  3.000, y =  1, w = 1.00, is_cylindrical = true);
+translate([4 * 16, 0, 0]) {
+    for (x = [-3 : 3]) {
+        for (y = [-1 : 2]) {
+            translate([x * 16, y * 16, 0]) keycap(x, y);
+        }
+    }
+
+    translate([-3.00 * 16, -2 * 16]) keycap(x = -2.0, y = 1, w = 1.0, is_cylindrical = true);
+    translate([-1.75 * 16, -2 * 16]) keycap(x = -1.0, y = 1, w = 1.5, is_cylindrical = true);
+    translate([-0.25 * 16, -2 * 16]) keycap(x =  1.0, y = 1, w = 1.5, is_cylindrical = true);
+    translate([ 1.00 * 16, -2 * 16]) keycap(x =  1.0, y = 1, w = 1.0, is_cylindrical = true);
+}
