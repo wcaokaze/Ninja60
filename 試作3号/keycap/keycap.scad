@@ -66,10 +66,12 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false) {
 
     module outer() {
         difference() {
-            round_rect_pyramid(
-                    top_w, top_h,
-                    bottom_w, bottom_h,
-                    height + dish_position_z + 5);
+            translate([0, 0, 3]) {
+                round_rect_pyramid(
+                        top_w, top_h,
+                        bottom_w, bottom_h,
+                        height + dish_position_z + 2);
+            }
 
             if (is_cylindrical) {
                 translate([
@@ -110,11 +112,13 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false) {
     }
 
     module inner() {
-        round_rect_pyramid(
-                top_w - thickness * 2, top_h - thickness * 2,
-                bottom_w - thickness * 2, bottom_h - thickness * 2,
-                height + dish_position_z - thickness
-        );
+        translate([0, 0, 3]) {
+            round_rect_pyramid(
+                    top_w - thickness * 2, top_h - thickness * 2,
+                    bottom_w - thickness * 2, bottom_h - thickness * 2,
+                    height + dish_position_z - thickness - 3
+            );
+        }
     }
 
     union() {
@@ -124,7 +128,11 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false) {
         }
 
         intersection() {
-            outer();
+            union() {
+                outer();
+                translate([0, 0, 1.5]) cube([bottom_w, bottom_h, 3], center = true);
+            }
+
             stem_holder();
         }
     }
