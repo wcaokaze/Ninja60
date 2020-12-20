@@ -53,7 +53,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false) {
     top_h = key_pitch * h - 4;
     bottom_w = key_pitch * w - 0.75;
     bottom_h = key_pitch * h - 0.75;
-    height = 5;
+    height = 6;
     dish_r = 20;
 
     tilt_xr = 250;
