@@ -167,11 +167,11 @@ translate([-4.5 * 16, 0, 0]) {
         }
     }
 
-    translate([4 * 16, 2 * 16]) keycap(x =  2, y = 0, is_home_position = true);
-    translate([4 * 16, 1 * 16]) keycap(x = -2, y = 0, is_home_position = true);
+    translate([4 * 16,  1.625 * 16]) rotate([0, 0, 90]) keycap(x = -1.625, y = -2, w = 1.75);
+    translate([4 * 16, -0.500 * 16])                    keycap(x =  4.000, y =  0, h = 2.00, is_cylindrical = true);
 
-    translate([ 4.000 * 16, -0.500 * 16]) keycap(x =  4.000, y =  0, h = 2.00, is_cylindrical = true);
-    translate([-1.625 * 16, -2.000 * 16]) keycap(x = -1.625, y = -2, w = 1.75);
+    translate([-2 * 16, -2 * 16]) keycap(x = -2, y = 0, is_home_position = true);
+
     translate([-0.125 * 16, -2.000 * 16]) keycap(x = -2.000, y =  1, w = 1.25, is_cylindrical = true);
     translate([ 1.250 * 16, -2.000 * 16]) keycap(x = -1.250, y =  1, w = 1.50, is_cylindrical = true);
     translate([ 2.750 * 16, -2.000 * 16]) keycap(x =  1.250, y =  1, w = 1.50, is_cylindrical = true);
@@ -189,4 +189,6 @@ translate([4 * 16, 0, 0]) {
     translate([-1.75 * 16, -2 * 16]) keycap(x = -1.0, y = 1, w = 1.5, is_cylindrical = true);
     translate([-0.25 * 16, -2 * 16]) keycap(x =  1.0, y = 1, w = 1.5, is_cylindrical = true);
     translate([ 1.00 * 16, -2 * 16]) keycap(x =  1.0, y = 1, w = 1.0, is_cylindrical = true);
+
+    translate([2 * 16, -2 * 16]) keycap(x = 2, y = 0, is_home_position = true);
 }
