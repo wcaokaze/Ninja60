@@ -172,12 +172,12 @@ translate([2.5 * key_distance, 1.5 * key_distance, 0]) {
     translate([4 * key_distance,  1.625 * key_distance]) rotate([0, 0, 90]) keycap(x = -1.625, y = -2, w = 1.75);
     translate([4 * key_distance, -0.500 * key_distance])                    keycap(x =  4.000, y =  0, h = 2.00, is_cylindrical = true);
 
-    translate([-2 * key_distance, -2 * key_distance]) keycap(x = -2, y = 0, is_home_position = true);
+    translate([-2 * key_distance, 3 * key_distance]) keycap(x = -2, y = 0, is_home_position = true);
 
-    translate([-0.125 * key_distance, -2.000 * key_distance]) keycap(x = -2.000, y =  1, w = 1.25, is_cylindrical = true);
-    translate([ 1.250 * key_distance, -2.000 * key_distance]) keycap(x = -1.250, y =  1, w = 1.50, is_cylindrical = true);
-    translate([ 2.750 * key_distance, -2.000 * key_distance]) keycap(x =  1.250, y =  1, w = 1.50, is_cylindrical = true);
-    translate([ 4.000 * key_distance, -2.000 * key_distance]) keycap(x =  2.500, y =  1, w = 1.00, is_cylindrical = true);
+    translate([-0.125 * key_distance, 3.000 * key_distance]) keycap(x = -2.000, y =  1, w = 1.25, is_cylindrical = true);
+    translate([ 1.250 * key_distance, 3.000 * key_distance]) keycap(x = -1.250, y =  1, w = 1.50, is_cylindrical = true);
+    translate([ 2.750 * key_distance, 3.000 * key_distance]) keycap(x =  1.250, y =  1, w = 1.50, is_cylindrical = true);
+    translate([ 4.000 * key_distance, 3.000 * key_distance]) keycap(x =  2.500, y =  1, w = 1.00, is_cylindrical = true);
 }
 
 translate([3.5 * key_distance, 2.5 * key_distance, 29]) {
