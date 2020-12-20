@@ -70,7 +70,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false) {
                 round_rect_pyramid(
                         top_w, top_h,
                         bottom_w, bottom_h,
-                        height + dish_position_z + 2);
+                        height + dish_position_z + 3);
             }
 
             if (is_cylindrical) {
