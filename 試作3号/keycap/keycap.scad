@@ -1,7 +1,7 @@
 $fs = 0.1;
 $fa = 10;
 
-module keycap(x, y, w = 1, h = 1, is_cylindrical = false) {
+module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = false) {
     module round_rect_pyramid(top_w, top_h, bottom_w, bottom_h, height) {
         module round_rect(w, h, r) {
             minkowski() {
@@ -64,6 +64,21 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false) {
     dish_position_z = tilt_xr + tilt_yr
             - tilt_xr * sin(tilt_xa) - tilt_yr * sin(tilt_ya);
 
+    module home_position_mark() {
+        translate([
+                0,
+                -top_h / 2 + 1,
+                height + dish_position_z - 0.85
+        ]) {
+            rotate([0, tilt_xa, 0]) {
+                minkowski() {
+                    cube([3, 0.001, 2], center = true);
+                    sphere(0.5);
+                }
+            }
+        }
+    }
+
     module outer() {
         difference() {
             translate([0, 0, 3]) {
@@ -123,7 +138,14 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false) {
 
     union() {
         difference() {
-            outer();
+            union() {
+                outer();
+
+                if (is_home_position) {
+                    home_position_mark();
+                }
+            }
+
             inner();
         }
 
@@ -144,6 +166,9 @@ translate([-4.5 * 16, 0, 0]) {
             translate([x * 16, y * 16, 0]) keycap(x, y);
         }
     }
+
+    translate([4 * 16, 2 * 16]) keycap(x =  2, y = 0, is_home_position = true);
+    translate([4 * 16, 1 * 16]) keycap(x = -2, y = 0, is_home_position = true);
 
     translate([ 4.000 * 16, -0.500 * 16]) keycap(x =  4.000, y =  0, h = 2.00, is_cylindrical = true);
     translate([-1.625 * 16, -2.000 * 16]) keycap(x = -1.625, y = -2, w = 1.75);
