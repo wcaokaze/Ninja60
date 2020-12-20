@@ -67,13 +67,13 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
     module home_position_mark() {
         translate([
                 0,
-                -top_h / 2 + 1,
-                height + dish_position_z - 0.85
+                -top_h / 2,
+                height + dish_position_z + 0.85
         ]) {
             rotate([0, tilt_xa, 0]) {
                 minkowski() {
-                    cube([3, 0.001, 2], center = true);
-                    sphere(0.5);
+                    cube([1, 0.001, 2.75], center = true);
+                    sphere(0.3);
                 }
             }
         }
