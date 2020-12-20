@@ -179,9 +179,23 @@ translate([-4.5 * 16, 0, 0]) {
 }
 
 translate([4 * 16, 0, 0]) {
-    for (x = [-3 : 3]) {
-        for (y = [-1 : 2]) {
-            translate([x * 16, y * 16, 0]) keycap(x, y);
+    for (x = [-3 : 0]) {
+        for (y = [-1 : 0]) {
+            translate([(x + 3) * 16, (y + 2) * 16, 0]) keycap(x, y);
+        }
+
+        for (y = [1 : 2]) {
+            translate([(x + 3) * 16, (y - 2) * 16, 0]) keycap(x, y);
+        }
+    }
+
+    for (x = [1 : 3]) {
+        for (y = [-1 : 0]) {
+            translate([(x - 4) * 16, (y + 2) * 16, 0]) keycap(x, y);
+        }
+
+        for (y = [1 : 2]) {
+            translate([(x - 4) * 16, (y - 2) * 16, 0]) keycap(x, y);
         }
     }
 
