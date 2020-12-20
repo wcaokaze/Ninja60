@@ -24,8 +24,8 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
             union() {
                 translate([  0, -1.5 / 2, 3.5 + (x > 0 ? 1 : 0)]) cube([32.0,  1.5, 11]);
                 translate([-32, -1.5 / 2, 3.5 + (x < 0 ? 1 : 0)]) cube([32.0,  1.5, 11]);
-                translate([-1.5 / 2,   0, 3.5 + (y > 0 ? 1 : 0)]) cube([ 1.5, 32.0, 11]);
-                translate([-1.5 / 2, -32, 3.5 + (y < 0 ? 1 : 0)]) cube([ 1.5, 32.0, 11]);
+                translate([-1.5 / 2,   0, 3.5 + (y > 0 ? 1 : 0)]) cube([ 1.0, 32.0, 11]);
+                translate([-1.5 / 2, -32, 3.5 + (y < 0 ? 1 : 0)]) cube([ 1.0, 32.0, 11]);
             }
         }
 
