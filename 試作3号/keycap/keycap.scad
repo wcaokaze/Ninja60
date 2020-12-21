@@ -1,5 +1,5 @@
 $fs = 0.1;
-$fa = 10;
+$fa = 0.25;
 
 module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = false) {
     module round_rect_pyramid(top_w, top_h, bottom_w, bottom_h, height) {
