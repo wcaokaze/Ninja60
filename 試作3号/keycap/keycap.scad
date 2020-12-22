@@ -161,7 +161,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
 }
 
 key_distance = 16.5;
-upper_layer_z_offset = 28;
+upper_layer_z_offset = 28.5;
 
 module right_12keys() {
         translate([0.5 * key_distance, 0]) keycap(1,  1);
@@ -181,21 +181,31 @@ module right_12keys() {
         }
 }
 
-translate([-0.5 * key_distance, 0.5 * key_distance]) keycap(0, 0);
-translate([-0.5 * key_distance, 1.5 * key_distance]) keycap(0, 1);
+translate([1.5 * key_distance, 0.5 * key_distance]) keycap(0, 0);
+translate([1.5 * key_distance, 1.5 * key_distance]) keycap(0, 1);
+
+translate([0.5 * key_distance, 1 * key_distance]) keycap(x = 4, y =  0, h = 2.00, is_cylindrical = true);
 
 rotate([0, 180, 0]) {
-    translate([0.5 * key_distance, 0.5 * key_distance, -upper_layer_z_offset]) keycap(0, 2);
-    translate([0.5 * key_distance, 1.5 * key_distance, -upper_layer_z_offset]) keycap(0, -1);
+    translate([-1.5 * key_distance, 0.5 * key_distance, -upper_layer_z_offset]) keycap(0, 2);
+    translate([-1.5 * key_distance, 1.5 * key_distance, -upper_layer_z_offset]) keycap(0, -1);
+
+    translate([-0.5 * key_distance, 1.5 * key_distance, -upper_layer_z_offset]) {
+        rotate([0, 0, 180]) keycap(x = -2, y = 0, is_home_position = true);
+    }
+
+    translate([-0.5 * key_distance, 0.5 * key_distance, -upper_layer_z_offset]) {
+        keycap(x = 2, y = 0, is_home_position = true);
+    }
 }
 
-translate([3 * key_distance, 1.5 * key_distance]) {
+
+translate([5 * key_distance, 1.5 * key_distance]) {
     right_12keys();
     mirror([1, 0]) right_12keys();
 }
 
 translate([2.5 * key_distance, 1.5 * key_distance, 0]) {
-    translate([4 * key_distance, -0.5 * key_distance]) keycap(x = 4, y =  0, h = 2.00, is_cylindrical = true);
     translate([4 * key_distance,  1.0 * key_distance]) keycap(x = 4, y = 0);
     translate([4 * key_distance,  2.0 * key_distance]) keycap(x = 4, y = 2);
 
@@ -205,7 +215,6 @@ translate([2.5 * key_distance, 1.5 * key_distance, 0]) {
     translate([ 2.750 * key_distance, 3.000 * key_distance]) keycap(x =  1.250, y =  1, w = 1.50, is_cylindrical = true);
     translate([ 4.000 * key_distance, 3.000 * key_distance]) keycap(x =  2.500, y =  1, w = 1.00, is_cylindrical = true);
 
-    translate([-3 * key_distance, 3 * key_distance]) keycap(x = -2, y = 0, is_home_position = true);
 }
 
 translate([3.5 * key_distance, 2.5 * key_distance, 29]) {
@@ -214,7 +223,5 @@ translate([3.5 * key_distance, 2.5 * key_distance, 29]) {
         translate([-1.75 * key_distance, -2 * key_distance]) keycap(x =  1.0, y = 1, w = 1.5, is_cylindrical = true);
         translate([-0.50 * key_distance, -2 * key_distance]) keycap(x =  1.0, y = 1, w = 1.0, is_cylindrical = true);
         translate([ 2.75 * key_distance, -2 * key_distance]) keycap(x = -1.0, y = 1, w = 1.5, is_cylindrical = true);
-
-        translate([-4 * key_distance, -2 * key_distance]) keycap(x =  2, y = 0, is_home_position = true);
     }
 }
