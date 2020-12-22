@@ -162,12 +162,34 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
 
 key_distance = 16.5;
 
-translate([2.5 * key_distance, 1.5 * key_distance, 0]) {
-    for (x = [-3 : 3]) {
-        for (y = [-1 : 2]) {
-            translate([x * key_distance, y * key_distance, 0]) keycap(x, y);
+module right_12keys() {
+        translate([1 * key_distance, 0]) keycap(1,  1);
+        translate([2 * key_distance, 0]) keycap(1,  2);
+        translate([3 * key_distance, 0]) keycap(2,  1);
+        translate([1 * key_distance, -key_distance]) keycap(1,  0);
+        translate([2 * key_distance, -key_distance]) keycap(1, -1);
+        translate([3 * key_distance, -key_distance]) keycap(2,  0);
+
+        upper_layer_z_offset = 28;
+
+        rotate([180, 0, -90]) {
+            translate([0, -1 * key_distance, -upper_layer_z_offset]) keycap(3, 2);
+            translate([0, -2 * key_distance, -upper_layer_z_offset]) keycap(2, 2);
+            translate([0, -3 * key_distance, -upper_layer_z_offset]) keycap(3, 1);
+            translate([key_distance, -1 * key_distance, -upper_layer_z_offset]) keycap(3, -1);
+            translate([key_distance, -2 * key_distance, -upper_layer_z_offset]) keycap(2, -1);
+            translate([key_distance, -3 * key_distance, -upper_layer_z_offset]) keycap(3,  0);
         }
+}
+
+
+translate([2.5 * key_distance, 1.5 * key_distance, 0]) {
+    for (y = [-1 : 2]) {
+        translate([0, y * key_distance, 0]) keycap(0, y);
     }
+
+    right_12keys();
+    mirror([1, 0]) right_12keys();
 
     translate([4 * key_distance, -0.5 * key_distance]) keycap(x = 4, y =  0, h = 2.00, is_cylindrical = true);
     translate([4 * key_distance,  1.0 * key_distance]) keycap(x = 4, y = 0);
