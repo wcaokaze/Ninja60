@@ -13,4 +13,10 @@ module key_switch_hole() {
     }
 }
 
-key_switch_hole();
+difference() {
+    cube([2 * 19.05, 2 * 19.05, 1 + 5 - 1.5]);
+    translate([0.5 * 19.05, 0.5 * 19.05]) key_switch_hole();
+    translate([0.5 * 19.05, 1.5 * 19.05]) key_switch_hole();
+    translate([1.5 * 19.05, 0.5 * 19.05]) key_switch_hole();
+    translate([1.5 * 19.05, 1.5 * 19.05]) key_switch_hole();
+}
