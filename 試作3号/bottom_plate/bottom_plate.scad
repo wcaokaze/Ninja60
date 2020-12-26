@@ -20,8 +20,8 @@ module basic_key_hole() {
             }
         }
 
-        translate([-8.6, 3.34]) cube([3.6, 4.1, 2.15]);
-        translate([ 6.9, 0.55]) cube([3.6, 4.1, 2.15]);
+        translate([-8.5, 3.34]) cube([3.8, 4.1, 2.15]);
+        translate([ 6.8, 0.55]) cube([3.8, 4.1, 2.15]);
 
         translate([-5.08, 0]) cylinder(r = 1.35, h = 1.7);
         translate([ 0.00, 0]) cylinder(r = 2.50, h = 1.7);
@@ -40,4 +40,10 @@ module basic_key_hole() {
     }
 }
 
-basic_key_hole();
+difference() {
+    cube([2 * 19.05, 2 * 19.05, 3.35]);
+    translate([0.5 * 19.05, 0.5 * 19.05]) basic_key_hole();
+    translate([0.5 * 19.05, 1.5 * 19.05]) basic_key_hole();
+    translate([1.5 * 19.05, 0.5 * 19.05]) basic_key_hole();
+    translate([1.5 * 19.05, 1.5 * 19.05]) basic_key_hole();
+}
