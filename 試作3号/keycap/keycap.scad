@@ -32,8 +32,8 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
 
         module stem() {
             union() {
-                translate([0, 0, 15 / 2]) cube([1.10, 4.00, 15], center = true);
-                translate([0, 0, 15 / 2]) cube([4.00, 1.30, 15], center = true);
+                translate([0, 0, 15 / 2]) cube([1.05, 4.00, 15], center = true);
+                translate([0, 0, 15 / 2]) cube([4.00, 1.25, 15], center = true);
             }
         }
 
@@ -161,4 +161,25 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
     }
 }
 
-keycap(x, y, w, h, is_cylindrical, is_home_position);
+module layout(x, y, rotation_x = 0, rotation_y = 0, rotation_z = 0, is_upper_layer = false) {
+    key_distance = 16.5;
+    upper_layer_z_offset = 28.5;
+
+    translate([
+            (x + 0.5) * key_distance,
+            (y + 0.5) * key_distance,
+            is_upper_layer ? upper_layer_z_offset : 0
+    ]) {
+        rotate([
+                rotation_x + (is_upper_layer ? 180 : 0),
+                rotation_y,
+                rotation_z
+        ]) {
+            children();
+        }
+    }
+}
+
+layout(position_x, position_y, rotation_x, rotation_y, rotation_z, is_upper_layer) {
+    keycap(x, y, w, h, is_cylindrical, is_home_position);
+}
