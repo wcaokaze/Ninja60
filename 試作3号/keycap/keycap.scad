@@ -132,7 +132,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
     dish_r = 20;
 
     tilt_xr = 250;
-    tilt_yr = 180;
+    tilt_yr = 120;
     tilt_xa = acos(key_pitch * x / tilt_xr);
     tilt_ya = acos(key_pitch * y / tilt_yr);
 
