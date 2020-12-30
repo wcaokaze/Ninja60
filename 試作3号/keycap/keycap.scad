@@ -2,6 +2,13 @@
 $fs = 0.1;
 $fa = 0.25;
 
+module polygon_pyramid(n, r, h) {
+    linear_extrude(h) polygon([
+        for (a = [180.0 / n : 360.0 / n : 360.0 + 180.0 / n])
+            [r * sin(a), r * cos(a)]
+    ]);
+}
+
 module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = false) {
     module outer() {
         module round_rect_pyramid(top_w, top_h, bottom_w, bottom_h, height) {
@@ -107,8 +114,8 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
         difference() {
             union() {
                 pillar();
-                translate([0, 0, 3.5]) cylinder(d = 8, h = 11);
-                cylinder(d = 5.5, h = 15);
+                translate([0, 0, 3.5]) polygon_pyramid(16, 4.3, h = 11);
+                polygon_pyramid(16, 2.81, h = 15);
             }
 
             stem();
@@ -191,9 +198,6 @@ module layout(x, y, rotation_x = 0, rotation_y = 0, rotation_z = 0, is_upper_lay
     }
 }
 
-keycap(0, 0);
-/*
 layout(position_x, position_y, rotation_x, rotation_y, rotation_z, is_upper_layer) {
     keycap(x, y, w, h, is_cylindrical, is_home_position);
 }
-*/
