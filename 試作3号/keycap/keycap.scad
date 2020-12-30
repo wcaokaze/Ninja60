@@ -3,24 +3,24 @@ $fs = 0.1;
 $fa = 0.25;
 
 module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = false) {
-    module round_rect_pyramid(top_w, top_h, bottom_w, bottom_h, height) {
-        module round_rect(w, h, r) {
-            minkowski() {
-                cube([w - r * 2, h - r * 2, 0.01], center = true);
-                cylinder(r = r, h = 0.001);
-            }
-        }
-
-        hull() {
-            translate([0, 0, height]) {
-                round_rect(top_w, top_h, 1);
-            }
-
-            round_rect(bottom_w, bottom_h, 1);
-        }
-    }
-
     module outer() {
+        module round_rect_pyramid(top_w, top_h, bottom_w, bottom_h, height) {
+            module round_rect(w, h, r) {
+                minkowski() {
+                    cube([w - r * 2, h - r * 2, 0.01], center = true);
+                    cylinder(r = r, h = 0.001);
+                }
+            }
+
+            hull() {
+                translate([0, 0, height]) {
+                    round_rect(top_w, top_h, 1);
+                }
+
+                round_rect(bottom_w, bottom_h, 1);
+            }
+        }
+
         difference() {
             translate([0, 0, 3]) {
                 round_rect_pyramid(
@@ -68,8 +68,18 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
     }
 
     module inner() {
+        module rect_pyramid(top_w, top_h, bottom_w, bottom_h, height) {
+            hull() {
+                translate([0, 0, height]) {
+                    cube([top_w, top_h, 0.01], center = true);
+                }
+
+                cube([bottom_w, bottom_h, 0.01], center = true);
+            }
+        }
+
         translate([0, 0, 3]) {
-            round_rect_pyramid(
+            rect_pyramid(
                     top_w - thickness * 2, top_h - thickness * 2,
                     bottom_w - thickness * 2, bottom_h - thickness * 2,
                     height + dish_position_z - thickness - 3
