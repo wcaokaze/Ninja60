@@ -163,7 +163,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
 
         intersection() {
             union() {
-                outer();
+                inner();
                 translate([0, 0, 1.5]) cube([bottom_w, bottom_h, 3], center = true);
             }
 
