@@ -20,6 +20,63 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
         }
     }
 
+    module outer() {
+        difference() {
+            translate([0, 0, 3]) {
+                round_rect_pyramid(
+                        top_w, top_h,
+                        bottom_w, bottom_h,
+                        height + dish_position_z + 3);
+            }
+
+            if (is_cylindrical) {
+                translate([
+                        -dish_r * cos(tilt_xa),
+                        0,
+                        height + dish_position_z + dish_r
+                ]) {
+                    minkowski() {
+                        cube(center = true, [
+                                key_pitch * (w - 1) + 0.001,
+                                key_pitch * (h - 1) + 0.001,
+                                0.001
+                        ]);
+
+                        rotate([-tilt_ya, 0, 0]) {
+                            cylinder(r = dish_r, h = dish_r, center = true);
+                        }
+                    }
+                }
+            } else {
+                translate([
+                        -dish_r * cos(tilt_xa),
+                        -dish_r * cos(tilt_ya),
+                        height + dish_position_z + dish_r
+                ]) {
+                    minkowski() {
+                        cube(center = true, [
+                                key_pitch * (w - 1) + 0.001,
+                                key_pitch * (h - 1) + 0.001,
+                                0.001
+                        ]);
+
+                        sphere(dish_r);
+                    }
+                }
+            }
+        }
+    }
+
+    module inner() {
+        translate([0, 0, 3]) {
+            round_rect_pyramid(
+                    top_w - thickness * 2, top_h - thickness * 2,
+                    bottom_w - thickness * 2, bottom_h - thickness * 2,
+                    height + dish_position_z - thickness - 3
+            );
+        }
+    }
+
     module stem_holder() {
         module pillar() {
             union() {
@@ -80,62 +137,6 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
         }
     }
 
-    module outer() {
-        difference() {
-            translate([0, 0, 3]) {
-                round_rect_pyramid(
-                        top_w, top_h,
-                        bottom_w, bottom_h,
-                        height + dish_position_z + 3);
-            }
-
-            if (is_cylindrical) {
-                translate([
-                        -dish_r * cos(tilt_xa),
-                        0,
-                        height + dish_position_z + dish_r
-                ]) {
-                    minkowski() {
-                        cube(center = true, [
-                                key_pitch * (w - 1) + 0.001,
-                                key_pitch * (h - 1) + 0.001,
-                                0.001
-                        ]);
-
-                        rotate([-tilt_ya, 0, 0]) {
-                            cylinder(r = dish_r, h = dish_r, center = true);
-                        }
-                    }
-                }
-            } else {
-                translate([
-                        -dish_r * cos(tilt_xa),
-                        -dish_r * cos(tilt_ya),
-                        height + dish_position_z + dish_r
-                ]) {
-                    minkowski() {
-                        cube(center = true, [
-                                key_pitch * (w - 1) + 0.001,
-                                key_pitch * (h - 1) + 0.001,
-                                0.001
-                        ]);
-
-                        sphere(dish_r);
-                    }
-                }
-            }
-        }
-    }
-
-    module inner() {
-        translate([0, 0, 3]) {
-            round_rect_pyramid(
-                    top_w - thickness * 2, top_h - thickness * 2,
-                    bottom_w - thickness * 2, bottom_h - thickness * 2,
-                    height + dish_position_z - thickness - 3
-            );
-        }
-    }
 
     union() {
         difference() {
@@ -180,6 +181,9 @@ module layout(x, y, rotation_x = 0, rotation_y = 0, rotation_z = 0, is_upper_lay
     }
 }
 
+keycap(0, 0);
+/*
 layout(position_x, position_y, rotation_x, rotation_y, rotation_z, is_upper_layer) {
     keycap(x, y, w, h, is_cylindrical, is_home_position);
 }
+*/
