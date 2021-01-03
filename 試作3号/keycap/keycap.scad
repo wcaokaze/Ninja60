@@ -10,8 +10,25 @@ module polygon_pyramid(n, r, h) {
 }
 
 module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = false) {
+    key_pitch = 16;
+    thickness = 1.5;
+    top_w = key_pitch * w - 4;
+    top_h = key_pitch * h - 4;
+    bottom_w = key_pitch * w - 0.75;
+    bottom_h = key_pitch * h - 0.75;
+    height = 6;
+    dish_r = 20;
+
+    tilt_xr = 250;
+    tilt_yr = 120;
+    tilt_xa = acos(key_pitch * x / tilt_xr);
+    tilt_ya = acos(key_pitch * y / tilt_yr);
+
+    dish_position_z = tilt_xr + tilt_yr
+            - tilt_xr * sin(tilt_xa) - tilt_yr * sin(tilt_ya);
+
     module outer() {
-        module round_rect_pyramid(top_w, top_h, bottom_w, bottom_h, height) {
+        module round_rect_pyramid(height) {
             module round_rect(w, h, r) {
                 minkowski() {
                     cube([w - r * 2, h - r * 2, 0.01], center = true);
@@ -30,10 +47,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
 
         difference() {
             translate([0, 0, 3]) {
-                round_rect_pyramid(
-                        top_w, top_h,
-                        bottom_w, bottom_h,
-                        height + dish_position_z + 3);
+                round_rect_pyramid(height + dish_position_z + 3);
             }
 
             if (is_cylindrical) {
@@ -121,23 +135,6 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
         }
     }
 
-    key_pitch = 16;
-    thickness = 1.5;
-    top_w = key_pitch * w - 4;
-    top_h = key_pitch * h - 4;
-    bottom_w = key_pitch * w - 0.75;
-    bottom_h = key_pitch * h - 0.75;
-    height = 6;
-    dish_r = 20;
-
-    tilt_xr = 250;
-    tilt_yr = 120;
-    tilt_xa = acos(key_pitch * x / tilt_xr);
-    tilt_ya = acos(key_pitch * y / tilt_yr);
-
-    dish_position_z = tilt_xr + tilt_yr
-            - tilt_xr * sin(tilt_xa) - tilt_yr * sin(tilt_ya);
-
     module home_position_mark() {
         translate([
                 0,
@@ -152,7 +149,6 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
             }
         }
     }
-
 
     union() {
         difference() {
