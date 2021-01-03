@@ -1,6 +1,6 @@
 
 $fs = 0.1;
-$fa = 10;// 0.25;
+$fa = 10;
 
 module polygon_pyramid(n, r, h) {
     linear_extrude(h) polygon([
@@ -94,16 +94,16 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
         }
     }
 
-    module stem_holder() {
-        module pillar() {
-            union() {
-                translate([  0, -1.5 / 2, 3.5 + (x > 0 ? 1 : 0)]) cube([32.0,  1.5, 11]);
-                translate([-32, -1.5 / 2, 3.5 + (x < 0 ? 1 : 0)]) cube([32.0,  1.5, 11]);
-                translate([-1.5 / 2,   0, 3.5 + (y > 0 ? 1 : 0)]) cube([ 1.0, 32.0, 11]);
-                translate([-1.5 / 2, -32, 3.5 + (y < 0 ? 1 : 0)]) cube([ 1.0, 32.0, 11]);
-            }
+    module pillar() {
+        union() {
+            translate([  0, -1.5 / 2, 3.5 + (x > 0 ? 1 : 0)]) cube([32.0,  1.5, 11]);
+            translate([-32, -1.5 / 2, 3.5 + (x < 0 ? 1 : 0)]) cube([32.0,  1.5, 11]);
+            translate([-1.5 / 2,   0, 3.5 + (y > 0 ? 1 : 0)]) cube([ 1.0, 32.0, 11]);
+            translate([-1.5 / 2, -32, 3.5 + (y < 0 ? 1 : 0)]) cube([ 1.0, 32.0, 11]);
         }
+    }
 
+    module stem_holder() {
         module stem() {
             union() {
                 translate([0, 0, 15 / 2]) cube([1.05, 4.00, 15], center = true);
@@ -113,7 +113,6 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
 
         difference() {
             union() {
-                pillar();
                 translate([0, 0, 3.5]) polygon_pyramid(16, 4.3, h = 11);
                 polygon_pyramid(16, 2.81, h = 15);
             }
@@ -169,6 +168,11 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
         }
 
         intersection() {
+            inner();
+            pillar();
+        }
+
+        intersection() {
             union() {
                 inner();
                 translate([0, 0, 1.5]) cube([bottom_w, bottom_h, 3], center = true);
@@ -199,7 +203,7 @@ module layout(x, y, rotation_x = 0, rotation_y = 0, rotation_z = 0, is_upper_lay
 }
 
 keycap(0, 0);
-keycap(4, 2);
+translate([16, 0]) keycap(4, 2);
 /*
 layout(position_x, position_y, rotation_x, rotation_y, rotation_z, is_upper_layer) {
     keycap(x, y, w, h, is_cylindrical, is_home_position);
