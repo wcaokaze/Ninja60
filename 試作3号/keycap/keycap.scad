@@ -1,6 +1,6 @@
 
 $fs = 0.1;
-$fa = 0.25;
+$fa = 10;// 0.25;
 
 module polygon_pyramid(n, r, h) {
     linear_extrude(h) polygon([
@@ -198,6 +198,10 @@ module layout(x, y, rotation_x = 0, rotation_y = 0, rotation_z = 0, is_upper_lay
     }
 }
 
+keycap(0, 0);
+keycap(4, 2);
+/*
 layout(position_x, position_y, rotation_x, rotation_y, rotation_z, is_upper_layer) {
     keycap(x, y, w, h, is_cylindrical, is_home_position);
 }
+*/
