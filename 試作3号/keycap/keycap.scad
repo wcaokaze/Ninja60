@@ -26,43 +26,43 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
 
     dish_position_z = tilt_xr + tilt_yr
             - tilt_xr * sin(tilt_xa) - tilt_yr * sin(tilt_ya);
-    
+
     module dish(height) {
-            if (is_cylindrical) {
-                translate([
-                        -dish_r * cos(tilt_xa),
-                        0,
-                        height + dish_position_z + dish_r
-                ]) {
-                    minkowski() {
-                        cube(center = true, [
-                                key_pitch * (w - 1) + 0.001,
-                                key_pitch * (h - 1) + 0.001,
-                                0.001
-                        ]);
+        if (is_cylindrical) {
+            translate([
+                    -dish_r * cos(tilt_xa),
+                    0,
+                    height + dish_position_z + dish_r
+            ]) {
+                minkowski() {
+                    cube(center = true, [
+                            key_pitch * (w - 1) + 0.001,
+                            key_pitch * (h - 1) + 0.001,
+                            0.001
+                    ]);
 
-                        rotate([-tilt_ya, 0, 0]) {
-                            cylinder(r = dish_r, h = dish_r, center = true);
-                        }
-                    }
-                }
-            } else {
-                translate([
-                        -dish_r * cos(tilt_xa),
-                        -dish_r * cos(tilt_ya),
-                        height + dish_position_z + dish_r
-                ]) {
-                    minkowski() {
-                        cube(center = true, [
-                                key_pitch * (w - 1) + 0.001,
-                                key_pitch * (h - 1) + 0.001,
-                                0.001
-                        ]);
-
-                        sphere(dish_r);
+                    rotate([-tilt_ya, 0, 0]) {
+                        cylinder(r = dish_r, h = dish_r, center = true);
                     }
                 }
             }
+        } else {
+            translate([
+                    -dish_r * cos(tilt_xa),
+                    -dish_r * cos(tilt_ya),
+                    height + dish_position_z + dish_r
+            ]) {
+                minkowski() {
+                    cube(center = true, [
+                            key_pitch * (w - 1) + 0.001,
+                            key_pitch * (h - 1) + 0.001,
+                            0.001
+                    ]);
+
+                    sphere(dish_r);
+                }
+            }
+        }
     }
 
     module outer() {
@@ -104,39 +104,39 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
         }
 
         difference() {
-        translate([0, 0, 3]) {
-            rect_pyramid(
-                    top_w - thickness * 2, top_h - thickness * 2,
-                    bottom_w - thickness * 2, bottom_h - thickness * 2,
-                    height + dish_position_z + 3
-            );
-        }
-        
-        dish(height - thickness);
+            translate([0, 0, 3]) {
+                rect_pyramid(
+                        top_w - thickness * 2, top_h - thickness * 2,
+                        bottom_w - thickness * 2, bottom_h - thickness * 2,
+                        height + dish_position_z + 3
+                );
+            }
+
+            dish(height - thickness);
         }
     }
 
     module pillar() {
         union() {
-            translate([  0, -1.5 / 2, 3.5 + (x > 0 ? 1 : 0)]) cube([32.0,  1.5, 11]);
-            translate([-32, -1.5 / 2, 3.5 + (x < 0 ? 1 : 0)]) cube([32.0,  1.5, 11]);
-            translate([-1.5 / 2,   0, 3.5 + (y > 0 ? 1 : 0)]) cube([ 1.0, 32.0, 11]);
-            translate([-1.5 / 2, -32, 3.5 + (y < 0 ? 1 : 0)]) cube([ 1.0, 32.0, 11]);
+            translate([     0, -1.5 / 2, 3.5 + (x > 0 ? 1 : 0)]) cube([32.0,  1.5, 32]);
+            translate([   -32, -1.5 / 2, 3.5 + (x < 0 ? 1 : 0)]) cube([32.0,  1.5, 32]);
+            translate([-1 / 2,        0, 3.5 + (y > 0 ? 1 : 0)]) cube([ 1.0, 32.0, 32]);
+            translate([-1 / 2,      -32, 3.5 + (y < 0 ? 1 : 0)]) cube([ 1.0, 32.0, 32]);
         }
     }
 
     module stem_holder() {
         module stem() {
             union() {
-                translate([0, 0, 15 / 2]) cube([1.05, 4.00, 15], center = true);
-                translate([0, 0, 15 / 2]) cube([4.00, 1.25, 15], center = true);
+                translate([0, 0, 15 / 2]) cube([1.05, 4.00, 32], center = true);
+                translate([0, 0, 15 / 2]) cube([4.00, 1.25, 32], center = true);
             }
         }
 
         difference() {
             union() {
-                translate([0, 0, 3.5]) polygon_pyramid(16, 4.3, h = 11);
-                polygon_pyramid(16, 2.81, h = 15);
+                translate([0, 0, 3.5]) polygon_pyramid(16, 4.3, h = 32);
+                polygon_pyramid(16, 2.81, h = 32);
             }
 
             stem();
