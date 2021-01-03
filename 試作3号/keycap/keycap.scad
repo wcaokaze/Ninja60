@@ -16,7 +16,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
     top_h = key_pitch * h - 4;
     bottom_w = key_pitch * w - 0.75;
     bottom_h = key_pitch * h - 0.75;
-    height = 6;
+    height = 6.75;
     dish_r = 20;
 
     tilt_xr = 250;
@@ -118,29 +118,15 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
 
     module pillar() {
         union() {
-            translate([     0, -1.5 / 2, 3.5 + (x > 0 ? 1 : 0)]) cube([32.0,  1.5, 32]);
-            translate([   -32, -1.5 / 2, 3.5 + (x < 0 ? 1 : 0)]) cube([32.0,  1.5, 32]);
-            translate([-1 / 2,        0, 3.5 + (y > 0 ? 1 : 0)]) cube([ 1.0, 32.0, 32]);
-            translate([-1 / 2,      -32, 3.5 + (y < 0 ? 1 : 0)]) cube([ 1.0, 32.0, 32]);
+            translate([     0, -1.5 / 2, 4 + (x > 0 ? 1 : 0)]) cube([32.0,  1.5, 32]);
+            translate([   -32, -1.5 / 2, 4 + (x < 0 ? 1 : 0)]) cube([32.0,  1.5, 32]);
+            translate([-1 / 2,        0, 4 + (y > 0 ? 1 : 0)]) cube([ 1.0, 32.0, 32]);
+            translate([-1 / 2,      -32, 4 + (y < 0 ? 1 : 0)]) cube([ 1.0, 32.0, 32]);
         }
     }
 
-    module stem_holder() {
-        module stem() {
-            union() {
-                translate([0, 0, 15 / 2]) cube([1.05, 4.00, 32], center = true);
-                translate([0, 0, 15 / 2]) cube([4.00, 1.25, 32], center = true);
-            }
-        }
-
-        difference() {
-            union() {
-                translate([0, 0, 3.5]) polygon_pyramid(16, 4.3, h = 32);
-                polygon_pyramid(16, 2.81, h = 32);
-            }
-
-            stem();
-        }
+    module stem_holder_foundation() {
+        translate([0, 0, 5.5]) polygon_pyramid(16, 2.81, h = 32);
     }
 
     module home_position_mark() {
@@ -158,32 +144,50 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
         }
     }
 
-    union() {
-        difference() {
-            union() {
-                outer();
+    difference() {
+        union() {
+            difference() {
+                union() {
+                    outer();
 
-                if (is_home_position) {
-                    home_position_mark();
+                    if (is_home_position) {
+                        home_position_mark();
+                    }
+                }
+
+                inner();
+            }
+
+            intersection() {
+                inner();
+
+                union() {
+                    pillar();
+                    stem_holder_foundation();
                 }
             }
-
-            inner();
         }
 
-        intersection() {
-            inner();
-            pillar();
+        // dig out for stem_holder
+        polygon_pyramid(16, 4.3, h = 5.5);
+    }
+}
+
+module stem_holder() {
+    module stem() {
+        union() {
+            translate([0, 0, 15 / 2]) cube([1.05, 4.00, 32], center = true);
+            translate([0, 0, 15 / 2]) cube([4.00, 1.25, 32], center = true);
+        }
+    }
+
+    difference() {
+        union() {
+            translate([0, 0, 3.5]) polygon_pyramid(16, 4.3, h = 2);
+            polygon_pyramid(16, 2.81, h = 3.5);
         }
 
-        intersection() {
-            union() {
-                inner();
-                translate([0, 0, 1.5]) cube([bottom_w, bottom_h, 3], center = true);
-            }
-
-            stem_holder();
-        }
+        stem();
     }
 }
 
@@ -207,7 +211,9 @@ module layout(x, y, rotation_x = 0, rotation_y = 0, rotation_z = 0, is_upper_lay
 }
 
 keycap(0, 0);
+%stem_holder();
 translate([16, 0]) keycap(4, 2);
+translate([16, 0]) %stem_holder();
 /*
 layout(position_x, position_y, rotation_x, rotation_y, rotation_z, is_upper_layer) {
     keycap(x, y, w, h, is_cylindrical, is_home_position);
