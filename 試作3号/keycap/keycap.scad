@@ -5,7 +5,7 @@ $fa = 10;
 key_pitch = 16;
 thickness = 1.5;
 
-height = 6.75;
+height = 6.93;
 dish_r = 20;
 
 tilt_xr = 250;
@@ -132,16 +132,22 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
     }
 
     module pillar() {
-        union() {
-            translate([     0, -1.5 / 2, 1.5 + (x > 0 ? 1 : 0)]) cube([32.0,  1.5, 32]);
-            translate([   -32, -1.5 / 2, 1.5 + (x < 0 ? 1 : 0)]) cube([32.0,  1.5, 32]);
-            translate([-1 / 2,        0, 1.5 + (y > 0 ? 1 : 0)]) cube([ 1.0, 32.0, 32]);
-            translate([-1 / 2,      -32, 1.5 + (y < 0 ? 1 : 0)]) cube([ 1.0, 32.0, 32]);
-        }
-    }
+        intersection() {
+            union() {
+                translate([-16.0, - 0.75, 2.5]) cube([32.0,  1.5, 32]);
+                translate([- 0.5, -16.00, 2.5]) cube([ 1.0, 32.0, 32]);
+                translate([  0.0,   0.00, 2.5]) polygon_pyramid(16, 2.81, h = 32);
+            }
 
-    module stem_holder_foundation() {
-        polygon_pyramid(16, 2.81, h = 32);
+            union() {
+                outer();
+
+                difference() {
+                    polygon_pyramid(16, 4.3, h = 32);
+                    dish(height);
+                }
+            }
+        }
     }
 
     module home_position_mark() {
@@ -159,32 +165,20 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
         }
     }
 
-    difference() {
-        union() {
-            difference() {
-                union() {
-                    outer();
+    union() {
+        difference() {
+            union() {
+                outer();
 
-                    if (is_home_position) {
-                        home_position_mark();
-                    }
-                }
-
-                inner();
-            }
-
-            intersection() {
-                inner();
-
-                union() {
-                    pillar();
-                    stem_holder_foundation();
+                if (is_home_position) {
+                    home_position_mark();
                 }
             }
+
+            inner();
         }
 
-        // dig out for stem_holder
-        polygon_pyramid(16, 4.3, h = 2.5);
+        pillar();
     }
 }
 
