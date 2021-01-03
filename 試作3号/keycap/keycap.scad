@@ -2,6 +2,25 @@
 $fs = 0.1;
 $fa = 10;
 
+key_pitch = 16;
+thickness = 1.5;
+
+height = 6.75;
+dish_r = 20;
+
+tilt_xr = 250;
+tilt_yr = 120;
+
+module case_form() {
+    case_form_xr = tilt_xr + height;
+    case_form_yr = tilt_yr + height;
+
+    translate([0, 0, case_form_xr + case_form_yr]) minkowski() {
+        rotate([90, 0, 90]) cylinder(r = case_form_yr, h = 0.001);
+        rotate([90, 0,  0]) cylinder(r = case_form_xr, h = 0.001);
+    }
+}
+
 module polygon_pyramid(n, r, h) {
     linear_extrude(h) polygon([
         for (a = [180.0 / n : 360.0 / n : 360.0 + 180.0 / n])
@@ -10,17 +29,11 @@ module polygon_pyramid(n, r, h) {
 }
 
 module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = false) {
-    key_pitch = 16;
-    thickness = 1.5;
     top_w = key_pitch * w - 4;
     top_h = key_pitch * h - 4;
     bottom_w = key_pitch * w - 0.75;
     bottom_h = key_pitch * h - 0.75;
-    height = 6.75;
-    dish_r = 20;
 
-    tilt_xr = 250;
-    tilt_yr = 120;
     tilt_xa = acos(key_pitch * x / tilt_xr);
     tilt_ya = acos(key_pitch * y / tilt_yr);
 
@@ -83,9 +96,13 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
             }
         }
 
-        difference() {
-            round_rect_pyramid(height + dish_position_z + 3);
-            dish(height);
+        intersection() {
+            difference() {
+                round_rect_pyramid(height + dish_position_z + 3);
+                dish(height);
+            }
+
+            translate([key_pitch * -x, key_pitch * -y]) case_form();
         }
     }
 
