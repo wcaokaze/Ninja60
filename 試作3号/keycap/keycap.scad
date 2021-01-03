@@ -113,10 +113,10 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
 
     module pillar() {
         union() {
-            translate([     0, -1.5 / 2, 1 + (x > 0 ? 1 : 0)]) cube([32.0,  1.5, 32]);
-            translate([   -32, -1.5 / 2, 1 + (x < 0 ? 1 : 0)]) cube([32.0,  1.5, 32]);
-            translate([-1 / 2,        0, 1 + (y > 0 ? 1 : 0)]) cube([ 1.0, 32.0, 32]);
-            translate([-1 / 2,      -32, 1 + (y < 0 ? 1 : 0)]) cube([ 1.0, 32.0, 32]);
+            translate([     0, -1.5 / 2, 1.5 + (x > 0 ? 1 : 0)]) cube([32.0,  1.5, 32]);
+            translate([   -32, -1.5 / 2, 1.5 + (x < 0 ? 1 : 0)]) cube([32.0,  1.5, 32]);
+            translate([-1 / 2,        0, 1.5 + (y > 0 ? 1 : 0)]) cube([ 1.0, 32.0, 32]);
+            translate([-1 / 2,      -32, 1.5 + (y < 0 ? 1 : 0)]) cube([ 1.0, 32.0, 32]);
         }
     }
 
