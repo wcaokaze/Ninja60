@@ -234,21 +234,18 @@ module layout(x, y, rotation_x = 0, rotation_y = 0, rotation_z = 0, is_upper_lay
     }
 }
 
+module keycap_with_stem(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = false) {
+    keycap(x, y, w, h, is_cylindrical, is_home_position);
+    translate([0, 0, -3]) %stem_holder();
+}
+
 for (y = [-1.5 : 1.5]) {
     for (x = [-2 : 4]) {
-        is_home_position = x == 2 && y == -0.5;
-
-        layout(x, y) {
-            keycap(x, y, is_home_position = is_home_position);
-            translate([0, 0, -3]) %stem_holder();
-        }
+        layout(x, y) keycap_with_stem(x, y, is_home_position = x == 2 && y == -0.5);
     }
 }
 
-layout(-1.625, -2.5) {
-    keycap(-1.125, -2.5, w = 1.75, h = 1);
-    translate([0, 0, -3]) %stem_holder();
-}
+layout(-1.625, -2.5) keycap_with_stem(-1.125, -2.5, w = 1.75, h = 1);
 
 /*
 layout(position_x, position_y, rotation_x, rotation_y, rotation_z, is_upper_layer) {
