@@ -83,11 +83,13 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
                     height + dish_position_z + dish_r - 3
             ]) {
                 minkowski() {
-                    cube(center = true, [
-                            key_pitch * (w - 1) + 0.001,
-                            key_pitch * (h - 1) + 0.001,
-                            0.001
-                    ]);
+                    rotate([tilt_ya - 90, tilt_xa - 90]) {
+                        cube(center = true, [
+                                key_pitch * (w - 1) + 0.001,
+                                key_pitch * (h - 1) + 0.001,
+                                0.001
+                        ]);
+                    }
 
                     sphere(dish_r);
                 }
@@ -241,6 +243,11 @@ for (y = [-1.5 : 1.5]) {
             translate([0, 0, -3]) %stem_holder();
         }
     }
+}
+
+layout(-1.625, -2.5) {
+    keycap(-1.125, -2.5, w = 1.75, h = 1);
+    translate([0, 0, -3]) %stem_holder();
 }
 
 /*
