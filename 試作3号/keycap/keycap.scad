@@ -29,6 +29,16 @@ module polygon_pyramid(n, r, h) {
 }
 
 module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = false) {
+    // aを0に近くなるようにdで減算します
+    function close_origin(a, d) =
+        (a < -d) ?
+            a + d
+        : (a < d) ?
+            0
+        :
+            a - d
+        ;
+
     top_w = key_pitch * w - 4;
     top_h = key_pitch * h - 4;
     bottom_w = key_pitch * w - 0.75;
@@ -37,8 +47,15 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
     tilt_xa = acos(key_pitch * x / tilt_xr);
     tilt_ya = acos(key_pitch * y / tilt_yr);
 
-    dish_position_z = tilt_xr + tilt_yr
-            - tilt_xr * sin(tilt_xa) - tilt_yr * sin(tilt_ya);
+    bottom_xa = acos(key_pitch * close_origin(x, 0.5) / tilt_xr);
+    bottom_ya = acos(key_pitch * close_origin(y, 0.5) / tilt_yr);
+
+    dish_position_z = tilt_xr * (1 - sin(tilt_xa)) + tilt_yr * (1 - sin(tilt_ya));
+
+    top_z = height + dish_position_z + 3;
+
+    bottom_z = tilt_xr * (1 - sin(bottom_xa))
+             + tilt_yr * (1 - sin(bottom_ya));
 
     module dish(height) {
         if (is_cylindrical) {
@@ -79,11 +96,6 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
     }
 
     module outer() {
-        top_z = height + dish_position_z + 3;
-
-        bottom_z = tilt_xr * (1 - sin(tilt_xa))
-                 + tilt_yr * (1 - sin(tilt_ya));
-
         module round_rect_pyramid() {
             module round_rect(w, h, r) {
                 minkowski() {
@@ -109,11 +121,6 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
     }
 
     module inner() {
-        top_z = height + dish_position_z + 3;
-
-        bottom_z = tilt_xr * (1 - sin(tilt_xa))
-                 + tilt_yr * (1 - sin(tilt_ya));
-
         module rect_pyramid(top_w, top_h, bottom_w, bottom_h) {
             hull() {
                 translate([0, 0, top_z])    cube([top_w,    top_h,    0.01], center = true);
