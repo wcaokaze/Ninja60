@@ -134,9 +134,12 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
     module pillar() {
         intersection() {
             union() {
-                translate([-16.0, - 0.75, 2.5]) cube([32.0,  1.5, 32]);
-                translate([- 0.5, -16.00, 2.5]) cube([ 1.0, 32.0, 32]);
-                translate([  0.0,   0.00, 2.5]) polygon_pyramid(16, 4.3, h = 32);
+                translate([-16, - 1.5, 2.5]) cube([32,  3, 32]);
+                translate([- 1, -16.0, 2.5]) cube([ 2, 32, 32]);
+
+                translate([0, 0, 2.5]) {
+                    polygon_pyramid(16, 4.3, h = (x <= 2) ? 32 : 2);
+                }
 
                 translate([-1.05 / 2, -4.00 / 2, 0.5]) cube([1.05, 4.00, 32]);
                 translate([-4.00 / 2, -1.25 / 2, 0.5]) cube([4.00, 1.25, 32]);
