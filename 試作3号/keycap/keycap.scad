@@ -232,7 +232,7 @@ module layout(x, y, rotation_x = 0, rotation_y = 0, rotation_z = 0, is_upper_lay
     }
 }
 
-for (y = [0 : 1]) {
+for (y = [0.5 : 1.5]) {
     for (x = [0 : 4]) {
         translate([16 * x, 16 * y]) {
             keycap(x, y);
