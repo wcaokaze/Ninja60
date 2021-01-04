@@ -118,30 +118,46 @@ module keycap(x, y, w = 1, h = 1,
         }
 
         module wall_n() {
-            hull() {
-                translate([0, (top_h    - thickness) / 2, top_z]) cube([top_w,    thickness, 0.01], center = true);
-                translate([0, (bottom_h - thickness) / 2,     0]) cube([bottom_w, thickness, 0.01], center = true);
+            union() {
+                hull() {
+                    translate([0, (top_h    - thickness) / 2, top_z]) cube([top_w,    thickness, 0.01], center = true);
+                    translate([0, (bottom_h - thickness) / 2,     0]) cube([bottom_w, thickness, 0.01], center = true);
+                }
+
+                translate([0, bottom_h / 2, top_z / 2]) cube([4, bottom_h, top_z], center = true);
             }
         }
 
         module wall_e() {
-            hull() {
-                translate([(top_w    - thickness) / 2, 0, top_z]) cube([thickness, top_h,    0.01], center = true);
-                translate([(bottom_w - thickness) / 2, 0,     0]) cube([thickness, bottom_h, 0.01], center = true);
+            union() {
+                hull() {
+                    translate([(top_w    - thickness) / 2, 0, top_z]) cube([thickness, top_h,    0.01], center = true);
+                    translate([(bottom_w - thickness) / 2, 0,     0]) cube([thickness, bottom_h, 0.01], center = true);
+                }
+
+                translate([bottom_w / 2, 0, top_z / 2]) cube([bottom_w, 4, top_z], center = true);
             }
         }
 
         module wall_s() {
-            hull() {
-                translate([0, -(top_h    - thickness) / 2, top_z]) cube([top_w,    thickness, 0.01], center = true);
-                translate([0, -(bottom_h - thickness) / 2,     0]) cube([bottom_w, thickness, 0.01], center = true);
+            union() {
+                hull() {
+                    translate([0, -(top_h    - thickness) / 2, top_z]) cube([top_w,    thickness, 0.01], center = true);
+                    translate([0, -(bottom_h - thickness) / 2,     0]) cube([bottom_w, thickness, 0.01], center = true);
+                }
+
+                translate([0, -bottom_h / 2, top_z / 2]) cube([4, bottom_h, top_z], center = true);
             }
         }
 
         module wall_w() {
-            hull() {
-                translate([-(top_w    - thickness) / 2, 0, top_z]) cube([thickness, top_h,    0.01], center = true);
-                translate([-(bottom_w - thickness) / 2, 0,     0]) cube([thickness, bottom_h, 0.01], center = true);
+            union() {
+                hull() {
+                    translate([-(top_w    - thickness) / 2, 0, top_z]) cube([thickness, top_h,    0.01], center = true);
+                    translate([-(bottom_w - thickness) / 2, 0,     0]) cube([thickness, bottom_h, 0.01], center = true);
+                }
+
+                translate([-bottom_w / 2, 0, top_z / 2]) cube([bottom_w, 4, top_z], center = true);
             }
         }
 
