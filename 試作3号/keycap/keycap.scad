@@ -167,7 +167,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
         translate([
                 0,
                 -top_h / 2,
-                height + dish_position_z + 0.85
+                height + dish_position_z - 1.5
         ]) {
             rotate([0, tilt_xa, 0]) {
                 minkowski() {
@@ -232,14 +232,17 @@ module layout(x, y, rotation_x = 0, rotation_y = 0, rotation_z = 0, is_upper_lay
     }
 }
 
-for (y = [0.5 : 1.5]) {
-    for (x = [0 : 4]) {
-        translate([16 * x, 16 * y]) {
-            keycap(x, y);
+for (y = [-1.5 : 1.5]) {
+    for (x = [-2 : 4]) {
+        is_home_position = x == 2 && y == -0.5;
+
+        layout(x, y) {
+            keycap(x, y, is_home_position = is_home_position);
             translate([0, 0, -3]) %stem_holder();
         }
     }
 }
+
 /*
 layout(position_x, position_y, rotation_x, rotation_y, rotation_z, is_upper_layer) {
     keycap(x, y, w, h, is_cylindrical, is_home_position);
