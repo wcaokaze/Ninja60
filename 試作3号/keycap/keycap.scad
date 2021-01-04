@@ -136,14 +136,17 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
             union() {
                 translate([-16.0, - 0.75, 2.5]) cube([32.0,  1.5, 32]);
                 translate([- 0.5, -16.00, 2.5]) cube([ 1.0, 32.0, 32]);
-                translate([  0.0,   0.00, 2.5]) polygon_pyramid(16, 2.81, h = 32);
+                translate([  0.0,   0.00, 2.5]) polygon_pyramid(16, 4.3, h = 32);
+
+                translate([-1.05 / 2, -4.00 / 2, 0.5]) cube([1.05, 4.00, 32]);
+                translate([-4.00 / 2, -1.25 / 2, 0.5]) cube([4.00, 1.25, 32]);
             }
 
             union() {
                 outer();
 
                 difference() {
-                    polygon_pyramid(16, 4.3, h = 32);
+                    translate([0, 0, -3]) polygon_pyramid(16, 4.3, h = 32);
                     dish(height);
                 }
             }
@@ -193,7 +196,7 @@ module stem_holder() {
     difference() {
         union() {
             translate([0, 0, 3.5]) polygon_pyramid(16, 4.3, h = 2);
-            polygon_pyramid(16, 2.81, h = 3.5);
+            polygon_pyramid(16, 2.81, h = 4);
         }
 
         stem();
