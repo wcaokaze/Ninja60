@@ -25,6 +25,13 @@ module part_cylinder(r, h, start_a, end_a, fa) {
     ]);
 }
 
+module polygon_pyramid(n, r, h) {
+    linear_extrude(h) polygon([
+        for (a = [180.0 / n : 360.0 / n : 360.0 + 180.0 / n])
+            [r * sin(a), r * cos(a)]
+    ]);
+}
+
 module case_curve() {
     start_angle = -90;
     end_angle = -85;
@@ -52,13 +59,6 @@ module case_curve() {
             }
         }
     }
-}
-
-module polygon_pyramid(n, r, h) {
-    linear_extrude(h) polygon([
-        for (a = [180.0 / n : 360.0 / n : 360.0 + 180.0 / n])
-            [r * sin(a), r * cos(a)]
-    ]);
 }
 
 /*
