@@ -11,13 +11,39 @@ dish_r = 20;
 tilt_xr = 250;
 tilt_yr = 120;
 
-module case_form() {
-    case_form_xr = tilt_xr + height;
-    case_form_yr = tilt_yr + height;
+case_curve_r = 850;
+case_south_r = 380;
+case_north_r = 255;
 
-    translate([0, 0, case_form_xr + case_form_yr]) minkowski() {
-        rotate([90, 0, 90]) cylinder(r = case_form_yr, h = 0.001);
-        rotate([90, 0,  0]) cylinder(r = case_form_xr, h = 0.001);
+case_south_x = 16 * 1;
+case_north_x = 16 * 0;
+
+module case_curve() {
+    start_angle = -90;
+    end_angle = -85;
+    step = 0.5;
+
+    translate([0, key_pitch * -3, case_curve_r]) union() {
+        for (i = [0 : step : 1]) {
+            a_angle = start_angle + (end_angle - start_angle) * i;
+            a_y = case_curve_r * cos(a_angle);
+            a_z = case_curve_r * sin(a_angle);
+
+            b_angle = start_angle + (end_angle - start_angle) * (i + step);
+            b_y = case_curve_r * cos(b_angle);
+            b_z = case_curve_r * sin(b_angle);
+
+            a_r = case_south_r + (case_north_r - case_south_r) * i;
+            b_r = case_south_r + (case_north_r - case_south_r) * (i + step);
+
+            a_x = case_south_x + (case_north_x - case_south_x) * i;
+            b_x = case_south_x + (case_north_x - case_south_x) * (i + step);
+
+            hull() {
+                translate([a_x, a_y, a_z + a_r]) rotate([90, 0]) cylinder(r = a_r, h = 0.01);
+                translate([b_x, b_y, b_z + b_r]) rotate([90, 0]) cylinder(r = b_r, h = 0.01);
+            }
+        }
     }
 }
 
@@ -28,20 +54,10 @@ module polygon_pyramid(n, r, h) {
     ]);
 }
 
-module keycap(x, y, w = 1, h = 1,
-              walls = [true, false, false, false],
-              is_cylindrical = false, is_home_position = false)
-{
-    // aを0に近くなるようにdで減算します
-    function close_origin(a, d) =
-        (a < -d) ?
-            a + d
-        : (a < d) ?
-            0
-        :
-            a - d
-        ;
-
+/*
+ * キーキャップ。子を渡すとintersectionによって外形が調整されます
+ */
+module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = false) {
     top_w = key_pitch * w - 4;
     top_h = key_pitch * h - 4;
     bottom_w = key_pitch * w - 0.75;
@@ -50,17 +66,8 @@ module keycap(x, y, w = 1, h = 1,
     tilt_xa = acos(key_pitch * x / tilt_xr);
     tilt_ya = acos(key_pitch * y / tilt_yr);
 
-    bottom_xa = acos(key_pitch * close_origin(x, 0.5) / tilt_xr);
-    bottom_ya = acos(key_pitch * close_origin(y, 0.5) / tilt_yr);
-
     dish_position_z = tilt_xr * (1 - sin(tilt_xa)) + tilt_yr * (1 - sin(tilt_ya));
-
-    have_walls = walls[0] || walls[1] || walls[2] || walls[3];
-
     top_z = height + dish_position_z + 3;
-
-    bottom_z = tilt_xr * (1 - sin(bottom_xa))
-             + tilt_yr * (1 - sin(bottom_ya));
 
     module dish(height) {
         if (is_cylindrical) {
@@ -112,52 +119,8 @@ module keycap(x, y, w = 1, h = 1,
             }
 
             hull() {
-                translate([0, 0, top_z])                     round_rect(top_w,    top_h,    1);
-                translate([0, 0, have_walls ? 0 : bottom_z]) round_rect(bottom_w, bottom_h, 1);
-            }
-        }
-
-        module wall_n() {
-            union() {
-                hull() {
-                    translate([0, (top_h    - thickness) / 2, top_z]) cube([top_w,    thickness, 0.01], center = true);
-                    translate([0, (bottom_h - thickness) / 2,     0]) cube([bottom_w, thickness, 0.01], center = true);
-                }
-
-                translate([0, bottom_h / 2, top_z / 2]) cube([4, bottom_h, top_z], center = true);
-            }
-        }
-
-        module wall_e() {
-            union() {
-                hull() {
-                    translate([(top_w    - thickness) / 2, 0, top_z]) cube([thickness, top_h,    0.01], center = true);
-                    translate([(bottom_w - thickness) / 2, 0,     0]) cube([thickness, bottom_h, 0.01], center = true);
-                }
-
-                translate([bottom_w / 2, 0, top_z / 2]) cube([bottom_w, 4, top_z], center = true);
-            }
-        }
-
-        module wall_s() {
-            union() {
-                hull() {
-                    translate([0, -(top_h    - thickness) / 2, top_z]) cube([top_w,    thickness, 0.01], center = true);
-                    translate([0, -(bottom_h - thickness) / 2,     0]) cube([bottom_w, thickness, 0.01], center = true);
-                }
-
-                translate([0, -bottom_h / 2, top_z / 2]) cube([4, bottom_h, top_z], center = true);
-            }
-        }
-
-        module wall_w() {
-            union() {
-                hull() {
-                    translate([-(top_w    - thickness) / 2, 0, top_z]) cube([thickness, top_h,    0.01], center = true);
-                    translate([-(bottom_w - thickness) / 2, 0,     0]) cube([thickness, bottom_h, 0.01], center = true);
-                }
-
-                translate([-bottom_w / 2, 0, top_z / 2]) cube([bottom_w, 4, top_z], center = true);
+                translate([0, 0, top_z]) round_rect(top_w, top_h, 1);
+                round_rect(bottom_w, bottom_h, 1);
             }
         }
 
@@ -167,22 +130,15 @@ module keycap(x, y, w = 1, h = 1,
                 dish(height);
             }
 
-            union() {
-                if (walls[0]) wall_n();
-                if (walls[1]) wall_e();
-                if (walls[2]) wall_s();
-                if (walls[3]) wall_w();
-
-                translate([key_pitch * -x, key_pitch * -y]) case_form();
-            }
+            children();
         }
     }
 
     module inner() {
         module rect_pyramid(top_w, top_h, bottom_w, bottom_h) {
             hull() {
-                translate([0, 0, top_z])                     cube([top_w,    top_h,    0.01], center = true);
-                translate([0, 0, have_walls ? 0 : bottom_z]) cube([bottom_w, bottom_h, 0.01], center = true);
+                translate([0, 0, top_z]) cube([top_w, top_h, 0.01], center = true);
+                cube([bottom_w, bottom_h, 0.01], center = true);
             }
         }
 
@@ -211,7 +167,7 @@ module keycap(x, y, w = 1, h = 1,
             }
 
             union() {
-                outer();
+                outer() { children(); }
 
                 difference() {
                     translate([0, 0, -3]) polygon_pyramid(16, 4.3, h = 32);
@@ -239,7 +195,7 @@ module keycap(x, y, w = 1, h = 1,
     union() {
         difference() {
             union() {
-                outer();
+                outer() { children(); }
 
                 if (is_home_position) {
                     home_position_mark();
@@ -249,7 +205,7 @@ module keycap(x, y, w = 1, h = 1,
             inner();
         }
 
-        pillar();
+        pillar() { children(); }
     }
 }
 
@@ -290,11 +246,13 @@ module layout(x, y, rotation_x = 0, rotation_y = 0, rotation_z = 0, is_upper_lay
     }
 }
 
-module keycap_with_stem(x, y, w = 1, h = 1,
-                        walls = [false, false, false, false],
+module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
                         is_cylindrical = false, is_home_position = false)
 {
-    keycap(x, y, w, h, walls, is_cylindrical, is_home_position);
+    keycap(x, y, w, h, is_cylindrical, is_home_position) {
+        translate([key_pitch * -case_x, key_pitch * -case_y]) case_curve();
+    }
+
     translate([0, 0, -3]) %stem_holder();
 }
 
@@ -305,18 +263,19 @@ for (y = [-1.5 : 1.5]) {
         wall_s = y == -1.5;
         wall_w = x == -2;
 
-        layout(x, y) keycap_with_stem(x, y,
+        translate([16 * x, 16 * y]) keycap_with_stem(
+                x, y, case_x = x, case_y = y,
                 walls = [wall_n, wall_e, wall_s, wall_w],
                 is_home_position = x == 2 && y == -0.5
         );
     }
 }
 
-layout(-1.625, -2.5) keycap_with_stem(-1.125, -2.5, w = 1.75, h = 1, walls = [false, true, true, true]);
-layout(-0.125, -2.5) keycap_with_stem(-2.000,  0.5, w = 1.25, h = 1, is_cylindrical = true);
-layout( 1.250, -2.5) keycap_with_stem(-1.250,  0.5, w = 1.50, h = 1, is_cylindrical = true);
-layout( 2.750, -2.5) keycap_with_stem( 1.250,  0.5, w = 1.50, h = 1, is_cylindrical = true);
-layout( 4.000, -2.5) keycap_with_stem( 2.500,  0.5, w = 1.00, h = 1, is_cylindrical = true);
+translate([16 * -1.625, 16 * -2.5]) keycap_with_stem(-1.125, -2.5, case_x = -1.625, case_y = -2.5, w = 1.75, h = 1);
+translate([16 * -0.125, 16 * -2.5]) keycap_with_stem(-2.000,  0.5, case_x = -0.125, case_y = -2.5, w = 1.25, h = 1, is_cylindrical = true);
+translate([16 *  1.250, 16 * -2.5]) keycap_with_stem(-1.250,  0.5, case_x =  1.250, case_y = -2.5, w = 1.50, h = 1, is_cylindrical = true);
+translate([16 *  2.750, 16 * -2.5]) keycap_with_stem( 1.250,  0.5, case_x =  2.750, case_y = -2.5, w = 1.50, h = 1, is_cylindrical = true);
+translate([16 *  4.000, 16 * -2.5]) keycap_with_stem( 2.500,  0.5, case_x =  4.000, case_y = -2.5, w = 1.00, h = 1, is_cylindrical = true);
 
 /*
 layout(position_x, position_y, rotation_x, rotation_y, rotation_z, is_upper_layer) {
