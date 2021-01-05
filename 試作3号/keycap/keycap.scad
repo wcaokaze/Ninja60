@@ -1,6 +1,7 @@
 
 $fs = 0.1;
-$fa = 15;
+visible_fa = 10;
+invisible_fa = 8;
 
 key_pitch = 16;
 thickness = 1.5;
@@ -17,13 +18,6 @@ case_north_r = 255;
 
 case_south_x = 16 * 1;
 case_north_x = 16 * 0;
-
-module part_cylinder(r, h, start_a, end_a, fa) {
-    linear_extrude(h) polygon([
-        for (a = [start_a : fa : end_a])
-            [r * cos(a), r * sin(a)]
-    ]);
-}
 
 module polygon_pyramid(n, r, h) {
     linear_extrude(h) polygon([
@@ -54,8 +48,8 @@ module case_curve() {
             b_x = case_south_x + (case_north_x - case_south_x) * (i + step);
 
             hull() {
-                translate([a_x, a_y, a_z + a_r]) rotate([90, 0]) part_cylinder(r = a_r, h = 0.01, start_a = -120, end_a = -60, fa = 5);
-                translate([b_x, b_y, b_z + b_r]) rotate([90, 0]) part_cylinder(r = b_r, h = 0.01, start_a = -120, end_a = -60, fa = 5);
+                translate([a_x, a_y, a_z + a_r]) rotate([90, 0]) cylinder(r = a_r, h = 0.01, $fa = invisible_fa);
+                translate([b_x, b_y, b_z + b_r]) rotate([90, 0]) cylinder(r = b_r, h = 0.01, $fa = invisible_fa);
             }
         }
     }
@@ -91,9 +85,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
                     ]);
 
                     rotate([-tilt_ya, 0, 0]) {
-                        translate([0, 0, -dish_r / 2]) {
-                            part_cylinder(r = dish_r, h = dish_r, start_a = 0, end_a = 180, fa = fa);
-                        }
+                        cylinder(r = dish_r, h = dish_r, center = true, $fa = fa);
                     }
                 }
             }
@@ -112,7 +104,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
                         ]);
                     }
 
-                    sphere(dish_r);
+                    sphere(dish_r, $fa = fa);
                 }
             }
         }
@@ -123,7 +115,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
             module round_rect(w, h, r) {
                 minkowski() {
                     cube([w - r * 2, h - r * 2, 0.01], center = true);
-                    part_cylinder(r = r, h = 0.001, start_a = 0, end_a = 360, fa = 2);
+                    cylinder(r = r, h = 0.001, $fa = visible_fa);
                 }
             }
 
@@ -136,7 +128,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
         intersection() {
             difference() {
                 round_rect_pyramid();
-                dish(height, fa = 2);
+                dish(height, fa = visible_fa);
             }
 
             children();
@@ -157,7 +149,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
                     bottom_w - thickness * 2, bottom_h - thickness * 2
             );
 
-            dish(height - thickness, fa = 8);
+            dish(height - thickness, fa = invisible_fa);
         }
     }
 
@@ -180,7 +172,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
 
                 difference() {
                     translate([0, 0, -3]) polygon_pyramid(16, 4.3, h = 24);
-                    dish(height - thickness, fa = 8);
+                    dish(height - thickness, fa = invisible_fa);
                 }
             }
         }
