@@ -18,10 +18,17 @@ case_north_r = 255;
 case_south_x = 16 * 1;
 case_north_x = 16 * 0;
 
+module part_cylinder(r, h, start_a, end_a, fa) {
+    linear_extrude(h) polygon([
+        for (a = [start_a : fa : end_a])
+            [r * cos(a), r * sin(a)]
+    ]);
+}
+
 module case_curve() {
     start_angle = -90;
     end_angle = -85;
-    step = 0.5;
+    step = 0.1;
 
     translate([0, key_pitch * -3, case_curve_r]) union() {
         for (i = [0 : step : 1]) {
@@ -40,8 +47,8 @@ module case_curve() {
             b_x = case_south_x + (case_north_x - case_south_x) * (i + step);
 
             hull() {
-                translate([a_x, a_y, a_z + a_r]) rotate([90, 0]) cylinder(r = a_r, h = 0.01);
-                translate([b_x, b_y, b_z + b_r]) rotate([90, 0]) cylinder(r = b_r, h = 0.01);
+                translate([a_x, a_y, a_z + a_r]) rotate([90, 0]) part_cylinder(r = a_r, h = 0.01, start_a = -120, end_a = -60, fa = 5);
+                translate([b_x, b_y, b_z + b_r]) rotate([90, 0]) part_cylinder(r = b_r, h = 0.01, start_a = -120, end_a = -60, fa = 5);
             }
         }
     }
@@ -69,7 +76,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
     dish_position_z = tilt_xr * (1 - sin(tilt_xa)) + tilt_yr * (1 - sin(tilt_ya));
     top_z = height + dish_position_z + 3;
 
-    module dish(height) {
+    module dish(height, fa) {
         if (is_cylindrical) {
             translate([
                     -dish_r * cos(tilt_xa),
@@ -84,7 +91,9 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
                     ]);
 
                     rotate([-tilt_ya, 0, 0]) {
-                        cylinder(r = dish_r, h = dish_r, center = true);
+                        translate([0, 0, -dish_r / 2]) {
+                            part_cylinder(r = dish_r, h = dish_r, start_a = 0, end_a = 180, fa = fa);
+                        }
                     }
                 }
             }
@@ -114,7 +123,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
             module round_rect(w, h, r) {
                 minkowski() {
                     cube([w - r * 2, h - r * 2, 0.01], center = true);
-                    cylinder(r = r, h = 0.001);
+                    part_cylinder(r = r, h = 0.001, start_a = 0, end_a = 360, fa = 2);
                 }
             }
 
@@ -127,7 +136,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
         intersection() {
             difference() {
                 round_rect_pyramid();
-                dish(height);
+                dish(height, fa = 2);
             }
 
             children();
@@ -148,30 +157,30 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
                     bottom_w - thickness * 2, bottom_h - thickness * 2
             );
 
-            dish(height - thickness);
+            dish(height - thickness, fa = 8);
         }
     }
 
     module pillar() {
         intersection() {
             union() {
-                translate([-16, - 1.5, 2.5]) cube([32,  3, 32]);
-                translate([- 1, -16.0, 2.5]) cube([ 2, 32, 32]);
+                translate([-16, - 1.5, 2.5]) cube([32,  3, 24]);
+                translate([- 1, -16.0, 2.5]) cube([ 2, 32, 24]);
 
                 translate([0, 0, 2.5]) {
-                    polygon_pyramid(16, 4.3, h = (x <= 2) ? 32 : 2);
+                    polygon_pyramid(16, 4.3, h = (x <= 2) ? 24 : 2);
                 }
 
-                translate([-1.05 / 2, -4.00 / 2, 0.5]) cube([1.05, 4.00, 32]);
-                translate([-4.00 / 2, -1.25 / 2, 0.5]) cube([4.00, 1.25, 32]);
+                translate([-1.05 / 2, -4.00 / 2, 0.5]) cube([1.05, 4.00, 24]);
+                translate([-4.00 / 2, -1.25 / 2, 0.5]) cube([4.00, 1.25, 24]);
             }
 
             union() {
                 outer() { children(); }
 
                 difference() {
-                    translate([0, 0, -3]) polygon_pyramid(16, 4.3, h = 32);
-                    dish(height);
+                    translate([0, 0, -3]) polygon_pyramid(16, 4.3, h = 24);
+                    dish(height - thickness, fa = 8);
                 }
             }
         }
