@@ -206,7 +206,7 @@ module keycap(x, y, w = 1, h = 1,
             }
 
             union() {
-                inner();
+                outer() { children(); }
 
                 difference() {
                     translate([0, 0, -3]) polygon_pyramid(16, 4.3, h = 24);
