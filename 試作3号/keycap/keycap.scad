@@ -304,14 +304,8 @@ module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
 
 for (y = [-1 : 2]) {
     for (x = [-2 : 4]) {
-        wall_n = y == 1.5;
-        wall_e = x == 4;
-        wall_s = y == -1.5;
-        wall_w = x == -2;
-
         translate([16 * x, 16 * y]) keycap_with_stem(
                 x, y, case_x = x, case_y = y,
-                walls = [wall_n, wall_e, wall_s, wall_w],
                 is_home_position = x == 2 && y == -0
         );
     }
