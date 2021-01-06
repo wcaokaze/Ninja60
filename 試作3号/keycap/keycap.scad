@@ -1,7 +1,7 @@
 
 $fs = 0.1;
-case_fa = 5;
-visible_fa = 5;
+case_fa = 2;
+visible_fa = 15; // 0.6;
 invisible_fa = 8;
 
 key_pitch = 16;
