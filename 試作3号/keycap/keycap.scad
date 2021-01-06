@@ -1,5 +1,6 @@
 
 $fs = 0.1;
+case_fa = 5;
 visible_fa = 5;
 invisible_fa = 8;
 
@@ -48,8 +49,8 @@ module case_curve() {
             b_x = case_south_x + (case_north_x - case_south_x) * (i + step);
 
             hull() {
-                translate([a_x, a_y, a_z + a_r]) rotate([90, 0]) cylinder(r = a_r, h = 0.01, $fa = invisible_fa);
-                translate([b_x, b_y, b_z + b_r]) rotate([90, 0]) cylinder(r = b_r, h = 0.01, $fa = invisible_fa);
+                translate([a_x, a_y, a_z + a_r]) rotate([90, 0]) cylinder(r = a_r, h = 0.01, $fa = case_fa);
+                translate([b_x, b_y, b_z + b_r]) rotate([90, 0]) cylinder(r = b_r, h = 0.01, $fa = case_fa);
             }
         }
     }
