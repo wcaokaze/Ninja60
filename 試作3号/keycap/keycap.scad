@@ -27,26 +27,39 @@ module polygon_pyramid(n, r, h) {
     ]);
 }
 
+// aを0に近くなるようにdで減算します
+function close_origin(a, d) =
+    (a < -d) ?
+        a + d
+    : (a < d) ?
+        0
+    :
+        a - d
+    ;
+
+case_start_angle = -90;
+case_end_angle   = -85;
+
+function interpolate(start, end, rate) = start + (end - start) * rate;
+
 module case_curve() {
-    start_angle = -90;
-    end_angle = -85;
     step = 0.1;
 
     translate([0, key_pitch * -2.5, case_curve_r]) union() {
         for (i = [0 : step : 1]) {
-            a_angle = start_angle + (end_angle - start_angle) * i;
+            a_angle = interpolate(case_start_angle, case_end_angle, i);
             a_y = case_curve_r * cos(a_angle);
             a_z = case_curve_r * sin(a_angle);
 
-            b_angle = start_angle + (end_angle - start_angle) * (i + step);
+            b_angle = interpolate(case_start_angle, case_end_angle, i + step);
             b_y = case_curve_r * cos(b_angle);
             b_z = case_curve_r * sin(b_angle);
 
-            a_r = case_south_r + (case_north_r - case_south_r) * i;
-            b_r = case_south_r + (case_north_r - case_south_r) * (i + step);
+            a_r = interpolate(case_south_r, case_north_r, i);
+            b_r = interpolate(case_south_r, case_north_r, i + step);
 
-            a_x = case_south_x + (case_north_x - case_south_x) * i;
-            b_x = case_south_x + (case_north_x - case_south_x) * (i + step);
+            a_x = interpolate(case_south_x, case_north_x, i);
+            b_x = interpolate(case_south_x, case_north_x, i + step);
 
             hull() {
                 translate([a_x, a_y, a_z + a_r]) rotate([90, 0]) cylinder(r = a_r, h = 0.01, $fa = case_fa);
@@ -56,10 +69,34 @@ module case_curve() {
     }
 }
 
+function case_y_to_angle(y) = atan2(-case_curve_r, (y + 2.5 * key_pitch));
+
+function case_y_to_interpolate_rate(y)
+    = (case_y_to_angle(y) - case_start_angle) / (case_end_angle - case_start_angle);
+
+function case_y_to_cylinder_r(y)
+    = interpolate(case_south_r, case_north_r, case_y_to_interpolate_rate(y));
+
+function case_pos_to_cylinder_angle(x, y)
+    = atan2(-case_y_to_cylinder_r(y),
+            x - interpolate(case_south_x, case_north_x, case_y_to_interpolate_rate(y))
+    );
+
+function case_curve_z(x, y)
+    = case_curve_r * (1 + sin(case_y_to_angle(y)))
+    + case_y_to_cylinder_r(y) * (1 + sin(case_pos_to_cylinder_angle(x, y)));
+
 /*
  * キーキャップ。子を渡すとintersectionによって外形が調整されます
+ *
+ * bottom_z - 外形の底面のZ座標。この高さにおける幅がキーピッチいっぱいに広がるため、
+ *            調整用の子に合わせてこの値を指定することで、
+ *            なるべくキー間の隙間を詰める効果を期待できます。
  */
-module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = false) {
+module keycap(x, y, w = 1, h = 1,
+              is_cylindrical = false, is_home_position = false,
+              bottom_z = 0)
+{
     top_w = key_pitch * w - 4;
     top_h = key_pitch * h - 4;
     bottom_w = key_pitch * w - 0.75;
@@ -121,8 +158,8 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
             }
 
             hull() {
-                translate([0, 0, top_z]) round_rect(top_w, top_h, 1);
-                round_rect(bottom_w, bottom_h, 1);
+                translate([0, 0, top_z])    round_rect(top_w,    top_h,    1);
+                translate([0, 0, bottom_z]) round_rect(bottom_w, bottom_h, 1);
             }
         }
 
@@ -139,8 +176,8 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
     module inner() {
         module rect_pyramid(top_w, top_h, bottom_w, bottom_h) {
             hull() {
-                translate([0, 0, top_z]) cube([top_w, top_h, 0.01], center = true);
-                cube([bottom_w, bottom_h, 0.01], center = true);
+                translate([0, 0, top_z])    cube([top_w,    top_h,    0.01], center = true);
+                translate([0, 0, bottom_z]) cube([bottom_w, bottom_h, 0.01], center = true);
             }
         }
 
@@ -251,7 +288,14 @@ module layout(x, y, rotation_x = 0, rotation_y = 0, rotation_z = 0, is_upper_lay
 module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
                         is_cylindrical = false, is_home_position = false)
 {
-    keycap(x, y, w, h, is_cylindrical, is_home_position) {
+    keycap(
+        x, y, w, h,
+        is_cylindrical, is_home_position,
+        bottom_z = case_curve_z(
+            key_pitch * close_origin(case_x, 0.5),
+            key_pitch * (case_y - 0.5)
+        )
+    ) {
         translate([key_pitch * -case_x, key_pitch * -case_y]) case_curve();
     }
 
