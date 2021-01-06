@@ -10,8 +10,8 @@ thickness = 1.5;
 height = 6.93;
 dish_r = 20;
 
-tilt_xr = 250;
-tilt_yr = 120;
+tilt_xr = 260;
+tilt_yr = 130;
 
 case_curve_r = 850;
 case_south_r = 380;
@@ -273,11 +273,11 @@ for (y = [-1 : 2]) {
     }
 }
 
-translate([16 * -1.625, 16 * -2]) keycap_with_stem(-1.125, -2.5, case_x = -1.625, case_y = -2, w = 1.75, h = 1);
-translate([16 * -0.125, 16 * -2]) keycap_with_stem(-2.000,  0.5, case_x = -0.125, case_y = -2, w = 1.25, h = 1, is_cylindrical = true);
-translate([16 *  1.250, 16 * -2]) keycap_with_stem(-1.250,  0.5, case_x =  1.250, case_y = -2, w = 1.50, h = 1, is_cylindrical = true);
-translate([16 *  2.750, 16 * -2]) keycap_with_stem( 1.250,  0.5, case_x =  2.750, case_y = -2, w = 1.50, h = 1, is_cylindrical = true);
-translate([16 *  4.000, 16 * -2]) keycap_with_stem( 2.500,  0.5, case_x =  4.000, case_y = -2, w = 1.00, h = 1, is_cylindrical = true);
+translate([16 * -1.625, 16 * -2]) keycap_with_stem(-1.625, -2, case_x = -1.625, case_y = -2, w = 1.75, h = 1);
+translate([16 * -0.125, 16 * -2]) keycap_with_stem(-2.000,  1, case_x = -0.125, case_y = -2, w = 1.25, h = 1, is_cylindrical = true);
+translate([16 *  1.250, 16 * -2]) keycap_with_stem(-1.250,  1, case_x =  1.250, case_y = -2, w = 1.50, h = 1, is_cylindrical = true);
+translate([16 *  2.750, 16 * -2]) keycap_with_stem( 1.250,  1, case_x =  2.750, case_y = -2, w = 1.50, h = 1, is_cylindrical = true);
+translate([16 *  4.000, 16 * -2]) keycap_with_stem( 2.500,  1, case_x =  4.000, case_y = -2, w = 1.00, h = 1, is_cylindrical = true);
 
 /*
 layout(position_x, position_y, rotation_x, rotation_y, rotation_z, is_upper_layer) {
