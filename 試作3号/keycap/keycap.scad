@@ -183,7 +183,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
         translate([
                 0,
                 -top_h / 2,
-                height + dish_position_z - 1.5
+                height + dish_position_z - 2
         ]) {
             rotate([0, tilt_xa, 0]) {
                 minkowski() {
@@ -268,7 +268,7 @@ for (y = [-1 : 2]) {
         translate([16 * x, 16 * y]) keycap_with_stem(
                 x, y, case_x = x, case_y = y,
                 walls = [wall_n, wall_e, wall_s, wall_w],
-                is_home_position = x == 2 && y == -0.5
+                is_home_position = x == 2 && y == -0
         );
     }
 }
