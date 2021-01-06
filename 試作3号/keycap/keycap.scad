@@ -303,13 +303,17 @@ module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
 }
 
 for (y = [-1 : 2]) {
-    for (x = [-2 : 4]) {
+    for (x = [-2 : 3]) {
         translate([16 * x, 16 * y]) keycap_with_stem(
                 x, y, case_x = x, case_y = y,
                 is_home_position = x == 2 && y == -0
         );
     }
 }
+
+translate([16 * 4, 16 *  1.0]) keycap_with_stem(4, 1.0, case_x = 4, case_y = 1);
+translate([16 * 4, 16 *  2.0]) keycap_with_stem(4, 2.0, case_x = 4, case_y = 2);
+translate([16 * 4, 16 * -0.5]) keycap_with_stem(4, 0.5, case_x = 4, case_y = 0.5, w = 1, h = 2);
 
 translate([16 * -1.625, 16 * -2]) keycap_with_stem(-1.625, -2, case_x = -1.625, case_y = -2, w = 1.75, h = 1);
 translate([16 * -0.125, 16 * -2]) keycap_with_stem(-2.000,  1, case_x = -0.125, case_y = -2, w = 1.25, h = 1, is_cylindrical = true);
