@@ -1,6 +1,6 @@
 
 $fs = 0.1;
-visible_fa = 10;
+visible_fa = 5;
 invisible_fa = 8;
 
 key_pitch = 16;
@@ -31,7 +31,7 @@ module case_curve() {
     end_angle = -85;
     step = 0.1;
 
-    translate([0, key_pitch * -3, case_curve_r]) union() {
+    translate([0, key_pitch * -2.5, case_curve_r]) union() {
         for (i = [0 : step : 1]) {
             a_angle = start_angle + (end_angle - start_angle) * i;
             a_y = case_curve_r * cos(a_angle);
@@ -257,7 +257,7 @@ module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
     translate([0, 0, -3]) %stem_holder();
 }
 
-for (y = [-1.5 : 1.5]) {
+for (y = [-1 : 2]) {
     for (x = [-2 : 4]) {
         wall_n = y == 1.5;
         wall_e = x == 4;
@@ -272,11 +272,11 @@ for (y = [-1.5 : 1.5]) {
     }
 }
 
-translate([16 * -1.625, 16 * -2.5]) keycap_with_stem(-1.125, -2.5, case_x = -1.625, case_y = -2.5, w = 1.75, h = 1);
-translate([16 * -0.125, 16 * -2.5]) keycap_with_stem(-2.000,  0.5, case_x = -0.125, case_y = -2.5, w = 1.25, h = 1, is_cylindrical = true);
-translate([16 *  1.250, 16 * -2.5]) keycap_with_stem(-1.250,  0.5, case_x =  1.250, case_y = -2.5, w = 1.50, h = 1, is_cylindrical = true);
-translate([16 *  2.750, 16 * -2.5]) keycap_with_stem( 1.250,  0.5, case_x =  2.750, case_y = -2.5, w = 1.50, h = 1, is_cylindrical = true);
-translate([16 *  4.000, 16 * -2.5]) keycap_with_stem( 2.500,  0.5, case_x =  4.000, case_y = -2.5, w = 1.00, h = 1, is_cylindrical = true);
+translate([16 * -1.625, 16 * -2]) keycap_with_stem(-1.125, -2.5, case_x = -1.625, case_y = -2, w = 1.75, h = 1);
+translate([16 * -0.125, 16 * -2]) keycap_with_stem(-2.000,  0.5, case_x = -0.125, case_y = -2, w = 1.25, h = 1, is_cylindrical = true);
+translate([16 *  1.250, 16 * -2]) keycap_with_stem(-1.250,  0.5, case_x =  1.250, case_y = -2, w = 1.50, h = 1, is_cylindrical = true);
+translate([16 *  2.750, 16 * -2]) keycap_with_stem( 1.250,  0.5, case_x =  2.750, case_y = -2, w = 1.50, h = 1, is_cylindrical = true);
+translate([16 *  4.000, 16 * -2]) keycap_with_stem( 2.500,  0.5, case_x =  4.000, case_y = -2, w = 1.00, h = 1, is_cylindrical = true);
 
 /*
 layout(position_x, position_y, rotation_x, rotation_y, rotation_z, is_upper_layer) {
