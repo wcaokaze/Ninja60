@@ -42,6 +42,18 @@ case_end_angle   = -85;
 
 function interpolate(start, end, rate) = start + (end - start) * rate;
 
+/*
+ * キーボードに対して垂直に東西方向に立てた半径case_south_rの円を、
+ * キーボードに対して垂直に南北方向に立てた半径case_curve_rの円弧上を
+ * 走らせた場合に残る残像の形状です。
+ *
+ * このとき、移動する円の半径は徐々にcase_south_rからcase_north_rに変化し、
+ * x座標は徐々にcase_south_xからcase_north_xに移動します。
+ *
+ * 具体的には
+ * 南端に立てた円が徐々に小さくなりながら西に移動しながら円弧を描いて北に移動しています
+ * 無茶苦茶ですね
+ */
 module case_curve() {
     step = 0.1;
 
