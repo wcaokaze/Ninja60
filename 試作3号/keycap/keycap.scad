@@ -160,7 +160,7 @@ module keycap(x, y, w = 1, h = 1, is_cylindrical = false, is_home_position = fal
                 translate([- 1, -16.0, 2.5]) cube([ 2, 32, 24]);
 
                 translate([0, 0, 2.5]) {
-                    polygon_pyramid(16, 4.3, h = (x <= 2) ? 24 : 2);
+                    polygon_pyramid(16, 4.3, h = (x >= -2 && x <= 2) ? 24 : 2);
                 }
 
                 translate([-1.05 / 2, -4.00 / 2, 0.5]) cube([1.05, 4.00, 24]);
