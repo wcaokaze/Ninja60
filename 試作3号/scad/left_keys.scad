@@ -2,6 +2,7 @@
 include <shared.scad>;
 include <keycap.scad>;
 include <case.scad>;
+include <stem_holder.scad>;
 
 /*
  * デバッグ用。キーキャップに透明のステムホルダーが挿さった状態のモデルを生成します

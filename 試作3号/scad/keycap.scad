@@ -28,10 +28,13 @@ tilt_yr = 130;
  *                    この高さにおける幅がキーピッチいっぱいに広がるため、
  *                    調整用の子に合わせてこの値を指定することで、
  *                    なるべくキー間の隙間を詰める効果を期待できます。
+ * polishing_margin - ステムの十字部が太くなります。mm単位
+ *                    磨きなどする場合に削れる分を想定して指定しましょう
  */
 module keycap(x, y, w = 1, h = 1,
               is_cylindrical = false, is_home_position = false,
-              bottom_z = 0)
+              bottom_z = 0,
+              polishing_margin = 0)
 {
     top_w = key_pitch * w - 4;
     top_h = key_pitch * h - 4;
@@ -137,8 +140,11 @@ module keycap(x, y, w = 1, h = 1,
                     polygon_pyramid(16, 4.3, h = (x >= -2 && x <= 2) ? 24 : 2);
                 }
 
-                translate([-1.05 / 2, -4.00 / 2, 0.5]) cube([1.05, 4.00, 24]);
-                translate([-4.00 / 2, -1.25 / 2, 0.5]) cube([4.00, 1.25, 24]);
+                north_south_thickness = 1.05 + polishing_margin;
+                east_west_thickness   = 1.25 + polishing_margin;
+
+                translate([0, 0, 12.5]) cube([north_south_thickness, 4, 24], center = true);
+                translate([0, 0, 12.5]) cube([4, east_west_thickness,   24], center = true);
             }
 
             union() {

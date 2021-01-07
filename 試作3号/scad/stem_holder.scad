@@ -1,13 +1,21 @@
 
+include <shared.scad>;
+
 /*
  * キースイッチのステムを差し込む部分。十字の穴が貫通していて、
  * 上からはキーキャップ、下からはキースイッチが挿さるようになっています
+ *
+ * tightening - 穴が狭くなります。mm単位
+ *              ガバガバよりはキツキツの方がマシ。わかりますね？
  */
-module stem_holder() {
+module stem_holder(tightening = 0) {
     module stem() {
         union() {
-            translate([0, 0, 15 / 2]) cube([1.05, 4.00, 32], center = true);
-            translate([0, 0, 15 / 2]) cube([4.00, 1.25, 32], center = true);
+            north_south_thickness = 1.05 - tightening;
+            east_west_thickness   = 1.25 - tightening;
+
+            translate([0, 0, 15 / 2]) cube([north_south_thickness, 4, 32], center = true);
+            translate([0, 0, 15 / 2]) cube([4, east_west_thickness,   32], center = true);
         }
     }
 
