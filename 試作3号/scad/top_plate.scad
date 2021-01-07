@@ -1,6 +1,5 @@
 
-$fs = 0.1;
-$fa = 10;
+include <shared.scad>;
 
 difference() {
     cube([2 * 19.05, 2 * 19.05, 1.5]);
