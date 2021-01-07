@@ -94,6 +94,12 @@ function case_pos_to_cylinder_angle(x, y)
             x - interpolate(case_south_x, case_north_x, case_y_to_interpolate_rate(y))
     );
 
+/*
+ * case_curveの(x, y)におけるz座標。
+ *
+ * x - 東西方向の位置。mm単位。
+ * y - 南北方向の位置。mm単位。
+ */
 function case_curve_z(x, y)
     = case_curve_r * (1 + sin(case_y_to_angle(y)))
     + case_y_to_cylinder_r(y) * (1 + sin(case_pos_to_cylinder_angle(x, y)));
@@ -101,9 +107,18 @@ function case_curve_z(x, y)
 /*
  * キーキャップ。子を渡すとintersectionによって外形が調整されます
  *
- * bottom_z - 外形の底面のZ座標。この高さにおける幅がキーピッチいっぱいに広がるため、
- *            調整用の子に合わせてこの値を指定することで、
- *            なるべくキー間の隙間を詰める効果を期待できます。
+ * x                - 東西方向のキーの位置。U(1Uのキーの長さを1とする)単位。
+ * y                - 南北方向のキーの位置。U単位。
+ * w                - 東西方向のキーの長さ。U単位。
+ * h                - 南北方向のキーの長さ。U単位。
+ * is_cylindrical   - 上面の凹みの形状。trueで円筒形、falseで球形。
+ * is_home_position - trueにするとホームポジションを指で確かめるための突起がつきます。
+ *                    いまのところ正常っぽく生成できるのは
+ *                    (x == 2 || x == -2) && y == 0 の場合のみ
+ * bottom_z         - 外形の底面のZ座標。
+ *                    この高さにおける幅がキーピッチいっぱいに広がるため、
+ *                    調整用の子に合わせてこの値を指定することで、
+ *                    なるべくキー間の隙間を詰める効果を期待できます。
  */
 module keycap(x, y, w = 1, h = 1,
               is_cylindrical = false, is_home_position = false,
@@ -260,6 +275,10 @@ module keycap(x, y, w = 1, h = 1,
     }
 }
 
+/*
+ * キースイッチのステムを差し込む部分。十字の穴が貫通していて、
+ * 上からはキーキャップ、下からはキースイッチが挿さるようになっています
+ */
 module stem_holder() {
     module stem() {
         union() {
@@ -278,6 +297,16 @@ module stem_holder() {
     }
 }
 
+/*
+ * キーを2層に並べるときに便利なやつ
+ *
+ * x              - 東西方向の位置。U単位
+ * y              - 南北方向の位置。U単位
+ * rotation_x     - X軸の回転角度。degree
+ * rotation_y     - Y軸の回転角度。degree
+ * rotation_z     - Z軸の回転角度。degree
+ * is_upper_layer - trueで上の層に配置。このとき自動的にX軸で180°回転して裏返されます
+ */
 module layout(x, y, rotation_x = 0, rotation_y = 0, rotation_z = 0, is_upper_layer = false) {
     key_distance = 16.5;
     upper_layer_z_offset = 28.5;
@@ -297,6 +326,16 @@ module layout(x, y, rotation_x = 0, rotation_y = 0, rotation_z = 0, is_upper_lay
     }
 }
 
+/*
+ * デバッグ用。キーキャップに透明のステムホルダーが挿さった状態のモデルを生成します
+ *
+ * x - キーの東西方向の位置。
+ * y - キーの南北方向の位置。
+ * case_x - ケースの原点に対してキーが配置される位置。U単位。
+ *          あえてxと一致させないことでx == 0のキーを東端に配置することなどが可能
+ * case_y - ケースの原点に対してキーが配置される位置。U単位。
+ *          あえてyと一致させないことでy == 0のキーを南端に配置することなどが可能
+ */
 module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
                         is_cylindrical = false, is_home_position = false)
 {
