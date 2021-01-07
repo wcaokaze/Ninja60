@@ -1,11 +1,11 @@
 
 $fs = 0.1;
 case_fa = 2;
-visible_fa = 15; // 0.6;
-invisible_fa = 8;
+keycap_visible_fa = 15; // 0.6;
+keycap_invisible_fa = 8;
 
 key_pitch = 16;
-thickness = 1.5;
+keycap_thickness = 1.5;
 
 height = 6.93;
 dish_r = 20;
@@ -180,7 +180,7 @@ module keycap(x, y, w = 1, h = 1,
             module round_rect(w, h, r) {
                 minkowski() {
                     cube([w - r * 2, h - r * 2, 0.01], center = true);
-                    cylinder(r = r, h = 0.001, $fa = visible_fa);
+                    cylinder(r = r, h = 0.001, $fa = keycap_visible_fa);
                 }
             }
 
@@ -193,7 +193,7 @@ module keycap(x, y, w = 1, h = 1,
         intersection() {
             difference() {
                 round_rect_pyramid();
-                dish(height, fa = visible_fa);
+                dish(height, fa = keycap_visible_fa);
             }
 
             children();
@@ -210,11 +210,11 @@ module keycap(x, y, w = 1, h = 1,
 
         difference() {
             rect_pyramid(
-                    top_w    - thickness * 2, top_h    - thickness * 2,
-                    bottom_w - thickness * 2, bottom_h - thickness * 2
+                    top_w    - keycap_thickness * 2, top_h    - keycap_thickness * 2,
+                    bottom_w - keycap_thickness * 2, bottom_h - keycap_thickness * 2
             );
 
-            dish(height - thickness, fa = invisible_fa);
+            dish(height - keycap_thickness, fa = keycap_invisible_fa);
         }
     }
 
@@ -237,7 +237,7 @@ module keycap(x, y, w = 1, h = 1,
 
                 difference() {
                     translate([0, 0, -3]) polygon_pyramid(16, 4.3, h = 24);
-                    dish(height - thickness, fa = invisible_fa);
+                    dish(height - keycap_thickness, fa = keycap_invisible_fa);
                 }
             }
         }
