@@ -7,7 +7,7 @@ keycap_invisible_fa = 8;
 key_pitch = 16;
 keycap_thickness = 1.5;
 
-height = 6.93;
+keycap_height = 6.93;
 dish_r = 20;
 
 tilt_xr = 260;
@@ -133,14 +133,14 @@ module keycap(x, y, w = 1, h = 1,
     tilt_ya = acos(key_pitch * y / tilt_yr);
 
     dish_position_z = tilt_xr * (1 - sin(tilt_xa)) + tilt_yr * (1 - sin(tilt_ya));
-    top_z = height + dish_position_z + 3;
+    top_z = keycap_height + dish_position_z + 3;
 
-    module dish(height, fa) {
+    module dish(keycap_height, fa) {
         if (is_cylindrical) {
             translate([
                     -dish_r * cos(tilt_xa),
                     0,
-                    height + dish_position_z + dish_r - 3
+                    keycap_height + dish_position_z + dish_r - 3
             ]) {
                 minkowski() {
                     cube(center = true, [
@@ -158,7 +158,7 @@ module keycap(x, y, w = 1, h = 1,
             translate([
                     -dish_r * cos(tilt_xa),
                     -dish_r * cos(tilt_ya),
-                    height + dish_position_z + dish_r - 3
+                    keycap_height + dish_position_z + dish_r - 3
             ]) {
                 minkowski() {
                     rotate([tilt_ya - 90, tilt_xa - 90]) {
@@ -193,7 +193,7 @@ module keycap(x, y, w = 1, h = 1,
         intersection() {
             difference() {
                 round_rect_pyramid();
-                dish(height, fa = keycap_visible_fa);
+                dish(keycap_height, fa = keycap_visible_fa);
             }
 
             children();
@@ -214,7 +214,7 @@ module keycap(x, y, w = 1, h = 1,
                     bottom_w - keycap_thickness * 2, bottom_h - keycap_thickness * 2
             );
 
-            dish(height - keycap_thickness, fa = keycap_invisible_fa);
+            dish(keycap_height - keycap_thickness, fa = keycap_invisible_fa);
         }
     }
 
@@ -237,7 +237,7 @@ module keycap(x, y, w = 1, h = 1,
 
                 difference() {
                     translate([0, 0, -3]) polygon_pyramid(16, 4.3, h = 24);
-                    dish(height - keycap_thickness, fa = keycap_invisible_fa);
+                    dish(keycap_height - keycap_thickness, fa = keycap_invisible_fa);
                 }
             }
         }
@@ -247,7 +247,7 @@ module keycap(x, y, w = 1, h = 1,
         translate([
                 0,
                 -top_h / 2,
-                height + dish_position_z - 2
+                keycap_height + dish_position_z - 2
         ]) {
             rotate([0, tilt_xa, 0]) {
                 minkowski() {
