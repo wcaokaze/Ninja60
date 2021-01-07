@@ -22,7 +22,11 @@ module stem_holder(tightening = 0) {
     difference() {
         union() {
             translate([0, 0, 3.5]) polygon_pyramid(16, 4.3, h = 2);
-            polygon_pyramid(16, 2.81, h = 4);
+
+            minkowski() {
+                cube([1, 0.01, 0.01], center = true);
+                polygon_pyramid(8, 2.97, h = 4);
+            }
         }
 
         stem();
