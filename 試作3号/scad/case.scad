@@ -11,7 +11,7 @@ case_south_x = 16 * 1;
 case_north_x = 16 * 0;
 
 case_start_angle = -90;
-case_end_angle   = -85;
+case_end_angle   = -80;
 
 function interpolate(start, end, rate) = start + (end - start) * rate;
 

@@ -13,6 +13,64 @@ dish_r = 20;
 tilt_xr = 260;
 tilt_yr = 130;
 
+function arc_length_to_angle(arc_r, length) = length * 360 / 2 / PI / arc_r;
+
+module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, tilt_a) {
+    bottom_inner_r = arc_r - h / 2 + 0.375;
+    bottom_outer_r = arc_r + h / 2 - 0.375;
+    bottom_arc_start_a = arc_start_a + arc_length_to_angle(bottom_inner_r, 0.375);
+    bottom_arc_end_a   = arc_end_a   - arc_length_to_angle(bottom_inner_r, 0.375);
+
+    top_inner_r = arc_r - h / 2 + 2;
+    top_outer_r = arc_r + h / 2 - 2;
+    top_arc_start_a = arc_start_a + arc_length_to_angle(bottom_inner_r, 2);
+    top_arc_end_a   = arc_end_a   - arc_length_to_angle(bottom_inner_r, 2);
+
+    module arc(outer_r, inner_r, start_a, end_a) {
+        intersection() {
+            difference() {
+                cylinder(r = outer_r, h = 0.01, $fa = keycap_visible_fa);
+                cylinder(r = inner_r, h = 0.01, $fa = keycap_visible_fa);
+            }
+
+            linear_extrude(h = 0.01) {
+                polygon([
+                    [0, 0],
+                    [100 * cos(start_a), 100 * sin(start_a)],
+                    [100 * cos(end_a),   100 * sin(end_a)  ]
+                ]);
+            }
+        }
+    }
+
+    module round_arc(outer_r, inner_r, start_a, end_a, round_r) {
+        minkowski() {
+            arc(outer_r - round_r,
+                inner_r + round_r,
+                start_a + arc_length_to_angle(inner_r, round_r),
+                end_a   - arc_length_to_angle(inner_r, round_r));
+
+            cylinder(r = round_r, h = 0.001, $fa = keycap_visible_fa);
+        }
+    }
+
+    module outer() {
+        difference() {
+            hull() {
+                round_arc(bottom_outer_r, bottom_inner_r, bottom_arc_start_a, bottom_arc_end_a, 1);
+                translate([0, 0, 10]) round_arc(top_outer_r, top_inner_r, top_arc_start_a, top_arc_end_a, 1);
+            }
+
+            hull() {
+                cylinder(r = bottom_inner_r, h = 0.01, $fa = keycap_visible_fa);
+                translate([0, 0, 10]) cylinder(r = top_inner_r, h = 0.1, $fa = keycap_visible_fa);
+            }
+        }
+    }
+
+    outer();
+}
+
 /*
  * キーキャップ。子を渡すとintersectionによって外形が調整されます
  *
