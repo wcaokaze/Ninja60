@@ -86,18 +86,30 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, tilt_a) {
  *                    この高さにおける幅がキーピッチいっぱいに広がるため、
  *                    調整用の子に合わせてこの値を指定することで、
  *                    なるべくキー間の隙間を詰める効果を期待できます。
+ * left_wall_angle  - 外形の左側に角度がつきます。0が北、90が西向き
+ *                    yが0以外の場合、位置に合わせてキーの幅も変わります
+ * right_wall_angle - 外形の左側に角度がつきます。0が北、-90が東向き
+ *                    yが0以外の場合、位置に合わせてキーの幅も変わります
  * polishing_margin - ステムの十字部が太くなります。mm単位
  *                    磨きなどする場合に削れる分を想定して指定しましょう
  */
 module keycap(x, y, w = 1, h = 1,
               is_cylindrical = false, is_home_position = false,
               bottom_z = 0,
+              left_wall_angle = 0, right_wall_angle = 0,
               polishing_margin = 0)
 {
     top_w = key_pitch * w - 4;
     top_h = key_pitch * h - 4;
     bottom_w = key_pitch * w - 0.75;
     bottom_h = key_pitch * h - 0.75;
+
+    bottom_north_y =  bottom_h / 2;
+    bottom_south_y = -bottom_h / 2;
+    bottom_north_left_x  = -bottom_w / 2 + (key_pitch * y + bottom_north_y) / tan(90 + left_wall_angle);
+    bottom_north_right_x =  bottom_w / 2 + (key_pitch * y + bottom_north_y) / tan(90 + right_wall_angle);
+    bottom_south_left_x  = -bottom_w / 2 + (key_pitch * y + bottom_south_y) / tan(90 + left_wall_angle);
+    bottom_south_right_x =  bottom_w / 2 + (key_pitch * y + bottom_south_y) / tan(90 + right_wall_angle);
 
     tilt_xa = acos(key_pitch * x / tilt_xr);
     tilt_ya = acos(key_pitch * y / tilt_yr);
@@ -147,16 +159,22 @@ module keycap(x, y, w = 1, h = 1,
 
     module outer() {
         module round_rect_pyramid() {
-            module round_rect(w, h, r) {
-                minkowski() {
-                    cube([w - r * 2, h - r * 2, 0.01], center = true);
-                    cylinder(r = r, h = 0.001, $fa = keycap_visible_fa);
-                }
-            }
-
             hull() {
-                translate([0, 0, top_z])    round_rect(top_w,    top_h,    1);
-                translate([0, 0, bottom_z]) round_rect(bottom_w, bottom_h, 1);
+                translate([0, 0, top_z]) minkowski() {
+                    cube([top_w - 2, top_h - 2, 0.01], center = true);
+                    cylinder(r = 1, h = 0.001, $fa = keycap_visible_fa);
+                }
+
+                translate([0, 0, bottom_z]) minkowski() {
+                    linear_extrude(0.01) polygon([
+                        [bottom_north_left_x  + 1, bottom_north_y - 1],
+                        [bottom_north_right_x - 1, bottom_north_y - 1],
+                        [bottom_north_right_x - 1, bottom_south_y + 1],
+                        [bottom_north_left_x  + 1, bottom_south_y + 1]
+                    ]);
+
+                    cylinder(r = 1, h = 0.001, $fa = keycap_visible_fa);
+                }
             }
         }
 
@@ -171,19 +189,32 @@ module keycap(x, y, w = 1, h = 1,
     }
 
     module inner() {
-        module rect_pyramid(top_w, top_h, bottom_w, bottom_h) {
+        module rect_pyramid(bottom_w, bottom_h) {
             hull() {
-                translate([0, 0, top_z])    cube([top_w,    top_h,    0.01], center = true);
-                translate([0, 0, bottom_z]) cube([bottom_w, bottom_h, 0.01], center = true);
+                translate([0, 0, top_z]) {
+                    cube(
+                        [
+                            top_w - keycap_thickness * 2,
+                            top_h - keycap_thickness * 2,
+                            0.01
+                        ],
+                        center = true
+                    );
+                }
+
+                translate([0, 0, bottom_z]) {
+                    linear_extrude(0.01) polygon([
+                        [bottom_north_left_x  + keycap_thickness, bottom_north_y - keycap_thickness],
+                        [bottom_north_right_x - keycap_thickness, bottom_north_y - keycap_thickness],
+                        [bottom_north_right_x - keycap_thickness, bottom_south_y + keycap_thickness],
+                        [bottom_north_left_x  + keycap_thickness, bottom_south_y + keycap_thickness]
+                    ]);
+                }
             }
         }
 
         difference() {
-            rect_pyramid(
-                    top_w    - keycap_thickness * 2, top_h    - keycap_thickness * 2,
-                    bottom_w - keycap_thickness * 2, bottom_h - keycap_thickness * 2
-            );
-
+            rect_pyramid();
             dish(keycap_height - keycap_thickness, fa = keycap_invisible_fa);
         }
     }

@@ -15,6 +15,7 @@ include <stem_holder.scad>;
  *          あえてyと一致させないことでy == 0のキーを南端に配置することなどが可能
  */
 module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
+                        left_wall_angle = 0, right_wall_angle = 0,
                         is_cylindrical = false, is_home_position = false)
 {
     keycap(
@@ -23,7 +24,9 @@ module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
         bottom_z = case_curve_z(
             key_pitch * close_origin(case_x, 0.5),
             key_pitch * (case_y - 0.5)
-        )
+        ),
+        left_wall_angle  = left_wall_angle,
+        right_wall_angle = right_wall_angle
     ) {
         translate([key_pitch * -case_x, key_pitch * -case_y]) case_curve();
     }
@@ -34,9 +37,12 @@ module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
 // x = [-2, -1]
 translate([16 * -1, 0]) rotate([0, 0, 1]) {
     for (x = [-1 : 0]) {
+        right_wall_angle = (x == 0) ? -1 : 0;
+
         for (y = [1 : 4]) {
             translate([16 * x, 16 * y]) keycap_with_stem(
-                    x - 1, y - 2, case_x = x - 1, case_y = y - 2
+                    x - 1, y - 2, case_x = x - 1, case_y = y - 2,
+                    right_wall_angle = right_wall_angle
             );
         }
     }
@@ -54,6 +60,7 @@ for (x = [0 : 2]) {
 
             translate([0, 16 * staggered_y]) keycap_with_stem(
                     x, staggered_y - 2, case_x = x, case_y = staggered_y - 2,
+                    left_wall_angle = 1, right_wall_angle = -1,
                     is_home_position = x == 2 && y == -0
             );
         }
@@ -64,7 +71,8 @@ for (x = [0 : 2]) {
 translate([16 * 3, 0]) rotate([0, 0, -3]) {
     for (y = [1 : 4]) {
         translate([0, 16 * y]) keycap_with_stem(
-                3, y - 2, case_x = 3, case_y = y - 2
+                3, y - 2, case_x = 3, case_y = y - 2,
+                left_wall_angle = 1
         );
     }
 
