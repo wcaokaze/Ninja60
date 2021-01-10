@@ -35,12 +35,13 @@ module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
 }
 
 keycap_half_width = key_pitch / 2 - keycap_margin;
+column_angle = 2;
 
 // x = [-2, -1]
 translate([
-    -keycap_half_width * cos(0) - keycap_margin * 2 * cos(2),
-    -keycap_half_width * sin(0) - keycap_margin * 2 * sin(2)
-]) rotate([0, 0, 2]) {
+    -keycap_half_width * cos(column_angle * 0) - keycap_margin * 2 * cos(column_angle * 1),
+    -keycap_half_width * sin(column_angle * 0) - keycap_margin * 2 * sin(column_angle * 1)
+]) rotate([0, 0, column_angle * 1]) {
     for (y = [1 : 4]) {
         translate([-keycap_half_width - key_pitch, key_pitch * y]) keycap_with_stem(
                 -2, y - 2, case_x = -2, case_y = y - 2
@@ -57,9 +58,9 @@ translate([
 
 // x = 0
 translate([
-    keycap_half_width * cos(0),
-    keycap_half_width * sin(0)
-]) rotate([0, 0, 0]) {
+    keycap_half_width * cos(column_angle * 0),
+    keycap_half_width * sin(column_angle * 0)
+]) rotate([0, 0, column_angle * 0]) {
     for (y = [1.5 : 4.5]) {
         translate([-keycap_half_width, key_pitch * y]) keycap_with_stem(
                 0, y - 2, case_x = 0, case_y = y - 2,
@@ -70,9 +71,9 @@ translate([
 
 // x = 1
 translate([
-    keycap_half_width * cos(0) + keycap_margin * 2 * cos(-2),
-    keycap_half_width * sin(0) + keycap_margin * 2 * sin(-2)
-]) rotate([0, 0, -2]) {
+    keycap_half_width * cos(column_angle * 0) + keycap_margin * 2 * cos(column_angle * -1),
+    keycap_half_width * sin(column_angle * 0) + keycap_margin * 2 * sin(column_angle * -1)
+]) rotate([0, 0, column_angle * -1]) {
     for (y = [1.75 : 4.75]) {
         translate([keycap_half_width, key_pitch * y]) keycap_with_stem(
                 1, y - 2, case_x = 1, case_y = y - 2,
@@ -83,9 +84,9 @@ translate([
 
 // x = 2
 translate([
-    keycap_half_width * cos(0) + key_pitch * cos(-2) + keycap_margin * 2 * cos(-4),
-    keycap_half_width * sin(0) + key_pitch * sin(-2) + keycap_margin * 2 * sin(-4)
-]) rotate([0, 0, -4]) {
+    keycap_half_width * cos(column_angle * 0) + key_pitch * cos(column_angle * -1) + keycap_margin * 2 * cos(column_angle * -2),
+    keycap_half_width * sin(column_angle * 0) + key_pitch * sin(column_angle * -1) + keycap_margin * 2 * sin(column_angle * -2)
+]) rotate([0, 0, column_angle * -2]) {
     for (y = [1.25 : 4.25]) {
         translate([keycap_half_width, key_pitch * y]) keycap_with_stem(
                 2, y - 2, case_x = 2, case_y = y - 2,
@@ -97,9 +98,9 @@ translate([
 
 // x = [3, 4]
 translate([
-    keycap_half_width * cos(0) + key_pitch * cos(-2) + key_pitch * cos(-4) + keycap_margin * 2 * cos(-6),
-    keycap_half_width * sin(0) + key_pitch * sin(-2) + key_pitch * sin(-4) + keycap_margin * 2 * sin(-6)
-]) rotate([0, 0, -6]) {
+    keycap_half_width * cos(column_angle * 0) + key_pitch * cos(column_angle * -1) + key_pitch * cos(column_angle * -2) + keycap_margin * 2 * cos(column_angle * -3),
+    keycap_half_width * sin(column_angle * 0) + key_pitch * sin(column_angle * -1) + key_pitch * sin(column_angle * -2) + keycap_margin * 2 * sin(column_angle * -3)
+]) rotate([0, 0, column_angle * -3]) {
     for (y = [1 : 4]) {
         translate([keycap_half_width, key_pitch * y]) keycap_with_stem(
                 3, y - 2, case_x = 3, case_y = y - 2,
