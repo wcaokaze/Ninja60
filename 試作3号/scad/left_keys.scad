@@ -120,7 +120,6 @@ translate([
     translate([key_pitch + keycap_half_width, key_pitch * 0.5]) keycap_with_stem(4, 0, case_x = 4, case_y = -1.75, is_cylindrical = true);
     translate([key_pitch + keycap_half_width, key_pitch * 2.0]) keycap_with_stem(4, 1, case_x = 4, case_y = -0.25, w = 1, h = 2);
     translate([key_pitch + keycap_half_width, key_pitch * 3.5]) keycap_with_stem(4, 1, case_x = 4, case_y =  1.25);
-    translate([key_pitch + keycap_half_width, key_pitch * 4.5]) keycap_with_stem(4, 2, case_x = 4, case_y =  2.25);
 }
 
 translate([16 * -0.75, 0]) rotate([0, 0, 2.5]) {
