@@ -35,12 +35,15 @@ module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
 }
 
 // x = [-2, -1]
-translate([16 * -1, 0]) rotate([0, 0, 1]) {
+translate([
+    (-15.25 / 2 - 0.75) * cos(2),
+    -0.75 * sin(2)
+]) rotate([0, 0, 2]) {
     for (x = [-1 : 0]) {
         right_wall_angle = (x == 0) ? -1 : 0;
 
         for (y = [1 : 4]) {
-            translate([16 * x, 16 * y]) keycap_with_stem(
+            translate([16 * x - 15.25 / 2, 16 * y]) keycap_with_stem(
                     x - 1, y - 2, case_x = x - 1, case_y = y - 2,
                     right_wall_angle = right_wall_angle
             );
@@ -48,38 +51,62 @@ translate([16 * -1, 0]) rotate([0, 0, 1]) {
     }
 }
 
-for (x = [0 : 2]) {
-    staggering = (x ==  0) ? 0.5
-               : (x ==  1) ? 0.75
-               : (x ==  2) ? 0.25
-               : 0;
+// x = 0
+translate([
+    (15.25 / 2) * cos(0),
+    (15.25 / 2) * sin(0)
+]) rotate([0, 0, 0]) {
+    for (y = [1.5 : 4.5]) {
+        translate([-15.25 / 2, 16 * y]) keycap_with_stem(
+                0, y - 2, case_x = 0, case_y = y - 2,
+                left_wall_angle = 1, right_wall_angle = -1
+        );
+    }
+}
 
-    translate([16 * x, 0]) rotate([0, 0, -x]) {
-        for (y = [1 : 4]) {
-            staggered_y = y + staggering;
+// x = 1
+translate([
+    (15.25 / 2) * cos(0) + 0.75 * cos(-2),
+    (15.25 / 2) * sin(0) + 0.75 * sin(-2)
+]) rotate([0, 0, -2]) {
+    for (y = [1.75 : 4.75]) {
+        translate([15.25 / 2, 16 * y]) keycap_with_stem(
+                1, y - 2, case_x = 1, case_y = y - 2,
+                left_wall_angle = 1, right_wall_angle = -1
+        );
+    }
+}
 
-            translate([0, 16 * staggered_y]) keycap_with_stem(
-                    x, staggered_y - 2, case_x = x, case_y = staggered_y - 2,
-                    left_wall_angle = 1, right_wall_angle = -1,
-                    is_home_position = x == 2 && y == -0
-            );
-        }
+// x = 2
+translate([
+    (15.25 / 2) * cos(0) + 16 * cos(-2) + 0.75 * cos(-4),
+    (15.25 / 2) * sin(0) + 16 * sin(-2) + 0.75 * sin(-4)
+]) rotate([0, 0, -4]) {
+    for (y = [1.25 : 4.25]) {
+        translate([15.25 / 2, 16 * y]) keycap_with_stem(
+                2, y - 2, case_x = 2, case_y = y - 2,
+                left_wall_angle = 1, right_wall_angle = -1,
+                is_home_position = (y == 2.25)
+        );
     }
 }
 
 // x = [3, 4]
-translate([16 * 3, 0]) rotate([0, 0, -3]) {
+translate([
+    (15.25 / 2) * cos(0) + 16 * cos(-2) + 16 * cos(-4) + 0.75 * cos(-6),
+    (15.25 / 2) * sin(0) + 16 * sin(-2) + 16 * sin(-4) + 0.75 * sin(-6)
+]) rotate([0, 0, -6]) {
     for (y = [1 : 4]) {
-        translate([0, 16 * y]) keycap_with_stem(
+        translate([15.25 / 2, 16 * y]) keycap_with_stem(
                 3, y - 2, case_x = 3, case_y = y - 2,
                 left_wall_angle = 1
         );
     }
 
-    translate([16, 16 * 0.25]) keycap_with_stem(4, 0, case_x = 4, case_y = -1.75, is_cylindrical = true);
-    translate([16, 16 * 1.75]) keycap_with_stem(4, 1, case_x = 4, case_y = -0.25, w = 1, h = 2);
-    translate([16, 16 * 3.25]) keycap_with_stem(4, 1, case_x = 4, case_y =  1.25);
-    translate([16, 16 * 4.25]) keycap_with_stem(4, 2, case_x = 4, case_y =  2.25);
+    translate([16 + 15.25 / 2, 16 * 0.5]) keycap_with_stem(4, 0, case_x = 4, case_y = -1.75, is_cylindrical = true);
+    translate([16 + 15.25 / 2, 16 * 2.0]) keycap_with_stem(4, 1, case_x = 4, case_y = -0.25, w = 1, h = 2);
+    translate([16 + 15.25 / 2, 16 * 3.5]) keycap_with_stem(4, 1, case_x = 4, case_y =  1.25);
+    translate([16 + 15.25 / 2, 16 * 4.5]) keycap_with_stem(4, 2, case_x = 4, case_y =  2.25);
 }
 
 translate([16 * -0.75, 0]) rotate([0, 0, 1]) {

@@ -169,8 +169,8 @@ module keycap(x, y, w = 1, h = 1,
                     linear_extrude(0.01) polygon([
                         [bottom_north_left_x  + 1, bottom_north_y - 1],
                         [bottom_north_right_x - 1, bottom_north_y - 1],
-                        [bottom_north_right_x - 1, bottom_south_y + 1],
-                        [bottom_north_left_x  + 1, bottom_south_y + 1]
+                        [bottom_south_right_x - 1, bottom_south_y + 1],
+                        [bottom_south_left_x  + 1, bottom_south_y + 1]
                     ]);
 
                     cylinder(r = 1, h = 0.001, $fa = keycap_visible_fa);
@@ -206,8 +206,8 @@ module keycap(x, y, w = 1, h = 1,
                     linear_extrude(0.01) polygon([
                         [bottom_north_left_x  + keycap_thickness, bottom_north_y - keycap_thickness],
                         [bottom_north_right_x - keycap_thickness, bottom_north_y - keycap_thickness],
-                        [bottom_north_right_x - keycap_thickness, bottom_south_y + keycap_thickness],
-                        [bottom_north_left_x  + keycap_thickness, bottom_south_y + keycap_thickness]
+                        [bottom_south_right_x - keycap_thickness, bottom_south_y + keycap_thickness],
+                        [bottom_south_left_x  + keycap_thickness, bottom_south_y + keycap_thickness]
                     ]);
                 }
             }
