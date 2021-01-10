@@ -63,12 +63,13 @@ translate([
     keycap_half_width * cos(column_angle * 0),
     keycap_half_width * sin(column_angle * 0)
 ]) rotate([0, 0, column_angle * 0]) {
-    for (y = [-0.5 : 2.5]) {
-        translate([-keycap_half_width, key_pitch * (y + 2)]) keycap_with_stem(
-                0, y, case_x = 0, case_y = y,
+    s = 0.5;
+    for (y = [-1 : 2]) {
+        translate([-keycap_half_width, key_pitch * (y + s + 2)]) keycap_with_stem(
+                0, y, case_x = 0, case_y = y + s,
                 left_wall_angle  =  column_angle / 2,
                 right_wall_angle = -column_angle / 2,
-                wall_y = y + 2
+                wall_y = y + s + 2
         );
     }
 }
@@ -78,12 +79,13 @@ translate([
     keycap_half_width * cos(column_angle * 0) + keycap_margin * 2 * cos(column_angle * -1),
     keycap_half_width * sin(column_angle * 0) + keycap_margin * 2 * sin(column_angle * -1)
 ]) rotate([0, 0, column_angle * -1]) {
-    for (y = [-0.25 : 2.75]) {
-        translate([keycap_half_width, key_pitch * (y + 2)]) keycap_with_stem(
-                1, y, case_x = 1, case_y = y,
+    s = 0.75;
+    for (y = [-1 : 2]) {
+        translate([keycap_half_width, key_pitch * (y + s + 2)]) keycap_with_stem(
+                1, y, case_x = 1, case_y = y + s,
                 left_wall_angle  =  column_angle / 2,
                 right_wall_angle = -column_angle / 2,
-                wall_y = y + 2
+                wall_y = y + s + 2
         );
     }
 }
@@ -93,13 +95,14 @@ translate([
     keycap_half_width * cos(column_angle * 0) + key_pitch * cos(column_angle * -1) + keycap_margin * 2 * cos(column_angle * -2),
     keycap_half_width * sin(column_angle * 0) + key_pitch * sin(column_angle * -1) + keycap_margin * 2 * sin(column_angle * -2)
 ]) rotate([0, 0, column_angle * -2]) {
-    for (y = [-0.75 : 2.25]) {
-        translate([keycap_half_width, key_pitch * (y + 2)]) keycap_with_stem(
-                2, y, case_x = 2, case_y = y,
+    s = 0.25;
+    for (y = [-1 : 2]) {
+        translate([keycap_half_width, key_pitch * (y + s + 2)]) keycap_with_stem(
+                2, y, case_x = 2, case_y = y + s,
                 left_wall_angle  =  column_angle / 2,
                 right_wall_angle = -column_angle / 2,
-                wall_y = y + 2,
-                is_home_position = (y == 0.25)
+                wall_y = y + s + 2,
+                is_home_position = (y == 0)
         );
     }
 }
@@ -112,7 +115,7 @@ translate([
     for (y = [-1 : 2]) {
         translate([keycap_half_width, key_pitch * (y + 2)]) keycap_with_stem(
                 3, y, case_x = 3, case_y = y,
-                left_wall_angle  =  column_angle / 2,
+                left_wall_angle = column_angle / 2,
                 wall_y = y + 2
         );
     }
