@@ -36,7 +36,7 @@ module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
 }
 
 keycap_half_width = key_pitch / 2 - keycap_margin;
-column_angle = 3;
+column_angle = 2.5;
 
 // x = [-2, -1]
 translate([
@@ -123,7 +123,7 @@ translate([
     translate([key_pitch + keycap_half_width, key_pitch * 4.5]) keycap_with_stem(4, 2, case_x = 4, case_y =  2.25);
 }
 
-translate([16 * -0.75, 0]) rotate([0, 0, 1]) {
+translate([16 * -0.75, 0]) rotate([0, 0, 2.5]) {
     translate([16 * -0.875, 0]) keycap_with_stem(-1.625, -2.0, case_x = -1.625, case_y = -2, w = 1.75, h = 1);
 }
 
