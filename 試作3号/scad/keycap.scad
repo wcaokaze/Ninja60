@@ -75,27 +75,32 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, tilt_a) {
 /*
  * キーキャップ。子を渡すとintersectionによって外形が調整されます
  *
- * x                - 東西方向のキーの位置。U(1Uのキーの長さを1とする)単位。
- * y                - 南北方向のキーの位置。U単位。
- * w                - 東西方向のキーの長さ。U単位。
- * h                - 南北方向のキーの長さ。U単位。
- * is_cylindrical   - 上面の凹みの形状。trueで円筒形、falseで球形。
- * is_home_position - trueにするとホームポジションを指で確かめるための突起がつきます。
- *                    いまのところ正常っぽく生成できるのは
- *                    (x == 2 || x == -2) && y == 0 の場合のみ
- * bottom_z         - 外形の底面のZ座標。
- *                    この高さにおける幅がキーピッチいっぱいに広がるため、
- *                    調整用の子に合わせてこの値を指定することで、
- *                    なるべくキー間の隙間を詰める効果を期待できます。
- * left_wall_angle  - 外形の左側に角度がつきます。0が北、90が西向き
- * right_wall_angle - 外形の左側に角度がつきます。0が北、-90が東向き
- * wall_y           - left_wall_angle, right_wall_angleを指定する場合の
- *                    このキーの中心のY座標。
- *                    この値が大きいほどキーの幅が広くなることになりますね
- * polishing_margin - ステムの十字部が太くなります。mm単位
- *                    磨きなどする場合に削れる分を想定して指定しましょう
+ * x                  - 東西方向のキーの位置。U(1Uのキーの長さを1とする)単位。
+ * y                  - 南北方向のキーの位置。U単位。
+ * w                  - 東西方向のキーの長さ。U単位。
+ * h                  - 南北方向のキーの長さ。U単位。
+ * is_fluent_to_north - 上面の凹みが北側のキーと繋がるようになります。
+ *                      is_cylindricalがtrueの場合は無視されます。
+ * is_fluent_to_south - 上面の凹みが南側のキーと繋がるようになります。
+ *                      is_cylindricalがtrueの場合は無視されます。
+ * is_cylindrical     - 上面の凹みの形状。trueで円筒形、falseで球形。
+ * is_home_position   - trueにするとホームポジションを指で確かめるための突起がつきます。
+ *                      いまのところ正常っぽく生成できるのは
+ *                      (x == 2 || x == -2) && y == 0 の場合のみ
+ * bottom_z           - 外形の底面のZ座標。
+ *                      この高さにおける幅がキーピッチいっぱいに広がるため、
+ *                      調整用の子に合わせてこの値を指定することで、
+ *                      なるべくキー間の隙間を詰める効果を期待できます。
+ * left_wall_angle    - 外形の左側に角度がつきます。0が北、90が西向き
+ * right_wall_angle   - 外形の左側に角度がつきます。0が北、-90が東向き
+ * wall_y             - left_wall_angle, right_wall_angleを指定する場合の
+ *                      このキーの中心のY座標。
+ *                      この値が大きいほどキーの幅が広くなることになりますね
+ * polishing_margin   - ステムの十字部が太くなります。mm単位
+ *                      磨きなどする場合に削れる分を想定して指定しましょう
  */
 module keycap(x, y, w = 1, h = 1,
+              is_fluent_to_north = false, is_fluent_to_south = false,
               is_cylindrical = false, is_home_position = false,
               bottom_z = 0,
               left_wall_angle = 0, right_wall_angle = 0, wall_y = 0,
@@ -146,11 +151,19 @@ module keycap(x, y, w = 1, h = 1,
             ]) {
                 minkowski() {
                     rotate([tilt_ya - 90, tilt_xa - 90]) {
-                        cube(center = true, [
-                                key_pitch * (w - 1) + 0.001,
-                                key_pitch * (h - 1) + 0.001,
-                                0.001
-                        ]);
+                        translate([
+                                -key_pitch * (w - 1) / 2,
+                                -key_pitch * (h - 1) / 2 +
+                                        (is_fluent_to_south ? -key_pitch : 0)
+                        ]) {
+                            cube([
+                                    key_pitch * (w - 1) + 0.001,
+                                    key_pitch * (h - 1) + 0.001 +
+                                            (is_fluent_to_north ? key_pitch : 0) +
+                                            (is_fluent_to_south ? key_pitch : 0),
+                                    0.001
+                            ]);
+                        }
                     }
 
                     sphere(dish_r, $fa = fa);

@@ -15,11 +15,13 @@ include <stem_holder.scad>;
  *          あえてyと一致させないことでy == 0のキーを南端に配置することなどが可能
  */
 module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
+                        is_fluent_to_north = false, is_fluent_to_south = false,
                         left_wall_angle = 0, right_wall_angle = 0, wall_y = 0,
                         is_cylindrical = false, is_home_position = false)
 {
     keycap(
         x, y, w, h,
+        is_fluent_to_north, is_fluent_to_south,
         is_cylindrical, is_home_position,
         bottom_z = case_curve_z(
             key_pitch * close_origin(case_x, 0.5),
@@ -102,6 +104,8 @@ translate([
                 left_wall_angle  =  column_angle / 2,
                 right_wall_angle = -column_angle / 2,
                 wall_y = y + s + 2,
+                is_fluent_to_north = (y == 0),
+                is_fluent_to_south = (y == 1),
                 is_home_position = (y == 0)
         );
     }
@@ -116,7 +120,9 @@ translate([
         translate([keycap_half_width, key_pitch * (y + 2)]) keycap_with_stem(
                 3, y, case_x = 3, case_y = y,
                 left_wall_angle = column_angle / 2,
-                wall_y = y + 2
+                wall_y = y + 2,
+                is_fluent_to_north = (y == 0),
+                is_fluent_to_south = (y == 1)
         );
     }
 
