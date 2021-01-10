@@ -5,6 +5,7 @@ keycap_visible_fa = 15; // 0.6;
 keycap_invisible_fa = 8;
 
 key_pitch = 16;
+keycap_margin = 0.375;
 keycap_thickness = 1.5;
 
 keycap_height = 6.93;
@@ -101,8 +102,8 @@ module keycap(x, y, w = 1, h = 1,
 {
     top_w = key_pitch * w - 4;
     top_h = key_pitch * h - 4;
-    bottom_w = key_pitch * w - 0.75;
-    bottom_h = key_pitch * h - 0.75;
+    bottom_w = key_pitch * w - keycap_margin * 2;
+    bottom_h = key_pitch * h - keycap_margin * 2;
 
     bottom_north_y =  bottom_h / 2;
     bottom_south_y = -bottom_h / 2;
