@@ -27,6 +27,24 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, tilt_a) {
     top_arc_start_a = arc_start_a + arc_length_to_angle(bottom_inner_r, 2);
     top_arc_end_a   = arc_end_a   - arc_length_to_angle(bottom_inner_r, 2);
 
+    module dish(fa) {
+        dish_arc_start_a = top_arc_start_a + arc_length_to_angle(arc_r, 5);
+        dish_arc_end_a   = top_arc_end_a   - arc_length_to_angle(arc_r, 5);
+
+        translate([0, 0, keycap_height + dish_r]) {
+            union() {
+                for (a = [dish_arc_start_a : fa : dish_arc_end_a]) {
+                    b = min(a + fa, dish_arc_end_a);
+
+                    hull() {
+                        rotate([0, 90, a]) cylinder(r = dish_r, h = bottom_outer_r);
+                        rotate([0, 90, b]) cylinder(r = dish_r, h = bottom_outer_r);
+                    }
+                }
+            }
+        }
+    }
+
     module arc(outer_r, inner_r, start_a, end_a) {
         intersection() {
             difference() {
@@ -69,7 +87,10 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, tilt_a) {
         }
     }
 
-    outer();
+    difference() {
+        outer();
+        dish(5);
+    }
 }
 
 /*
