@@ -135,10 +135,14 @@ translate([16 * -0.75, 0]) rotate([0, 0, 2.5]) {
     translate([16 * -0.875, 0]) keycap_with_stem(-1.625, -2.0, case_x = -1.625, case_y = -2, w = 1.75, h = 1);
 }
 
-translate([16 * 0.125, 16 * 0]) keycap_with_stem(-2, 1.5, case_x = -0.125, case_y = -2, w = 1.75, h = 1, is_cylindrical = true);
-translate([16, 16 * 0 - 65]) thumb_keycap(65, 35, 52, 16);
-translate([16, 16 * 0 - 65]) thumb_keycap(65, 52, 71, 16);
-translate([16, 16 * 0 - 65]) thumb_keycap(65, 71, 90, 16);
+translate([16 * 0.125, 16 * 0]) keycap_with_stem(-1.5, 1.5, case_x = -0.125, case_y = -2, w = 1.75, h = 1, is_cylindrical = true);
+
+thumb_angle_bias = -61;
+translate([16, 16 * 0 - 65]) rotate([0, 0, -thumb_angle_bias]) {
+    thumb_keycap(65, 35 + thumb_angle_bias, 52 + thumb_angle_bias, 16);
+    thumb_keycap(65, 52 + thumb_angle_bias, 71 + thumb_angle_bias, 16);
+    thumb_keycap(65, 71 + thumb_angle_bias, 90 + thumb_angle_bias, 16);
+}
 
 /*
 translate([16 * -1.625, 16 * -2]) keycap_with_stem(-1.625, -2, case_x = -1.625, case_y = -2, w = 1.75, h = 1);

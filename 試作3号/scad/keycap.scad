@@ -14,9 +14,11 @@ dish_r = 20;
 tilt_xr = 260;
 tilt_yr = 130;
 
+thumb_tilt_r = 16;
+
 function arc_length_to_angle(arc_r, length) = length * 360 / 2 / PI / arc_r;
 
-module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, tilt_a) {
+module thumb_keycap(arc_r, arc_start_a, arc_end_a, h) {
     bottom_inner_r = arc_r - h / 2 + 0.375;
     bottom_outer_r = arc_r + h / 2 - 0.375;
     bottom_arc_start_a = arc_start_a + arc_length_to_angle(bottom_inner_r, 0.375);
@@ -31,14 +33,17 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, tilt_a) {
         dish_arc_start_a = top_arc_start_a + arc_length_to_angle(arc_r, 5);
         dish_arc_end_a   = top_arc_end_a   - arc_length_to_angle(arc_r, 5);
 
-        translate([0, 0, keycap_height + dish_r]) {
+        translate([0, 0, dish_r]) {
             union() {
                 for (a = [dish_arc_start_a : fa : dish_arc_end_a]) {
                     b = min(a + fa, dish_arc_end_a);
 
+                    tilt_a = atan2(thumb_tilt_r * (1 + sin(a - 90)), arc_r);
+                    tilt_b = atan2(thumb_tilt_r * (1 + sin(b - 90)), arc_r);
+
                     hull() {
-                        rotate([0, 90, a]) cylinder(r = dish_r, h = bottom_outer_r);
-                        rotate([0, 90, b]) cylinder(r = dish_r, h = bottom_outer_r);
+                        rotate([0, 85 - tilt_a, a]) cylinder(r = dish_r, h = bottom_outer_r);
+                        rotate([0, 85 - tilt_b, b]) cylinder(r = dish_r, h = bottom_outer_r);
                     }
                 }
             }
@@ -77,19 +82,19 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, tilt_a) {
         difference() {
             hull() {
                 round_arc(bottom_outer_r, bottom_inner_r, bottom_arc_start_a, bottom_arc_end_a, 1);
-                translate([0, 0, 10]) round_arc(top_outer_r, top_inner_r, top_arc_start_a, top_arc_end_a, 1);
+                translate([0, 0, 12]) round_arc(top_outer_r, top_inner_r, top_arc_start_a, top_arc_end_a, 1);
             }
 
             hull() {
                 cylinder(r = bottom_inner_r, h = 0.01, $fa = keycap_visible_fa);
-                translate([0, 0, 10]) cylinder(r = top_inner_r, h = 0.1, $fa = keycap_visible_fa);
+                translate([0, 0, 12]) cylinder(r = top_inner_r, h = 0.1, $fa = keycap_visible_fa);
             }
         }
     }
 
     difference() {
         outer();
-        dish(5);
+        dish(1);
     }
 }
 
@@ -160,7 +165,7 @@ module keycap(x, y, w = 1, h = 1,
                     ]);
 
                     rotate([-tilt_ya, 0, 0]) {
-                        cylinder(r = dish_r, h = dish_r, center = true, $fa = fa);
+                        cylinder(r = dish_r, h = 32, center = true, $fa = fa);
                     }
                 }
             }
