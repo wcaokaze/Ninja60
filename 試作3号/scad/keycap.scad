@@ -50,11 +50,11 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h) {
         }
     }
 
-    module arc(outer_r, inner_r, start_a, end_a) {
+    module arc(outer_r, inner_r, start_a, end_a, fa) {
         intersection() {
             difference() {
-                cylinder(r = outer_r, h = 0.01, $fa = keycap_visible_fa);
-                cylinder(r = inner_r, h = 0.01, $fa = keycap_visible_fa);
+                cylinder(r = outer_r, h = 0.01, $fa = fa);
+                cylinder(r = inner_r, h = 0.01, $fa = fa);
             }
 
             linear_extrude(h = 0.01) {
@@ -67,34 +67,75 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h) {
         }
     }
 
-    module round_arc(outer_r, inner_r, start_a, end_a, round_r) {
+    module round_arc(outer_r, inner_r, start_a, end_a, round_r, fa) {
         minkowski() {
             arc(outer_r - round_r,
                 inner_r + round_r,
                 start_a + arc_length_to_angle(inner_r, round_r),
-                end_a   - arc_length_to_angle(inner_r, round_r));
+                end_a   - arc_length_to_angle(inner_r, round_r),
+                fa);
 
-            cylinder(r = round_r, h = 0.001, $fa = keycap_visible_fa);
+            cylinder(r = round_r, h = 0.001, $fa = fa);
         }
     }
 
     module outer() {
         difference() {
             hull() {
-                round_arc(bottom_outer_r, bottom_inner_r, bottom_arc_start_a, bottom_arc_end_a, 1);
-                translate([0, 0, 12]) round_arc(top_outer_r, top_inner_r, top_arc_start_a, top_arc_end_a, 1);
+                round_arc(bottom_outer_r, bottom_inner_r, bottom_arc_start_a, bottom_arc_end_a, 1, keycap_visible_fa);
+                translate([0, 0, 12]) round_arc(top_outer_r, top_inner_r, top_arc_start_a, top_arc_end_a, 1, keycap_visible_fa);
             }
 
             hull() {
                 cylinder(r = bottom_inner_r, h = 0.01, $fa = keycap_visible_fa);
                 translate([0, 0, 12]) cylinder(r = top_inner_r, h = 0.1, $fa = keycap_visible_fa);
             }
+
+            dish(1);
+        }
+    }
+
+    module inner() {
+        difference() {
+            hull() {
+                arc(
+                    bottom_outer_r - keycap_thickness,
+                    bottom_inner_r + keycap_thickness,
+                    bottom_arc_start_a + arc_length_to_angle(bottom_inner_r, keycap_thickness),
+                    bottom_arc_end_a   - arc_length_to_angle(bottom_inner_r, keycap_thickness),
+                    1,
+                    keycap_invisible_fa
+                );
+
+                translate([0, 0, 12]) arc(
+                    top_outer_r - keycap_thickness,
+                    top_inner_r + keycap_thickness,
+                    top_arc_start_a + arc_length_to_angle(top_inner_r, keycap_thickness),
+                    top_arc_end_a   - arc_length_to_angle(top_inner_r, keycap_thickness),
+                    1,
+                    keycap_invisible_fa
+                );
+            }
+
+            hull() {
+                cylinder(
+                    r = bottom_inner_r + keycap_thickness,
+                    h = 0.01, $fa = keycap_invisible_fa
+                );
+
+                translate([0, 0, 12]) cylinder(
+                    r = top_inner_r + keycap_thickness,
+                    h = 0.1, $fa = keycap_invisible_fa
+                );
+            }
+
+            translate([0, 0, -keycap_thickness]) dish(1);
         }
     }
 
     difference() {
         outer();
-        dish(1);
+        inner();
     }
 }
 
