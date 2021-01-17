@@ -18,7 +18,7 @@ thumb_tilt_r = 16;
 
 function arc_length_to_angle(arc_r, length) = length * 360 / 2 / PI / arc_r;
 
-module thumb_keycap(arc_r, arc_start_a, arc_end_a, h) {
+module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, polishing_margin = 0) {
     bottom_inner_r = arc_r - h / 2 + 0.375;
     bottom_outer_r = arc_r + h / 2 - 0.375;
     bottom_arc_start_a = arc_start_a + arc_length_to_angle(bottom_inner_r, 0.375);
@@ -133,9 +133,42 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h) {
         }
     }
 
-    difference() {
-        outer();
-        inner();
+    module pillar() {
+        intersection() {
+            union() {
+                translate([0, 0, 2.5]) difference() {
+                    cylinder(r = arc_r + 1, h = 24, $fa = keycap_invisible_fa);
+                    cylinder(r = arc_r - 1, h = 24, $fa = keycap_invisible_fa);
+                }
+
+                rotate([0, 0, (arc_start_a + arc_end_a) / 2]) {
+                    translate([0, -1, 2.5]) cube([bottom_outer_r, 2, 24]);
+
+                    translate([(bottom_outer_r + bottom_inner_r) / 2, 0]) {
+                        translate([0, 0, 2.5]) {
+                            polygon_pyramid(16, 4.3, h = 24);
+                        }
+
+                        north_south_thickness = 1.05 + polishing_margin;
+                        east_west_thickness   = 1.25 + polishing_margin;
+
+                        translate([0, 0, 12.5]) cube([north_south_thickness, 4, 24], center = true);
+                        translate([0, 0, 12.5]) cube([4, east_west_thickness,   24], center = true);
+                    }
+                }
+            }
+
+            outer();
+        }
+    }
+
+    union() {
+        difference() {
+            outer();
+            inner();
+        }
+
+        pillar();
     }
 }
 
