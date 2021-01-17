@@ -201,7 +201,7 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, polishing_margin = 0) {
  */
 module keycap(x, y, w = 1, h = 1,
               is_fluent_to_north = false, is_fluent_to_south = false,
-              is_cylindrical = false, is_home_position = false,
+              is_cylindrical = false, is_home_position = false, is_thin_pillar = false,
               bottom_z = 0,
               left_wall_angle = 0, right_wall_angle = 0, wall_y = 0,
               polishing_margin = 0)
@@ -341,7 +341,7 @@ module keycap(x, y, w = 1, h = 1,
                 translate([- 1, -16.0, 2.5]) cube([ 2, 32, 24]);
 
                 translate([0, 0, 2.5]) {
-                    polygon_pyramid(16, 4.3, h = (x >= -2 && x <= 2) ? 24 : 2);
+                    polygon_pyramid(16, 4.3, h = is_thin_pillar ? 2 : 24);
                 }
 
                 north_south_thickness = 1.05 + polishing_margin;

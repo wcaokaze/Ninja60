@@ -17,12 +17,12 @@ include <stem_holder.scad>;
 module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
                         is_fluent_to_north = false, is_fluent_to_south = false,
                         left_wall_angle = 0, right_wall_angle = 0, wall_y = 0,
-                        is_cylindrical = false, is_home_position = false)
+                        is_cylindrical = false, is_home_position = false, is_thin_pillar = false)
 {
     keycap(
         x, y, w, h,
         is_fluent_to_north, is_fluent_to_south,
-        is_cylindrical, is_home_position,
+        is_cylindrical, is_home_position, is_thin_pillar,
         bottom_z = case_curve_z(
             key_pitch * close_origin(case_x, 0.5),
             key_pitch * (case_y - 0.5)
@@ -47,7 +47,8 @@ translate([
 ]) rotate([0, 0, column_angle * 1]) {
     for (y = [-1 : 2]) {
         translate([-keycap_half_width - key_pitch, key_pitch * (y + 2)]) keycap_with_stem(
-                -2, y, case_x = -2, case_y = y
+                -2, y, case_x = -2, case_y = y,
+                is_thin_pillar = false
         );
     }
 
@@ -55,7 +56,8 @@ translate([
         translate([-keycap_half_width, key_pitch * (y + 2)]) keycap_with_stem(
                 -1, y, case_x = -1, case_y = y,
                 right_wall_angle = -column_angle / 2,
-                wall_y = y + 2
+                wall_y = y + 2,
+                is_thin_pillar = false
         );
     }
 }
@@ -71,7 +73,8 @@ translate([
                 0, y, case_x = 0, case_y = y + s,
                 left_wall_angle  =  column_angle / 2,
                 right_wall_angle = -column_angle / 2,
-                wall_y = y + s + 2
+                wall_y = y + s + 2,
+                is_thin_pillar = false
         );
     }
 }
@@ -87,7 +90,8 @@ translate([
                 1, y, case_x = 1, case_y = y + s,
                 left_wall_angle  =  column_angle / 2,
                 right_wall_angle = -column_angle / 2,
-                wall_y = y + s + 2
+                wall_y = y + s + 2,
+                is_thin_pillar = false
         );
     }
 }
@@ -106,7 +110,8 @@ translate([
                 wall_y = y + s + 2,
                 is_fluent_to_north = (y == 0),
                 is_fluent_to_south = (y == 1),
-                is_home_position = (y == 0)
+                is_home_position = (y == 0),
+                is_thin_pillar = false
         );
     }
 }
@@ -122,20 +127,21 @@ translate([
                 left_wall_angle = column_angle / 2,
                 wall_y = y + 2,
                 is_fluent_to_north = (y == 0),
-                is_fluent_to_south = (y == 1)
+                is_fluent_to_south = (y == 1),
+                is_thin_pillar = true
         );
     }
 
-    translate([key_pitch + keycap_half_width, key_pitch * 0.5]) keycap_with_stem(4, 0, case_x = 4, case_y = -1.75, is_cylindrical = true);
-    translate([key_pitch + keycap_half_width, key_pitch * 2.0]) keycap_with_stem(4, 1, case_x = 4, case_y = -0.25, w = 1, h = 2);
-    translate([key_pitch + keycap_half_width, key_pitch * 3.5]) keycap_with_stem(4, 1, case_x = 4, case_y =  1.25);
+    translate([key_pitch + keycap_half_width, key_pitch * 0.5]) keycap_with_stem(4, 0, case_x = 4, case_y = -1.75, is_thin_pillar = true, is_cylindrical = true);
+    translate([key_pitch + keycap_half_width, key_pitch * 2.0]) keycap_with_stem(4, 1, case_x = 4, case_y = -0.25, is_thin_pillar = true, w = 1, h = 2);
+    translate([key_pitch + keycap_half_width, key_pitch * 3.5]) keycap_with_stem(4, 1, case_x = 4, case_y =  1.25, is_thin_pillar = true);
 }
 
 translate([16 * -0.75, 0]) rotate([0, 0, 2.5]) {
-    translate([16 * -0.875, 0]) keycap_with_stem(-1.625, -2.0, case_x = -1.625, case_y = -2, w = 1.75, h = 1);
+    translate([16 * -0.875, 0]) keycap_with_stem(-1.625, -2.0, case_x = -1.625, case_y = -2, w = 1.75, h = 1, is_thin_pillar = true);
 }
 
-translate([16 * 0.125, 16 * 0]) keycap_with_stem(-1.5, 1.5, case_x = -0.125, case_y = -2, w = 1.75, h = 1, is_cylindrical = true);
+translate([16 * 0.125, 16 * 0]) keycap_with_stem(-1.5, 1.5, case_x = -0.125, case_y = -2, w = 1.75, h = 1, is_cylindrical = true, is_thin_pillar = false);
 
 thumb_angle_bias = -61;
 translate([16, 16 * 0 - 65]) rotate([0, 0, -thumb_angle_bias]) {
