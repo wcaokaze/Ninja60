@@ -3,6 +3,7 @@ include <shared.scad>;
 include <keycap.scad>;
 include <case.scad>;
 include <stem_holder.scad>;
+include <o_ring.scad>;
 
 /*
  * デバッグ用。キーキャップに透明のステムホルダーが挿さった状態のモデルを生成します
@@ -35,6 +36,7 @@ module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
     }
 
     translate([0, 0, -3]) %stem_holder();
+    translate([0, 0, 0.5]) o_ring();
 }
 
 keycap_half_width = key_pitch / 2 - keycap_margin;
