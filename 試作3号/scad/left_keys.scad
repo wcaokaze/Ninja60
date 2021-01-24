@@ -15,13 +15,13 @@ include <o_ring.scad>;
  * case_y - ケースの原点に対してキーが配置される位置。U単位。
  *          あえてyと一致させないことでy == 0のキーを南端に配置することなどが可能
  */
-module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1,
+module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1, legend = "",
                         is_fluent_to_north = false, is_fluent_to_south = false,
                         left_wall_angle = 0, right_wall_angle = 0, wall_y = 0,
                         is_cylindrical = false, is_home_position = false, is_thin_pillar = false)
 {
     keycap(
-        x, y, w, h,
+        x, y, w, h, legend,
         is_fluent_to_north, is_fluent_to_south,
         is_cylindrical, is_home_position, is_thin_pillar,
         bottom_z = case_curve_z(
@@ -54,9 +54,10 @@ translate([
         );
     }
 
+    legends = ["Z", "A", "'", "1"];
     for (y = [-1 : 2]) {
         translate([-keycap_half_width, key_pitch * (y + 2)]) keycap_with_stem(
-                -1, y, case_x = -1, case_y = y,
+                -1, y, case_x = -1, case_y = y, legend = legends[y + 1],
                 right_wall_angle = -column_angle / 2,
                 wall_y = y + 2,
                 is_thin_pillar = false
@@ -70,9 +71,10 @@ translate([
     keycap_half_width * sin(column_angle * 0)
 ]) rotate([0, 0, column_angle * 0]) {
     s = 0.5;
+    legends = ["Q", "O", ",", "2"];
     for (y = [-1 : 2]) {
         translate([-keycap_half_width, key_pitch * (y + s + 2)]) keycap_with_stem(
-                0, y, case_x = 0, case_y = y + s,
+                0, y, case_x = 0, case_y = y + s, legend = legends[y + 1],
                 left_wall_angle  =  column_angle / 2,
                 right_wall_angle = -column_angle / 2,
                 wall_y = y + s + 2,
@@ -87,9 +89,10 @@ translate([
     keycap_half_width * sin(column_angle * 0) + keycap_margin * 2 * sin(column_angle * -1)
 ]) rotate([0, 0, column_angle * -1]) {
     s = 0.75;
+    legends = ["J", "E", ".", "3"];
     for (y = [-1 : 2]) {
         translate([keycap_half_width, key_pitch * (y + s + 2)]) keycap_with_stem(
-                1, y, case_x = 1, case_y = y + s,
+                1, y, case_x = 1, case_y = y + s, legend = legends[y + 1],
                 left_wall_angle  =  column_angle / 2,
                 right_wall_angle = -column_angle / 2,
                 wall_y = y + s + 2,
@@ -104,9 +107,10 @@ translate([
     keycap_half_width * sin(column_angle * 0) + key_pitch * sin(column_angle * -1) + keycap_margin * 2 * sin(column_angle * -2)
 ]) rotate([0, 0, column_angle * -2]) {
     s = 0.25;
+    legends = ["K", "U", "P", "4"];
     for (y = [-1 : 2]) {
         translate([keycap_half_width, key_pitch * (y + s + 2)]) keycap_with_stem(
-                2, y, case_x = 2, case_y = y + s,
+                2, y, case_x = 2, case_y = y + s, legend = legends[y + 1],
                 left_wall_angle  =  column_angle / 2,
                 right_wall_angle = -column_angle / 2,
                 wall_y = y + s + 2,
@@ -123,9 +127,10 @@ translate([
     keycap_half_width * cos(column_angle * 0) + key_pitch * cos(column_angle * -1) + key_pitch * cos(column_angle * -2) + keycap_margin * 2 * cos(column_angle * -3),
     keycap_half_width * sin(column_angle * 0) + key_pitch * sin(column_angle * -1) + key_pitch * sin(column_angle * -2) + keycap_margin * 2 * sin(column_angle * -3)
 ]) rotate([0, 0, column_angle * -3]) {
+    legends = ["X", "I", "Y", "5"];
     for (y = [-1 : 2]) {
         translate([keycap_half_width, key_pitch * (y + 2)]) keycap_with_stem(
-                3, y, case_x = 3, case_y = y,
+                3, y, case_x = 3, case_y = y, legend = legends[y + 1],
                 left_wall_angle = column_angle / 2,
                 wall_y = y + 2,
                 is_fluent_to_north = (y == 0),

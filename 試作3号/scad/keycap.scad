@@ -1,5 +1,6 @@
 
 include <shared.scad>;
+use <../../res/Cica-Regular.ttf>;
 
 keycap_visible_fa = 15; // 0.6;
 keycap_invisible_fa = 8;
@@ -179,6 +180,7 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, polishing_margin = 0) {
  * y                  - 南北方向のキーの位置。U単位。
  * w                  - 東西方向のキーの長さ。U単位。
  * h                  - 南北方向のキーの長さ。U単位。
+ * legend             - 刻印の文字列。
  * is_fluent_to_north - 上面の凹みが北側のキーと繋がるようになります。
  *                      is_cylindricalがtrueの場合は無視されます。
  * is_fluent_to_south - 上面の凹みが南側のキーと繋がるようになります。
@@ -199,7 +201,7 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, polishing_margin = 0) {
  * polishing_margin   - ステムの十字部が太くなります。mm単位
  *                      磨きなどする場合に削れる分を想定して指定しましょう
  */
-module keycap(x, y, w = 1, h = 1,
+module keycap(x, y, w = 1, h = 1, legend,
               is_fluent_to_north = false, is_fluent_to_south = false,
               is_cylindrical = false, is_home_position = false, is_thin_pillar = false,
               bottom_z = 0,
@@ -269,6 +271,27 @@ module keycap(x, y, w = 1, h = 1,
                     sphere(dish_r, $fa = fa);
                 }
             }
+        }
+    }
+
+    module legend(text) {
+        intersection() {
+            translate([
+                -4 * cos(tilt_xa),
+                -4 * cos(tilt_ya),
+                keycap_height + dish_position_z
+            ]) {
+                rotate([90 - tilt_ya, tilt_xa - 90]) {
+                    linear_extrude(h = 8, center = true) text(
+                        text, size = 6,
+                        font = "Cica", halign = "center", valign = "center",
+                        direction = "ltr", language = "en",
+                        $fa = keycap_visible_fa
+                    );
+                }
+            }
+
+            dish(keycap_height - 0.5, keycap_visible_fa);
         }
     }
 
@@ -377,19 +400,23 @@ module keycap(x, y, w = 1, h = 1,
         }
     }
 
-    union() {
-        difference() {
-            union() {
-                outer() { children(); }
+    difference() {
+        union() {
+            difference() {
+                union() {
+                    outer() { children(); }
 
-                if (is_home_position) {
-                    home_position_mark();
+                    if (is_home_position) {
+                        home_position_mark();
+                    }
                 }
+
+                inner();
             }
 
-            inner();
+            pillar() { children(); }
         }
 
-        pillar() { children(); }
+        legend(legend);
     }
 }
