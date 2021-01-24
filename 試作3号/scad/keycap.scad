@@ -196,7 +196,7 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, polishing_margin = 0) {
  * left_wall_angle    - 外形の左側に角度がつきます。0が北、90が西向き
  * right_wall_angle   - 外形の左側に角度がつきます。0が北、-90が東向き
  * wall_y             - left_wall_angle, right_wall_angleを指定する場合の
- *                      このキーの中心のY座標。
+ *                      このキーの中心のY座標。mm単位
  *                      この値が大きいほどキーの幅が広くなることになりますね
  * polishing_margin   - ステムの十字部が太くなります。mm単位
  *                      磨きなどする場合に削れる分を想定して指定しましょう
@@ -215,10 +215,10 @@ module keycap(x, y, w = 1, h = 1, legend,
 
     bottom_north_y =  bottom_h / 2;
     bottom_south_y = -bottom_h / 2;
-    bottom_north_left_x  = -bottom_w / 2 + (key_pitch * wall_y + bottom_north_y) / tan(90 + left_wall_angle);
-    bottom_north_right_x =  bottom_w / 2 + (key_pitch * wall_y + bottom_north_y) / tan(90 + right_wall_angle);
-    bottom_south_left_x  = -bottom_w / 2 + (key_pitch * wall_y + bottom_south_y) / tan(90 + left_wall_angle);
-    bottom_south_right_x =  bottom_w / 2 + (key_pitch * wall_y + bottom_south_y) / tan(90 + right_wall_angle);
+    bottom_north_left_x  = -bottom_w / 2 + (wall_y + bottom_north_y) / tan(90 + left_wall_angle);
+    bottom_north_right_x =  bottom_w / 2 + (wall_y + bottom_north_y) / tan(90 + right_wall_angle);
+    bottom_south_left_x  = -bottom_w / 2 + (wall_y + bottom_south_y) / tan(90 + left_wall_angle);
+    bottom_south_right_x =  bottom_w / 2 + (wall_y + bottom_south_y) / tan(90 + right_wall_angle);
 
     tilt_xa = acos(key_pitch * x / tilt_xr);
     tilt_ya = acos(key_pitch * y / tilt_yr);

@@ -30,7 +30,7 @@ function interpolate(start, end, rate) = start + (end - start) * rate;
 module case_curve() {
     step = 0.1;
 
-    translate([0, key_pitch * -2.5, case_curve_r]) union() {
+    translate([0, key_pitch * -0.5, case_curve_r]) union() {
         for (i = [0 : step : 1]) {
             a_angle = interpolate(case_start_angle, case_end_angle, i);
             a_y = case_curve_r * cos(a_angle);
