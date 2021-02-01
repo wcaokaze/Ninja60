@@ -172,11 +172,3 @@ translate([16, 16 * 0 - 65]) rotate([0, 0, -thumb_angle_bias]) {
     thumb_keycap(65, 52 + thumb_angle_bias, 71 + thumb_angle_bias, 16);
     thumb_keycap(65, 71 + thumb_angle_bias, 90 + thumb_angle_bias, 16);
 }
-
-/*
-translate([16 * -1.625, 16 * -2]) keycap_with_stem(-1.625, -2, case_x = -1.625, case_y = -2, w = 1.75, h = 1);
-translate([16 * -0.125, 16 * -2]) keycap_with_stem(-2.000,  1, case_x = -0.125, case_y = -2, w = 1.25, h = 1, is_cylindrical = true);
-translate([16 *  1.250, 16 * -2]) keycap_with_stem(-1.250,  1, case_x =  1.250, case_y = -2, w = 1.50, h = 1, is_cylindrical = true);
-translate([16 *  2.750, 16 * -2]) keycap_with_stem( 1.250,  1, case_x =  2.750, case_y = -2, w = 1.50, h = 1, is_cylindrical = true);
-translate([16 *  4.000, 16 * -2]) keycap_with_stem( 2.500,  1, case_x =  4.000, case_y = -2, w = 1.00, h = 1, is_cylindrical = true);
-*/
