@@ -53,7 +53,7 @@ translate([
         case_y = key_pitch * (y + 2) + s2;
         translate([-keycap_half_width - 2 * key_pitch, case_y]) keycap_with_stem(
                 -3, y, case_x, case_y,
-                is_thin_pillar = false
+                is_thin_pillar = true
         );
     }
 
@@ -146,7 +146,7 @@ translate([
     }
 }
 
-// x = [3, 4]
+// x = 3
 translate([
     keycap_half_width * cos(column_angle * 0) + key_pitch * cos(column_angle * -1) + key_pitch * cos(column_angle * -2) + keycap_margin * 2 * cos(column_angle * -3),
     keycap_half_width * sin(column_angle * 0) + key_pitch * sin(column_angle * -1) + key_pitch * sin(column_angle * -2) + keycap_margin * 2 * sin(column_angle * -3)
