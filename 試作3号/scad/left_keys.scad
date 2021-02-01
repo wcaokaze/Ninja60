@@ -47,20 +47,20 @@ translate([
     -keycap_half_width * cos(column_angle * 0) - keycap_margin * 2 * cos(column_angle * 1),
     -keycap_half_width * sin(column_angle * 0) - keycap_margin * 2 * sin(column_angle * 1)
 ]) rotate([0, 0, column_angle * 1]) {
-    s2 = -0.65;
+    s2 = -10.4;
     for (y = [0 : 2]) {
         case_x = key_pitch * -3;
-        case_y = key_pitch * (y + s2 + 2);
+        case_y = key_pitch * (y + 2) + s2;
         translate([-keycap_half_width - 2 * key_pitch, case_y]) keycap_with_stem(
                 -3, y, case_x, case_y,
                 is_thin_pillar = false
         );
     }
 
-    s1 = -0.25;
+    s1 = -4;
     for (y = [-1 : 2]) {
         case_x = key_pitch * -2;
-        case_y = key_pitch * (y + s1 + 2);
+        case_y = key_pitch * (y + 2) + s1;
         translate([-keycap_half_width - key_pitch, case_y]) keycap_with_stem(
                 -2, y, case_x, case_y,
                 is_thin_pillar = false
@@ -85,11 +85,11 @@ translate([
     keycap_half_width * cos(column_angle * 0),
     keycap_half_width * sin(column_angle * 0)
 ]) rotate([0, 0, column_angle * 0]) {
-    s = 0.5;
+    s = 8;
     legends = ["Q", "O", ",", "2"];
     for (y = [-1 : 2]) {
         case_x = key_pitch * 0;
-        case_y = key_pitch * (y + s + 2);
+        case_y = key_pitch * (y + 2) + s;
         translate([-keycap_half_width, case_y]) keycap_with_stem(
                 0, y, case_x, case_y, legend = legends[y + 1],
                 left_wall_angle  =  column_angle / 2,
@@ -105,11 +105,11 @@ translate([
     keycap_half_width * cos(column_angle * 0) + keycap_margin * 2 * cos(column_angle * -1),
     keycap_half_width * sin(column_angle * 0) + keycap_margin * 2 * sin(column_angle * -1)
 ]) rotate([0, 0, column_angle * -1]) {
-    s = 0.75;
+    s = 12;
     legends = ["J", "E", ".", "3"];
     for (y = [-1 : 2]) {
         case_x = key_pitch * 1;
-        case_y = key_pitch * (y + s + 2);
+        case_y = key_pitch * (y + 2) + s;
         translate([keycap_half_width, case_y]) keycap_with_stem(
                 1, y, case_x, case_y,
                 legend = legends[y + 1],
@@ -126,11 +126,11 @@ translate([
     keycap_half_width * cos(column_angle * 0) + key_pitch * cos(column_angle * -1) + keycap_margin * 2 * cos(column_angle * -2),
     keycap_half_width * sin(column_angle * 0) + key_pitch * sin(column_angle * -1) + keycap_margin * 2 * sin(column_angle * -2)
 ]) rotate([0, 0, column_angle * -2]) {
-    s = 0.25;
+    s = 4;
     legends = ["K", "U", "P", "4"];
     for (y = [-1 : 2]) {
         case_x = key_pitch * 2;
-        case_y = key_pitch * (y + s + 2);
+        case_y = key_pitch * (y + 2) + s;
         translate([keycap_half_width, case_y]) keycap_with_stem(
                 2, y, case_x, case_y,
                 legend = legends[y + 1],
