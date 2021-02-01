@@ -167,9 +167,8 @@ translate([
     }
 }
 
-thumb_angle_bias = -61;
-translate([16, 16 * 0 - 65]) rotate([0, 0, -thumb_angle_bias]) {
-    thumb_keycap(65, 35 + thumb_angle_bias, 52 + thumb_angle_bias, 16);
-    thumb_keycap(65, 52 + thumb_angle_bias, 71 + thumb_angle_bias, 16);
-    thumb_keycap(65, 71 + thumb_angle_bias, 90 + thumb_angle_bias, 16);
+translate([16, 16 * 0 - 65]) rotate([0, 0, 63]) {
+    thumb_keycap(65, -9 - 15, -9, 16);
+    thumb_keycap(65, -9, 9, 16, 16);
+    thumb_keycap(65, 9, 9 + 15, 16);
 }
