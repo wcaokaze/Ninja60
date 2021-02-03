@@ -168,7 +168,7 @@ translate([
 }
 
 translate([16, 16 * 0 - 65]) rotate([0, 0, 63]) {
-    thumb_keycap(65, -9 - 15, -9, 16);
-    thumb_keycap(65, -9, 9, 16, 16);
-    thumb_keycap(65, 9, 9 + 15, 16);
+    thumb_keycap(65, -9 - 15,     -9, 16);
+    thumb_keycap(65,      -9,      9, 16);
+    thumb_keycap(65,       9, 9 + 15, 16);
 }
