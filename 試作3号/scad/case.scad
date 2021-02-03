@@ -54,7 +54,7 @@ module case_curve() {
     }
 }
 
-function case_y_to_angle(y) = atan2(-case_curve_r, (y + 2.5 * key_pitch));
+function case_y_to_angle(y) = atan2(-case_curve_r, (y + 0.5 * key_pitch));
 
 function case_y_to_interpolate_rate(y)
     = (case_y_to_angle(y) - case_start_angle) / (case_end_angle - case_start_angle);
