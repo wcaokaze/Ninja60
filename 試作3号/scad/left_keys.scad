@@ -36,7 +36,7 @@ module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1, legend = "",
     }
 
     translate([0, 0, -3]) %stem_holder();
-    translate([0, 0, 0.5]) o_ring();
+    translate([0, 0, 0.5]) %o_ring();
 }
 
 keycap_half_width = key_pitch / 2 - keycap_margin;
