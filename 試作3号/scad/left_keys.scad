@@ -47,6 +47,7 @@ translate([
     -keycap_half_width * cos(column_angle * 0) - keycap_margin * 2 * cos(column_angle * 1),
     -keycap_half_width * sin(column_angle * 0) - keycap_margin * 2 * sin(column_angle * 1)
 ]) rotate([0, 0, column_angle * 1]) {
+    /*
     s2 = -10.4;
     for (y = [0 : 2]) {
         case_x = key_pitch * -3;
@@ -56,6 +57,7 @@ translate([
                 is_thin_pillar = true
         );
     }
+    */
 
     s1 = -4;
     for (y = [-1 : 2]) {
@@ -168,7 +170,8 @@ translate([
 }
 
 translate([16, 16 * 0 - 65]) rotate([0, 0, 63]) {
-    thumb_keycap(65, -9 - 15,     -9, 16);
-    thumb_keycap(65,      -9,      9, 16);
-    thumb_keycap(65,       9, 9 + 15, 16);
+    thumb_keycap(65, -9 + 15 * -2, -9 + 15 * -1, 16);
+    thumb_keycap(65, -9 + 15 * -1, -9 + 15 *  0, 16);
+    thumb_keycap(65, -9 + 15 *  0, -9 + 15 *  1, 16);
+    thumb_keycap(65, -9 + 15 *  1, -9 + 15 *  2, 16);
 }
