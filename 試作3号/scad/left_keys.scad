@@ -47,18 +47,6 @@ translate([
     -keycap_half_width * cos(column_angle * 0) - keycap_margin * 2 * cos(column_angle * 1),
     -keycap_half_width * sin(column_angle * 0) - keycap_margin * 2 * sin(column_angle * 1)
 ]) rotate([0, 0, column_angle * 1]) {
-    /*
-    s2 = -10.4;
-    for (y = [0 : 2]) {
-        case_x = key_pitch * -3;
-        case_y = key_pitch * (y + 2) + s2;
-        translate([-keycap_half_width - 2 * key_pitch, case_y]) keycap_with_stem(
-                -3, y, case_x, case_y,
-                is_thin_pillar = true
-        );
-    }
-    */
-
     s1 = -4;
     for (y = [-1 : 2]) {
         case_x = key_pitch * -2;

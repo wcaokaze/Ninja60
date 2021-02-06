@@ -2,6 +2,9 @@
 include <shared.scad>;
 use <../../res/Cica-Regular.ttf>;
 
+enable_only_outer = true;
+enable_legends    = false;
+
 keycap_visible_fa = 15; // 0.6;
 keycap_invisible_fa = 8;
 
@@ -164,12 +167,16 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, polishing_margin = 0) {
     }
 
     union() {
-        difference() {
+        if (enable_only_outer) {
             outer();
-            inner();
-        }
+        } else {
+            difference() {
+                outer();
+                inner();
+            }
 
-        pillar();
+            pillar();
+        }
     }
 }
 
@@ -401,22 +408,28 @@ module keycap(x, y, w = 1, h = 1, legend,
     }
 
     difference() {
-        union() {
-            difference() {
-                union() {
-                    outer() { children(); }
+        if (enable_only_outer) {
+            outer() { children(); }
+        } else {
+            union() {
+                difference() {
+                    union() {
+                        outer() { children(); }
 
-                    if (is_home_position) {
-                        home_position_mark();
+                        if (is_home_position) {
+                            home_position_mark();
+                        }
                     }
+
+                    inner();
                 }
 
-                inner();
+                pillar() { children(); }
             }
-
-            pillar() { children(); }
         }
 
-        legend(legend);
+        if (enable_legends) {
+            legend(legend);
+        }
     }
 }
