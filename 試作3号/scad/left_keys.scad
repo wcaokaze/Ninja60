@@ -4,6 +4,7 @@ include <keycap.scad>;
 include <case.scad>;
 include <stem_holder.scad>;
 include <o_ring.scad>;
+include <encoder_knob.scad>;
 
 /*
  * デバッグ用。キーキャップに透明のステムホルダーが挿さった状態のモデルを生成します
@@ -157,7 +158,9 @@ translate([
     }
 }
 
-translate([16, 16 * 0 - 65]) rotate([0, 0, 63]) {
+translate([14, 7]) encoder_knob();
+
+translate([16, 16 * 0 - 63]) rotate([0, 0, 61]) {
     thumb_keycap(65, -9 + 15 * -2, -9 + 15 * -1, 16);
     thumb_keycap(65, -9 + 15 * -1, -9 + 15 *  0, 16);
     thumb_keycap(65, -9 + 15 *  0, -9 + 15 *  1, 16);
