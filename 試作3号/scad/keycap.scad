@@ -295,20 +295,14 @@ module keycap(x, y, w = 1, h = 1, legend,
                     keycap_height + dish_position_z + dish_r - 3
             ]) {
                 minkowski() {
-                    rotate([tilt_ya - 90, tilt_xa - 90]) {
-                        translate([
-                                -key_pitch * (w - 1) / 2,
-                                -key_pitch * (h - 1) / 2 +
-                                        (is_fluent_to_south ? -key_pitch : 0)
-                        ]) {
-                            cube([
-                                    key_pitch * (w - 1) + 0.001,
-                                    key_pitch * (h - 1) + 0.001 +
-                                            (is_fluent_to_north ? key_pitch : 0) +
-                                            (is_fluent_to_south ? key_pitch : 0),
-                                    0.001
-                            ]);
-                        }
+                    translate([0, (is_fluent_to_south ? -key_pitch : 0)]) {
+                        cube([
+                                0.001,
+                                0.001 +
+                                    (is_fluent_to_north ? key_pitch : 0) +
+                                    (is_fluent_to_south ? key_pitch : 0),
+                                0.001
+                        ]);
                     }
 
                     sphere(dish_r, $fa = fa);
