@@ -19,87 +19,134 @@ tilt_xr = 260;
 tilt_yr = 130;
 
 thumb_tilt_r = 16;
+thumb_tilt_a = 3;
 
 function arc_length_to_angle(arc_r, length) = length * 360 / 2 / PI / arc_r;
 
-module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, polishing_margin = 0) {
+/**
+ * 親指用キーキャップ。
+ * 底が扇型で皿部分は通常のキーキャップと同様長方形にシリンドリカルのカーブ。
+ *
+ * arc_r            - 底の扇型の半径。外側ではなくキーキャップの中央までの半径。
+ * arc_start_a      - 底の扇型の開始角度
+ * arc_end_a        - 底の扇型の終了角度
+ * dish_offset      - 皿の位置。皿は円筒形なので位置をずらすと結果的に傾いているかのように見える
+ * h                - キーキャップの長さ。mm単位
+ * polishing_margin - ステムの十字部が太くなります。mm単位
+ *                    磨きなどする場合に削れる分を想定して指定しましょう
+ */
+module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_margin = 0) {
     bottom_inner_r = arc_r - h / 2 + 0.375;
     bottom_outer_r = arc_r + h / 2 - 0.375;
     bottom_arc_start_a = arc_start_a + arc_length_to_angle(bottom_inner_r, 0.375);
     bottom_arc_end_a   = arc_end_a   - arc_length_to_angle(bottom_inner_r, 0.375);
 
-    top_inner_r = arc_r - h / 2 + 2;
-    top_outer_r = arc_r + h / 2 - 2;
-    top_arc_start_a = arc_start_a + arc_length_to_angle(bottom_inner_r, 2);
-    top_arc_end_a   = arc_end_a   - arc_length_to_angle(bottom_inner_r, 2);
+    dish_position_z = dish_offset * sin(-acos(dish_offset / dish_r));
+    top_z = keycap_height + dish_position_z;
 
     module dish(fa) {
-        dish_arc_start_a = top_arc_start_a + arc_length_to_angle(arc_r, 5);
-        dish_arc_end_a   = top_arc_end_a   - arc_length_to_angle(arc_r, 5);
-
-        translate([0, 0, dish_r]) {
-            union() {
-                for (a = [dish_arc_start_a : fa : dish_arc_end_a]) {
-                    b = min(a + fa, dish_arc_end_a);
-
-                    tilt_a = atan2(thumb_tilt_r * (1 + sin(a - 90)), arc_r);
-                    tilt_b = atan2(thumb_tilt_r * (1 + sin(b - 90)), arc_r);
-
-                    hull() {
-                        rotate([0, 85 - tilt_a, a]) cylinder(r = dish_r, h = bottom_outer_r);
-                        rotate([0, 85 - tilt_b, b]) cylinder(r = dish_r, h = bottom_outer_r);
-                    }
-                }
+        translate([arc_r, dish_offset, top_z + dish_r - 2]) {
+            rotate([90 - thumb_tilt_a, 0, 90]) {
+                cylinder(r = dish_r, h = 32, center = true, $fa = fa);
             }
         }
     }
 
-    module arc(outer_r, inner_r, start_a, end_a, fa) {
-        intersection() {
-            difference() {
-                cylinder(r = outer_r, h = 0.01, $fa = fa);
-                cylinder(r = inner_r, h = 0.01, $fa = fa);
-            }
+    module arc(outer_r, inner_r, start_a, end_a, top_w, top_h, z, fa) {
+        function bottom_inner_x(a) = inner_r * cos(a);
+        function bottom_inner_y(a) = inner_r * sin(a);
+        function bottom_outer_x(a) = outer_r * cos(a);
+        function bottom_outer_y(a) = outer_r * sin(a);
 
-            linear_extrude(h = 0.01) {
-                polygon([
-                    [0, 0],
-                    [100 * cos(start_a), 100 * sin(start_a)],
-                    [100 * cos(end_a),   100 * sin(end_a)  ]
-                ]);
-            }
+        top_inner_x = arc_r + -top_h / 2;
+        top_outer_x = arc_r +  top_h / 2;
+        function top_y(a) = -top_w / 2 + top_w * (a - start_a) / (end_a - start_a);
+
+        points = [
+            [
+                for (a = [start_a, end_a]) [
+                    bottom_inner_x(a) + (top_inner_x - bottom_inner_x(a)) * (z / top_z),
+                    bottom_inner_y(a) + (top_y(a)    - bottom_inner_y(a)) * (z / top_z)
+                ]
+            ],
+            [
+                for (a = [end_a : (start_a - end_a) / 16 : start_a]) [
+                    bottom_outer_x(a) + (top_outer_x - bottom_outer_x(a)) * (z / top_z),
+                    bottom_outer_y(a) + (top_y(a)    - bottom_outer_y(a)) * (z / top_z)
+                ]
+            ]
+        ];
+
+        translate([0, 0, z]) linear_extrude(0.01) {
+            polygon([ for (a = points) for (p = a) p ]);
         }
     }
 
-    module round_arc(outer_r, inner_r, start_a, end_a, round_r, fa) {
+    module round_arc(outer_r, inner_r, start_a, end_a, top_w, top_h, round_r, z, fa) {
         minkowski() {
-            arc(outer_r - round_r,
+            arc(
+                outer_r - round_r,
                 inner_r + round_r,
                 start_a + arc_length_to_angle(inner_r, round_r),
                 end_a   - arc_length_to_angle(inner_r, round_r),
-                fa);
+                top_w - round_r * 2,
+                top_h - round_r * 2,
+                z,
+                fa
+            );
 
-            cylinder(r = round_r, h = 0.001, $fa = fa);
+            cylinder(r = round_r, h = 0.01, $fa = fa);
         }
     }
 
     module outer() {
+        top_w = key_pitch - 4;
+        top_h = key_pitch - 4;
+
+        step = 0.25;
+
         difference() {
-            hull() {
-                round_arc(bottom_outer_r, bottom_inner_r, bottom_arc_start_a, bottom_arc_end_a, 1, keycap_visible_fa);
-                translate([0, 0, 12]) round_arc(top_outer_r, top_inner_r, top_arc_start_a, top_arc_end_a, 1, keycap_visible_fa);
+            union() {
+                for (z = [0 : step : top_z]) {
+                    hull() {
+                        round_arc(
+                            bottom_outer_r,
+                            bottom_inner_r,
+                            bottom_arc_start_a,
+                            bottom_arc_end_a,
+                            top_w, top_h,
+                            1,
+                            z,
+                            keycap_visible_fa
+                        );
+
+                        round_arc(
+                            bottom_outer_r,
+                            bottom_inner_r,
+                            bottom_arc_start_a,
+                            bottom_arc_end_a,
+                            top_w, top_h,
+                            1,
+                            z + step,
+                            keycap_visible_fa
+                        );
+                    }
+                }
             }
 
             hull() {
                 cylinder(r = bottom_inner_r, h = 0.01, $fa = keycap_visible_fa);
-                translate([0, 0, 12]) cylinder(r = top_inner_r, h = 0.1, $fa = keycap_visible_fa);
+                translate([0, 0, top_z]) cube([arc_r * 2 - top_h, top_w, 0.01], center = true);
             }
 
-            dish(1);
+            dish(keycap_visible_fa);
         }
     }
 
     module inner() {
+        top_w = key_pitch - keycap_thickness - 4;
+        top_h = key_pitch - keycap_thickness - 4;
+
         difference() {
             hull() {
                 arc(
@@ -107,18 +154,12 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, polishing_margin = 0) {
                     bottom_inner_r + keycap_thickness,
                     bottom_arc_start_a + arc_length_to_angle(bottom_inner_r, keycap_thickness),
                     bottom_arc_end_a   - arc_length_to_angle(bottom_inner_r, keycap_thickness),
-                    1,
+                    top_w, top_h,
+                    0,
                     keycap_invisible_fa
                 );
 
-                translate([0, 0, 12]) arc(
-                    top_outer_r - keycap_thickness,
-                    top_inner_r + keycap_thickness,
-                    top_arc_start_a + arc_length_to_angle(top_inner_r, keycap_thickness),
-                    top_arc_end_a   - arc_length_to_angle(top_inner_r, keycap_thickness),
-                    1,
-                    keycap_invisible_fa
-                );
+                translate([arc_r, 0, top_z - keycap_thickness]) cube([top_w, top_h, 0.01], center = true);
             }
 
             hull() {
@@ -127,13 +168,10 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, polishing_margin = 0) {
                     h = 0.01, $fa = keycap_invisible_fa
                 );
 
-                translate([0, 0, 12]) cylinder(
-                    r = top_inner_r + keycap_thickness,
-                    h = 0.1, $fa = keycap_invisible_fa
-                );
+                translate([0, 0, top_z - keycap_thickness]) cube([arc_r * 2 - top_h, top_w, 0.01], center = true);
             }
 
-            translate([0, 0, -keycap_thickness]) dish(1);
+            translate([0, 0, -keycap_thickness]) dish(keycap_invisible_fa);
         }
     }
 
@@ -145,20 +183,18 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, polishing_margin = 0) {
                     cylinder(r = arc_r - 1, h = 24, $fa = keycap_invisible_fa);
                 }
 
-                rotate([0, 0, (arc_start_a + arc_end_a) / 2]) {
-                    translate([0, -1, 2.5]) cube([bottom_outer_r, 2, 24]);
+                translate([0, -1, 2.5]) cube([bottom_outer_r, 2, 24]);
 
-                    translate([(bottom_outer_r + bottom_inner_r) / 2, 0]) {
-                        translate([0, 0, 2.5]) {
-                            polygon_pyramid(16, 4.3, h = 24);
-                        }
-
-                        north_south_thickness = 1.05 + polishing_margin;
-                        east_west_thickness   = 1.25 + polishing_margin;
-
-                        translate([0, 0, 12.5]) cube([north_south_thickness, 4, 24], center = true);
-                        translate([0, 0, 12.5]) cube([4, east_west_thickness,   24], center = true);
+                translate([(bottom_outer_r + bottom_inner_r) / 2, 0]) {
+                    translate([0, 0, 2.5]) {
+                        polygon_pyramid(16, 4.3, h = 24);
                     }
+
+                    north_south_thickness = 1.05 + polishing_margin;
+                    east_west_thickness   = 1.25 + polishing_margin;
+
+                    translate([0, 0, 12.5]) cube([north_south_thickness, 4, 24], center = true);
+                    translate([0, 0, 12.5]) cube([4, east_west_thickness,   24], center = true);
                 }
             }
 
@@ -166,7 +202,7 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, polishing_margin = 0) {
         }
     }
 
-    union() {
+    translate([-arc_r, 0]) union() {
         if (enable_only_outer) {
             outer();
         } else {
@@ -289,7 +325,7 @@ module keycap(x, y, w = 1, h = 1, legend,
                 keycap_height + dish_position_z
             ]) {
                 rotate([90 - tilt_ya, tilt_xa - 90]) {
-                    linear_extrude(h = 8, center = true) text(
+                    linear_extrude(8, center = true) text(
                         text, size = 6,
                         font = "Cica", halign = "center", valign = "center",
                         direction = "ltr", language = "en",

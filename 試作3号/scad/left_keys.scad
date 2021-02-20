@@ -160,9 +160,9 @@ translate([
 
 translate([14, 7]) encoder_knob();
 
-translate([16, 16 * 0 - 63]) rotate([0, 0, 61]) {
-    thumb_keycap(65, -9 + 15 * -2, -9 + 15 * -1, 16);
-    thumb_keycap(65, -9 + 15 * -1, -9 + 15 *  0, 16);
-    thumb_keycap(65, -9 + 15 *  0, -9 + 15 *  1, 16);
-    thumb_keycap(65, -9 + 15 *  1, -9 + 15 *  2, 16);
+translate([16, -63]) rotate([0, 0, 59]) {
+    rotate([0, 0, 15 * -2]) translate([65, 0]) thumb_keycap(65, -7.5, 7.5, h = 16, dish_offset = 0);
+    rotate([0, 0, 15 * -1]) translate([65, 0]) thumb_keycap(65, -7.5, 7.5, h = 16, dish_offset = 0);
+    rotate([0, 0, 15 *  0]) translate([65, 0]) thumb_keycap(65, -7.5, 7.5, h = 16, dish_offset = -1);
+    rotate([0, 0, 15 *  1]) translate([65, 0]) thumb_keycap(65, -7.5, 7.5, h = 16, dish_offset = -2);
 }
