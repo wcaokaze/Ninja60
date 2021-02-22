@@ -8,7 +8,8 @@ enable_legends    = false;
 keycap_visible_fa = 15; // 0.6;
 keycap_invisible_fa = 8;
 
-key_pitch = 16;
+key_pitch_h = 18;
+key_pitch_v = 16;
 keycap_margin = 0.375;
 keycap_thickness = 1.5;
 
@@ -100,8 +101,8 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
     }
 
     module outer() {
-        top_w = key_pitch - 4;
-        top_h = key_pitch - 4;
+        top_w = 12;
+        top_h = 12;
 
         step = 0.25;
 
@@ -144,8 +145,8 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
     }
 
     module inner() {
-        top_w = key_pitch - keycap_thickness - 4;
-        top_h = key_pitch - keycap_thickness - 4;
+        top_w = 12 - keycap_thickness;
+        top_h = 12 - keycap_thickness;
 
         difference() {
             hull() {
@@ -251,10 +252,10 @@ module keycap(x, y, w = 1, h = 1, legend,
               left_wall_angle = 0, right_wall_angle = 0, wall_y = 0,
               polishing_margin = 0)
 {
-    top_w = key_pitch * w - 4;
-    top_h = key_pitch * h - 4;
-    bottom_w = key_pitch * w - keycap_margin * 2;
-    bottom_h = key_pitch * h - keycap_margin * 2;
+    top_w = 12 + key_pitch_h * (w - 1);
+    top_h = 12 + key_pitch_v * (h - 1);
+    bottom_w = key_pitch_h * w - keycap_margin * 2;
+    bottom_h = key_pitch_v * h - keycap_margin * 2;
 
     bottom_north_y =  bottom_h / 2;
     bottom_south_y = -bottom_h / 2;
@@ -263,11 +264,14 @@ module keycap(x, y, w = 1, h = 1, legend,
     bottom_south_left_x  = -bottom_w / 2 + (wall_y + bottom_south_y) / tan(90 + left_wall_angle);
     bottom_south_right_x =  bottom_w / 2 + (wall_y + bottom_south_y) / tan(90 + right_wall_angle);
 
-    tilt_xa = acos(key_pitch * x / tilt_xr);
-    tilt_ya = acos(key_pitch * y / tilt_yr);
+    tilt_xa = acos(key_pitch_h * x / tilt_xr);
+    tilt_ya = acos(key_pitch_v * y / tilt_yr);
 
     dish_position_z = tilt_xr * (1 - sin(tilt_xa)) + tilt_yr * (1 - sin(tilt_ya));
-    top_z = keycap_height + dish_position_z + 3;
+
+    top_z = keycap_height + dish_position_z - 3
+            + dish_r * (1 - sin(acos(leave_origin(dish_r * cos(tilt_xa), top_w / 2) / dish_r)))
+            + dish_r * (1 - sin(acos(leave_origin(dish_r * cos(tilt_ya), top_h / 2) / dish_r)));
 
     module dish(keycap_height, fa) {
         if (is_cylindrical) {
@@ -278,8 +282,8 @@ module keycap(x, y, w = 1, h = 1, legend,
             ]) {
                 minkowski() {
                     cube(center = true, [
-                            key_pitch * (w - 1) + 0.001,
-                            key_pitch * (h - 1) + 0.001,
+                            key_pitch_h * (w - 1) + 0.001,
+                            key_pitch_v * (h - 1) + 0.001,
                             0.001
                     ]);
 
@@ -295,12 +299,12 @@ module keycap(x, y, w = 1, h = 1, legend,
                     keycap_height + dish_position_z + dish_r - 3
             ]) {
                 minkowski() {
-                    translate([0, (is_fluent_to_south ? -key_pitch : 0)]) {
+                    translate([0, (is_fluent_to_south ? -key_pitch_v : 0)]) {
                         cube([
                                 0.001,
                                 0.001 +
-                                    (is_fluent_to_north ? key_pitch : 0) +
-                                    (is_fluent_to_south ? key_pitch : 0),
+                                    (is_fluent_to_north ? key_pitch_v : 0) +
+                                    (is_fluent_to_south ? key_pitch_v : 0),
                                 0.001
                         ]);
                     }

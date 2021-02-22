@@ -18,6 +18,14 @@ function close_origin(a, d) =
         a - d
     ;
 
+// aを0から遠ざかるように加算します
+function leave_origin(a, d) =
+    (a < 0) ?
+        a - d
+    :
+        a + d
+    ;
+
 /*
  * キーを2層に並べるときに便利なやつ
  *

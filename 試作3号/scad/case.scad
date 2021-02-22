@@ -30,7 +30,7 @@ function interpolate(start, end, rate) = start + (end - start) * rate;
 module case_curve() {
     step = 0.1;
 
-    translate([0, key_pitch * -0.5, case_curve_r]) union() {
+    translate([0, key_pitch_v * -0.5, case_curve_r]) union() {
         for (i = [0 : step : 1]) {
             a_angle = interpolate(case_start_angle, case_end_angle, i);
             a_y = case_curve_r * cos(a_angle);
@@ -54,7 +54,7 @@ module case_curve() {
     }
 }
 
-function case_y_to_angle(y) = atan2(-case_curve_r, (y + 0.5 * key_pitch));
+function case_y_to_angle(y) = atan2(-case_curve_r, (y + 0.5 * key_pitch_v));
 
 function case_y_to_interpolate_rate(y)
     = (case_y_to_angle(y) - case_start_angle) / (case_end_angle - case_start_angle);
