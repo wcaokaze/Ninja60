@@ -26,6 +26,19 @@ function leave_origin(a, d) =
         a + d
     ;
 
+function transition_point(p, t) = [
+    p.x + t.x,
+    p.y + t.y,
+    p.z + t.z
+];
+
+// a, bの2点を通る直線の高さzにおける座標
+function z_point_on_line(a, b, z) = [
+    (z - a.z) * (b.x - a.x) / (b.z - a.z) + a.x,
+    (z - a.z) * (b.y - a.y) / (b.z - a.z) + a.y,
+    z
+];
+
 /*
  * キーを2層に並べるときに便利なやつ
  *

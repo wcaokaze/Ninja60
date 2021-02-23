@@ -231,8 +231,6 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
  *                      is_cylindricalがtrueの場合は無視されます。
  * is_cylindrical     - 上面の凹みの形状。trueで円筒形、falseで球形。
  * is_home_position   - trueにするとホームポジションを指で確かめるための突起がつきます。
- *                      いまのところ正常っぽく生成できるのは
- *                      (x == 2 || x == -2) && y == 0 の場合のみ
  * bottom_z           - 外形の底面のZ座標。
  *                      この高さにおける幅がキーピッチいっぱいに広がるため、
  *                      調整用の子に合わせてこの値を指定することで、
@@ -264,52 +262,68 @@ module keycap(x, y, w = 1, h = 1, legend,
     bottom_south_left_x  = -bottom_w / 2 + (wall_y + bottom_south_y) / tan(90 + left_wall_angle);
     bottom_south_right_x =  bottom_w / 2 + (wall_y + bottom_south_y) / tan(90 + right_wall_angle);
 
-    tilt_xa = acos(key_pitch_h * x / tilt_xr);
-    tilt_ya = acos(key_pitch_v * y / tilt_yr);
+    // このキーキャップの原点から見た、本来の原点の座標。
+    keyboard_origin = [-x * key_pitch_h, -y * key_pitch_v];
 
-    dish_position_z = tilt_xr * (1 - sin(tilt_xa)) + tilt_yr * (1 - sin(tilt_ya));
+    tilt_xa = asin(-keyboard_origin.x / tilt_xr);
+    tilt_ya = asin(-keyboard_origin.y / tilt_yr);
 
-    top_z = keycap_height + dish_position_z - 3
-            + dish_r * (1 - sin(acos(leave_origin(dish_r * cos(tilt_xa), top_w / 2) / dish_r)))
-            + dish_r * (1 - sin(acos(leave_origin(dish_r * cos(tilt_ya), top_h / 2) / dish_r)));
+    /*
+     * 高さ tilt_xr の点を中心としてX方向に(Y軸方向の直線を軸として) tilt_xa° 回転
+     * 高さ tilt_yr の点を中心としてY方向に(X軸方向の直線を軸として) tilt_ya° 回転
+     * X軸方向に -cos(tilt_xr) 、Y軸方向に -cos(tilt_yr) 移動する。
+     *
+     * 要するにtilt_xa, tilt_yaで回転し、XY座標は回転前の位置に戻してZ座標だけそのままにする。
+     */
+    module rotate_for_tilt() {
+        translate([0, 0, tilt_xr * (1 - cos(-tilt_xa)) + tilt_yr * (1 - cos(tilt_ya))]) {
+            rotate([tilt_ya, -tilt_xa]) {
+                children();
+            }
+        }
+    }
+
+    function rotate_point_for_tilt(point) = [
+        point.x * cos(-tilt_xa) + point.z * sin(-tilt_xa),
+        point.y * cos( tilt_ya) + point.x * sin( tilt_ya) * sin(-tilt_xa) - point.z * sin(tilt_ya) * cos(-tilt_xa),
+        point.y * sin( tilt_ya) - point.x * cos( tilt_ya) * sin(-tilt_xa) + point.z * cos(tilt_ya) * cos(-tilt_xa)
+    ];
 
     module dish(keycap_height, fa) {
         if (is_cylindrical) {
-            translate([
-                    -dish_r * cos(tilt_xa),
-                    0,
-                    keycap_height + dish_position_z + dish_r - 3
-            ]) {
-                minkowski() {
-                    cube(center = true, [
-                            key_pitch_h * (w - 1) + 0.001,
-                            key_pitch_v * (h - 1) + 0.001,
-                            0.001
-                    ]);
+            minkowski() {
+                cube(center = true, [
+                        key_pitch_h * (w - 1) + 0.001,
+                        key_pitch_v * (h - 1) + 0.001,
+                        0.001
+                ]);
 
-                    rotate([-tilt_ya, 0, 0]) {
-                        cylinder(r = dish_r, h = 32, center = true, $fa = fa);
+                translate([0, 0, keycap_height]) {
+                    rotate_for_tilt() {
+                        translate([0, 0, dish_r]) rotate([-tilt_ya, 0, 0]) {
+                            cylinder(r = dish_r, h = 32, center = true, $fa = fa);
+                        }
                     }
                 }
             }
         } else {
-            translate([
-                    -dish_r * cos(tilt_xa),
-                    -dish_r * cos(tilt_ya),
-                    keycap_height + dish_position_z + dish_r - 3
-            ]) {
-                minkowski() {
-                    translate([0, (is_fluent_to_south ? -key_pitch_v : 0)]) {
-                        cube([
-                                0.001,
-                                0.001 +
-                                    (is_fluent_to_north ? key_pitch_v : 0) +
-                                    (is_fluent_to_south ? key_pitch_v : 0),
-                                0.001
-                        ]);
-                    }
+            minkowski() {
+                translate([0, (is_fluent_to_south ? -key_pitch_v : 0)]) {
+                    cube([
+                            0.001,
+                            0.001 +
+                                (is_fluent_to_north ? key_pitch_v : 0) +
+                                (is_fluent_to_south ? key_pitch_v : 0),
+                            0.001
+                    ]);
+                }
 
-                    sphere(dish_r, $fa = fa);
+                translate([0, 0, keycap_height]) {
+                    rotate_for_tilt() {
+                        translate([0, 0, dish_r]) {
+                            sphere(dish_r, $fa = fa);
+                        }
+                    }
                 }
             }
         }
@@ -317,13 +331,9 @@ module keycap(x, y, w = 1, h = 1, legend,
 
     module legend(text) {
         intersection() {
-            translate([
-                -4 * cos(tilt_xa),
-                -4 * cos(tilt_ya),
-                keycap_height + dish_position_z
-            ]) {
-                rotate([90 - tilt_ya, tilt_xa - 90]) {
-                    linear_extrude(8, center = true) text(
+            translate([0, 0, keycap_height]) {
+                rotate_for_tilt() {
+                    translate([0, 0, -0.5]) linear_extrude(8) text(
                         text, size = 6,
                         font = "Cica", halign = "center", valign = "center",
                         direction = "ltr", language = "en",
@@ -338,10 +348,27 @@ module keycap(x, y, w = 1, h = 1, legend,
 
     module outer() {
         module round_rect_pyramid() {
+            function dish_position(x, y) = rotate_point_for_tilt([
+                x, y,
+                dish_r * (1 - sin(acos((-top_w / 2) / dish_r))) +
+                dish_r * (1 - sin(acos((-top_h / 2) / dish_r)))
+            ]);
+
             hull() {
-                translate([0, 0, top_z]) minkowski() {
-                    cube([top_w - 2, top_h - 2, 0.01], center = true);
-                    cylinder(r = 1, h = 0.001, $fa = keycap_visible_fa);
+                top_z = max(
+                    dish_position(-(top_w - 2) / 2,  (top_h - 2) / 2).z,
+                    dish_position( (top_w - 2) / 2,  (top_h - 2) / 2).z,
+                    dish_position( (top_w - 2) / 2, -(top_h - 2) / 2).z,
+                    dish_position(-(top_w - 2) / 2, -(top_h - 2) / 2).z
+                );
+
+                translate([0, 0, keycap_height + top_z]) {
+                    rotate_for_tilt() {
+                        minkowski() {
+                            cube([top_w - 2, top_h - 2, 0.01], center = true);
+                            cylinder(r = 1, h = 0.001, $fa = keycap_visible_fa);
+                        }
+                    }
                 }
 
                 translate([0, 0, bottom_z]) minkowski() {
@@ -370,15 +397,19 @@ module keycap(x, y, w = 1, h = 1, legend,
     module inner() {
         module rect_pyramid(bottom_w, bottom_h) {
             hull() {
+                top_z = keycap_height;
+
                 translate([0, 0, top_z]) {
-                    cube(
-                        [
-                            top_w - keycap_thickness * 2,
-                            top_h - keycap_thickness * 2,
-                            0.01
-                        ],
-                        center = true
-                    );
+                    rotate_for_tilt() {
+                        cube(
+                            [
+                                top_w - keycap_thickness * 2,
+                                top_h - keycap_thickness * 2,
+                                0.01
+                            ],
+                            center = true
+                        );
+                    }
                 }
 
                 translate([0, 0, bottom_z]) {
@@ -427,14 +458,10 @@ module keycap(x, y, w = 1, h = 1, legend,
     }
 
     module home_position_mark() {
-        translate([
-                0,
-                -top_h / 2,
-                keycap_height + dish_position_z - 2
-        ]) {
-            rotate([0, tilt_xa, 0]) {
-                minkowski() {
-                    cube([1, 0.001, 2.75], center = true);
+        translate([0, 0, keycap_height]) {
+            rotate_for_tilt() {
+                translate([-0.5, -top_h / 2 + 0.15, -1.5]) minkowski() {
+                    cube([1, 0.001, 2.75]);
                     sphere(0.3);
                 }
             }
