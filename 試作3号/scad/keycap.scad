@@ -283,11 +283,14 @@ module keycap(x, y, w = 1, h = 1, legend,
         }
     }
 
-    function rotate_point_for_tilt(point) = [
-        point.x * cos(-tilt_xa) + point.z * sin(-tilt_xa),
-        point.y * cos( tilt_ya) + point.x * sin( tilt_ya) * sin(-tilt_xa) - point.z * sin(tilt_ya) * cos(-tilt_xa),
-        point.y * sin( tilt_ya) - point.x * cos( tilt_ya) * sin(-tilt_xa) + point.z * cos(tilt_ya) * cos(-tilt_xa)
-    ];
+    function rotate_point_for_tilt(point) = transition_point(
+        [
+            point.x * cos(-tilt_xa) + point.z * sin(-tilt_xa),
+            point.y * cos( tilt_ya) + point.x * sin( tilt_ya) * sin(-tilt_xa) - point.z * sin(tilt_ya) * cos(-tilt_xa),
+            point.y * sin( tilt_ya) - point.x * cos( tilt_ya) * sin(-tilt_xa) + point.z * cos(tilt_ya) * cos(-tilt_xa)
+        ],
+        [0, 0, tilt_xr * (1 - cos(-tilt_xa)) + tilt_yr * (1 - cos(tilt_ya))]
+    );
 
     module dish(keycap_height, fa) {
         if (is_cylindrical) {
@@ -348,38 +351,70 @@ module keycap(x, y, w = 1, h = 1, legend,
 
     module outer() {
         module round_rect_pyramid() {
-            function dish_position(x, y) = rotate_point_for_tilt([
-                x, y,
-                dish_r * (1 - sin(acos((-top_w / 2) / dish_r))) +
-                dish_r * (1 - sin(acos((-top_h / 2) / dish_r)))
-            ]);
+            function dish_position(x, y) = transition_point(
+                rotate_point_for_tilt([
+                    x, y,
+                    dish_r * (1 - sin(acos((-top_w / 2) / dish_r))) +
+                    dish_r * (1 - sin(acos((-top_h / 2) / dish_r)))
+                ]),
+                [0, 0, keycap_height]
+            );
 
-            hull() {
+            function extract_xy(point) = [point.x, point.y];
+
+            module polygon_from_3d(points) {
+                linear_extrude(0.1) polygon([
+                    for (p = points) extract_xy(p)
+                ]);
+            }
+
+            union() {
+                bottom_points = [
+                    [bottom_north_left_x  + 1, bottom_north_y - 1, bottom_z],
+                    [bottom_north_right_x - 1, bottom_north_y - 1, bottom_z],
+                    [bottom_south_right_x - 1, bottom_south_y + 1, bottom_z],
+                    [bottom_south_left_x  + 1, bottom_south_y + 1, bottom_z]
+                ];
+
+                top_points = [
+                    dish_position(-(top_w - 2) / 2,  (top_h - 2) / 2),
+                    dish_position( (top_w - 2) / 2,  (top_h - 2) / 2),
+                    dish_position( (top_w - 2) / 2, -(top_h - 2) / 2),
+                    dish_position(-(top_w - 2) / 2, -(top_h - 2) / 2)
+                ];
+
                 top_z = max(
-                    dish_position(-(top_w - 2) / 2,  (top_h - 2) / 2).z,
-                    dish_position( (top_w - 2) / 2,  (top_h - 2) / 2).z,
-                    dish_position( (top_w - 2) / 2, -(top_h - 2) / 2).z,
-                    dish_position(-(top_w - 2) / 2, -(top_h - 2) / 2).z
+                    top_points[0].z,
+                    top_points[1].z,
+                    top_points[2].z,
+                    top_points[3].z
                 );
 
-                translate([0, 0, keycap_height + top_z]) {
-                    rotate_for_tilt() {
-                        minkowski() {
-                            cube([top_w - 2, top_h - 2, 0.01], center = true);
+                step = 0.25;
+                for (z = [bottom_z : step : top_z]) {
+                    hull() {
+                        translate([0, 0, z]) minkowski() {
+                            polygon_from_3d([
+                                z_point_on_line(bottom_points[0], top_points[0], z),
+                                z_point_on_line(bottom_points[1], top_points[1], z),
+                                z_point_on_line(bottom_points[2], top_points[2], z),
+                                z_point_on_line(bottom_points[3], top_points[3], z),
+                            ]);
+
+                            cylinder(r = 1, h = 0.001, $fa = keycap_visible_fa);
+                        }
+
+                        translate([0, 0, z + step]) minkowski() {
+                            polygon_from_3d([
+                                z_point_on_line(bottom_points[0], top_points[0], z + step),
+                                z_point_on_line(bottom_points[1], top_points[1], z + step),
+                                z_point_on_line(bottom_points[2], top_points[2], z + step),
+                                z_point_on_line(bottom_points[3], top_points[3], z + step),
+                            ]);
+
                             cylinder(r = 1, h = 0.001, $fa = keycap_visible_fa);
                         }
                     }
-                }
-
-                translate([0, 0, bottom_z]) minkowski() {
-                    linear_extrude(0.01) polygon([
-                        [bottom_north_left_x  + 1, bottom_north_y - 1],
-                        [bottom_north_right_x - 1, bottom_north_y - 1],
-                        [bottom_south_right_x - 1, bottom_south_y + 1],
-                        [bottom_south_left_x  + 1, bottom_south_y + 1]
-                    ]);
-
-                    cylinder(r = 1, h = 0.001, $fa = keycap_visible_fa);
                 }
             }
         }
