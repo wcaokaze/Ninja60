@@ -5,16 +5,17 @@ use <../../res/Cica-Regular.ttf>;
 enable_only_outer = true;
 enable_legends    = false;
 
-keycap_visible_fa = 15; // 0.6;
 keycap_invisible_fa = 8;
 
 key_pitch_h = 18;
 key_pitch_v = 16;
 keycap_margin = 0.375;
 keycap_thickness = 1.5;
-
 keycap_height = 6.93;
+keycap_wall_fa = 15; // 2;
+
 dish_r = 15;
+dish_fa = 15; // 2;
 
 tilt_xr = 260;
 tilt_yr = 130;
@@ -136,7 +137,7 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
                             top_w, top_h,
                             r_at(z),
                             z,
-                            keycap_visible_fa
+                            keycap_wall_fa
                         );
 
                         round_arc(
@@ -147,18 +148,18 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
                             top_w, top_h,
                             r_at(z + step),
                             z + step,
-                            keycap_visible_fa
+                            keycap_wall_fa
                         );
                     }
                 }
             }
 
             hull() {
-                cylinder(r = bottom_inner_r, h = 0.01, $fa = keycap_visible_fa);
+                cylinder(r = bottom_inner_r, h = 0.01, $fa = keycap_wall_fa);
                 translate([0, 0, top_z]) cube([arc_r * 2 - top_h, top_w, 0.01], center = true);
             }
 
-            dish(keycap_visible_fa);
+            dish(dish_fa);
         }
     }
 
@@ -367,12 +368,12 @@ module keycap(x, y, w = 1, h = 1, legend,
                         text, size = 6,
                         font = "Cica", halign = "center", valign = "center",
                         direction = "ltr", language = "en",
-                        $fa = keycap_visible_fa
+                        $fa = 1
                     );
                 }
             }
 
-            dish(keycap_height - 0.5, keycap_visible_fa);
+            dish(keycap_height - 0.5, dish_fa);
         }
     }
 
@@ -434,7 +435,7 @@ module keycap(x, y, w = 1, h = 1, legend,
                                 z_point_on_line(bottom_points[3], top_points[3], z),
                             ]);
 
-                            cylinder(r = r_at(z), h = 0.001, $fa = keycap_visible_fa);
+                            cylinder(r = r_at(z), h = 0.001, $fa = keycap_wall_fa);
                         }
 
                         translate([0, 0, z + step]) minkowski() {
@@ -445,7 +446,7 @@ module keycap(x, y, w = 1, h = 1, legend,
                                 z_point_on_line(bottom_points[3], top_points[3], z + step),
                             ]);
 
-                            cylinder(r = r_at(z + step), h = 0.001, $fa = keycap_visible_fa);
+                            cylinder(r = r_at(z + step), h = 0.001, $fa = keycap_wall_fa);
                         }
                     }
                 }
@@ -455,7 +456,7 @@ module keycap(x, y, w = 1, h = 1, legend,
         intersection() {
             difference() {
                 round_rect_pyramid();
-                dish(keycap_height, fa = keycap_visible_fa);
+                dish(keycap_height, fa = dish_fa);
             }
 
             children();
