@@ -14,7 +14,7 @@ keycap_margin = 0.375;
 keycap_thickness = 1.5;
 
 keycap_height = 6.93;
-dish_r = 20;
+dish_r = 15;
 
 tilt_xr = 260;
 tilt_yr = 130;
@@ -37,12 +37,16 @@ function arc_length_to_angle(arc_r, length) = length * 360 / 2 / PI / arc_r;
  *                    磨きなどする場合に削れる分を想定して指定しましょう
  */
 module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_margin = 0) {
+    top_w = 11;
+    top_h = 11;
+
     bottom_inner_r = arc_r - h / 2 + 0.375;
     bottom_outer_r = arc_r + h / 2 - 0.375;
     bottom_arc_start_a = arc_start_a + arc_length_to_angle(bottom_inner_r, 0.375);
     bottom_arc_end_a   = arc_end_a   - arc_length_to_angle(bottom_inner_r, 0.375);
 
     dish_position_z = dish_offset * sin(-acos(dish_offset / dish_r));
+    bottom_z = 0;
     top_z = keycap_height + dish_position_z;
 
     module dish(fa) {
@@ -71,9 +75,21 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
                 ]
             ],
             [
+                [
+                    bottom_inner_x(end_a) + (top_inner_x  - bottom_inner_x(end_a)) * (z / top_z),
+                    bottom_inner_y(end_a) + (top_y(end_a) - bottom_inner_y(end_a)) * (z / top_z)
+                ]
+            ],
+            [
                 for (a = [end_a : (start_a - end_a) / 16 : start_a]) [
                     bottom_outer_x(a) + (top_outer_x - bottom_outer_x(a)) * (z / top_z),
                     bottom_outer_y(a) + (top_y(a)    - bottom_outer_y(a)) * (z / top_z)
+                ]
+            ],
+            [
+                [
+                    bottom_outer_x(start_a) + (top_outer_x    - bottom_outer_x(start_a)) * (z / top_z),
+                    bottom_outer_y(start_a) + (top_y(start_a) - bottom_outer_y(start_a)) * (z / top_z)
                 ]
             ]
         ];
@@ -101,14 +117,16 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
     }
 
     module outer() {
-        top_w = 12;
-        top_h = 12;
+        bottom_r = 0;
+        top_r = 3;
 
-        step = 0.25;
+        function get_rate(z) = (z - bottom_z) / (top_z - bottom_z);
+        function r_at(z) = bottom_r + (top_r - bottom_r) * get_rate(z);
 
         difference() {
             union() {
-                for (z = [0 : step : top_z]) {
+                step = 0.5;
+                for (z = [bottom_z : step : top_z]) {
                     hull() {
                         round_arc(
                             bottom_outer_r,
@@ -116,7 +134,7 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
                             bottom_arc_start_a,
                             bottom_arc_end_a,
                             top_w, top_h,
-                            1,
+                            r_at(z),
                             z,
                             keycap_visible_fa
                         );
@@ -127,7 +145,7 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
                             bottom_arc_start_a,
                             bottom_arc_end_a,
                             top_w, top_h,
-                            1,
+                            r_at(z + step),
                             z + step,
                             keycap_visible_fa
                         );
@@ -145,9 +163,6 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
     }
 
     module inner() {
-        top_w = 12 - keycap_thickness;
-        top_h = 12 - keycap_thickness;
-
         difference() {
             hull() {
                 arc(
@@ -160,7 +175,13 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
                     keycap_invisible_fa
                 );
 
-                translate([arc_r, 0, top_z - keycap_thickness]) cube([top_w, top_h, 0.01], center = true);
+                translate([arc_r, 0, top_z - keycap_thickness]) {
+                    cube(center = true, [
+                        top_w - keycap_thickness * 2,
+                        top_h - keycap_thickness * 2,
+                        0.01
+                    ]);
+                }
             }
 
             hull() {
@@ -169,7 +190,13 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
                     h = 0.01, $fa = keycap_invisible_fa
                 );
 
-                translate([0, 0, top_z - keycap_thickness]) cube([arc_r * 2 - top_h, top_w, 0.01], center = true);
+                translate([0, 0, top_z - keycap_thickness]) {
+                    cube(center = true, [
+                        arc_r * 2 - (top_h - keycap_thickness * 2),
+                        top_w - keycap_thickness * 2,
+                        0.01
+                    ]);
+                }
             }
 
             translate([0, 0, -keycap_thickness]) dish(keycap_invisible_fa);
@@ -354,8 +381,8 @@ module keycap(x, y, w = 1, h = 1, legend,
             function dish_position(x, y) = transition_point(
                 rotate_point_for_tilt([
                     x, y,
-                    dish_r * (1 - sin(acos((-top_w / 2) / dish_r))) +
-                    dish_r * (1 - sin(acos((-top_h / 2) / dish_r)))
+                    dish_r * (1 - sin(acos(x / dish_r))) +
+                    dish_r * (1 - sin(acos(y / dish_r)))
                 ]),
                 [0, 0, keycap_height]
             );
@@ -368,29 +395,35 @@ module keycap(x, y, w = 1, h = 1, legend,
                 ]);
             }
 
+            bottom_r = 0;
+            top_r = 3;
+
+            bottom_points = [
+                [bottom_north_left_x  + bottom_r, bottom_north_y - bottom_r, bottom_z],
+                [bottom_north_right_x - bottom_r, bottom_north_y - bottom_r, bottom_z],
+                [bottom_south_right_x - bottom_r, bottom_south_y + bottom_r, bottom_z],
+                [bottom_south_left_x  + bottom_r, bottom_south_y + bottom_r, bottom_z]
+            ];
+
+            top_points = [
+                dish_position(-(top_w / 2 - top_r),  (top_h / 2 - top_r)),
+                dish_position( (top_w / 2 - top_r),  (top_h / 2 - top_r)),
+                dish_position( (top_w / 2 - top_r), -(top_h / 2 - top_r)),
+                dish_position(-(top_w / 2 - top_r), -(top_h / 2 - top_r))
+            ];
+
+            top_z = max(
+                dish_position(-top_w / 2,  top_h / 2).z,
+                dish_position( top_w / 2,  top_h / 2).z,
+                dish_position( top_w / 2, -top_h / 2).z,
+                dish_position(-top_w / 2, -top_h / 2).z
+            );
+
+            function get_rate(z) = (z - bottom_z) / (top_z - bottom_z);
+            function r_at(z) = bottom_r + (top_r - bottom_r) * get_rate(z);
+
             union() {
-                bottom_points = [
-                    [bottom_north_left_x  + 1, bottom_north_y - 1, bottom_z],
-                    [bottom_north_right_x - 1, bottom_north_y - 1, bottom_z],
-                    [bottom_south_right_x - 1, bottom_south_y + 1, bottom_z],
-                    [bottom_south_left_x  + 1, bottom_south_y + 1, bottom_z]
-                ];
-
-                top_points = [
-                    dish_position(-(top_w - 2) / 2,  (top_h - 2) / 2),
-                    dish_position( (top_w - 2) / 2,  (top_h - 2) / 2),
-                    dish_position( (top_w - 2) / 2, -(top_h - 2) / 2),
-                    dish_position(-(top_w - 2) / 2, -(top_h - 2) / 2)
-                ];
-
-                top_z = max(
-                    top_points[0].z,
-                    top_points[1].z,
-                    top_points[2].z,
-                    top_points[3].z
-                );
-
-                step = 0.25;
+                step = 0.5;
                 for (z = [bottom_z : step : top_z]) {
                     hull() {
                         translate([0, 0, z]) minkowski() {
@@ -401,7 +434,7 @@ module keycap(x, y, w = 1, h = 1, legend,
                                 z_point_on_line(bottom_points[3], top_points[3], z),
                             ]);
 
-                            cylinder(r = 1, h = 0.001, $fa = keycap_visible_fa);
+                            cylinder(r = r_at(z), h = 0.001, $fa = keycap_visible_fa);
                         }
 
                         translate([0, 0, z + step]) minkowski() {
@@ -412,7 +445,7 @@ module keycap(x, y, w = 1, h = 1, legend,
                                 z_point_on_line(bottom_points[3], top_points[3], z + step),
                             ]);
 
-                            cylinder(r = 1, h = 0.001, $fa = keycap_visible_fa);
+                            cylinder(r = r_at(z + step), h = 0.001, $fa = keycap_visible_fa);
                         }
                     }
                 }
