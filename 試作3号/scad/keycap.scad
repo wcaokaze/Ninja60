@@ -29,20 +29,27 @@ function arc_length_to_angle(arc_r, length) = length * 360 / 2 / PI / arc_r;
  * 親指用キーキャップ。
  * 底が扇型で皿部分は通常のキーキャップと同様長方形にシリンドリカルのカーブ。
  *
- * arc_r            - 底の扇型の半径。外側ではなくキーキャップの中央までの半径。
+ * arc_r            - 底の扇型の半径
  * arc_start_a      - 底の扇型の開始角度
  * arc_end_a        - 底の扇型の終了角度
- * dish_offset      - 皿の位置。皿は円筒形なので位置をずらすと結果的に傾いているかのように見える
  * h                - キーキャップの長さ。mm単位
+ *                    「半径arc_r mmのarc_start_a°からarc_end_a°までの扇型」から
+ *                    「半径(arc_r - h)mmのarc_start_a°からarc_end_a°までの扇型」を
+ *                    くりぬいたバウムクーヘン型がキーキャップの底面となる。
+ * dish_offset      - 皿の位置。底面の扇型で言うところの0°の位置から
+ *                    扇型の接線の方向(Y軸と並行の方向)に動く(mm単位)
+ *                    皿は円筒形なので位置をずらすと結果的に皿が傾いているかのように見える
  * polishing_margin - ステムの十字部が太くなります。mm単位
  *                    磨きなどする場合に削れる分を想定して指定しましょう
  */
-module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_margin = 0) {
+module thumb_keycap(arc_r, arc_start_a, arc_end_a, dish_offset, h, polishing_margin = 0) {
     top_w = 11;
     top_h = 11;
 
-    bottom_inner_r = arc_r - h / 2 + 0.375;
-    bottom_outer_r = arc_r + h / 2 - 0.375;
+    bottom_inner_r  = arc_r - h     + 0.375;
+    bottom_center_r = arc_r - h / 2;
+    bottom_outer_r  = arc_r         - 0.375;
+
     bottom_arc_start_a = arc_start_a + arc_length_to_angle(bottom_inner_r, 0.375);
     bottom_arc_end_a   = arc_end_a   - arc_length_to_angle(bottom_inner_r, 0.375);
 
@@ -51,7 +58,7 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
     top_z = keycap_height + dish_position_z;
 
     module dish(fa) {
-        translate([arc_r, dish_offset, top_z + dish_r - 2]) {
+        translate([bottom_center_r, dish_offset, top_z + dish_r - 2]) {
             rotate([90 - thumb_tilt_a, 0, 90]) {
                 cylinder(r = dish_r, h = 32, center = true, $fa = fa);
             }
@@ -64,8 +71,8 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
         function bottom_outer_x(a) = outer_r * cos(a);
         function bottom_outer_y(a) = outer_r * sin(a);
 
-        top_inner_x = arc_r + -top_h / 2;
-        top_outer_x = arc_r +  top_h / 2;
+        top_inner_x = bottom_center_r + -top_h / 2;
+        top_outer_x = bottom_center_r +  top_h / 2;
         function top_y(a) = -top_w / 2 + top_w * (a - start_a) / (end_a - start_a);
 
         points = [
@@ -156,7 +163,7 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
 
             hull() {
                 cylinder(r = bottom_inner_r, h = 0.01, $fa = keycap_wall_fa);
-                translate([0, 0, top_z]) cube([arc_r * 2 - top_h, top_w, 0.01], center = true);
+                translate([0, 0, top_z]) cube([bottom_center_r * 2 - top_h, top_w, 0.01], center = true);
             }
 
             dish(dish_fa);
@@ -176,7 +183,7 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
                     keycap_invisible_fa
                 );
 
-                translate([arc_r, 0, top_z - keycap_thickness]) {
+                translate([bottom_center_r, 0, top_z - keycap_thickness]) {
                     cube(center = true, [
                         top_w - keycap_thickness * 2,
                         top_h - keycap_thickness * 2,
@@ -193,7 +200,7 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
 
                 translate([0, 0, top_z - keycap_thickness]) {
                     cube(center = true, [
-                        arc_r * 2 - (top_h - keycap_thickness * 2),
+                        bottom_center_r * 2 - (top_h - keycap_thickness * 2),
                         top_w - keycap_thickness * 2,
                         0.01
                     ]);
@@ -208,8 +215,8 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, h, dish_offset, polishing_mar
         intersection() {
             union() {
                 translate([0, 0, 2.5]) difference() {
-                    cylinder(r = arc_r + 1, h = 24, $fa = keycap_invisible_fa);
-                    cylinder(r = arc_r - 1, h = 24, $fa = keycap_invisible_fa);
+                    cylinder(r = bottom_center_r + 1, h = 24, $fa = keycap_invisible_fa);
+                    cylinder(r = bottom_center_r - 1, h = 24, $fa = keycap_invisible_fa);
                 }
 
                 translate([0, -1, 2.5]) cube([bottom_outer_r, 2, 24]);
