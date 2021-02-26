@@ -270,8 +270,10 @@ module thumb_keycap(arc_r, arc_start_a, arc_end_a, dish_offset, h, polishing_mar
  *                      この高さにおける幅がキーピッチいっぱいに広がるため、
  *                      調整用の子に合わせてこの値を指定することで、
  *                      なるべくキー間の隙間を詰める効果を期待できます。
+ * left_wall_padding  - 外形の左側がさらに左に移動します。mm単位
+ * right_wall_padding - 外形の右側がさらに右に移動します。mm単位
  * left_wall_angle    - 外形の左側に角度がつきます。0が北、90が西向き
- * right_wall_angle   - 外形の左側に角度がつきます。0が北、-90が東向き
+ * right_wall_angle   - 外形の右側に角度がつきます。0が北、-90が東向き
  * wall_y             - left_wall_angle, right_wall_angleを指定する場合の
  *                      このキーの中心のY座標。mm単位
  *                      この値が大きいほどキーの幅が広くなることになりますね
@@ -282,6 +284,7 @@ module keycap(x, y, w = 1, h = 1, legend,
               is_fluent_to_north = false, is_fluent_to_south = false,
               is_cylindrical = false, is_home_position = false, is_thin_pillar = false,
               bottom_z = 0,
+              left_wall_padding = 0, right_wall_padding = 0,
               left_wall_angle = 0, right_wall_angle = 0, wall_y = 0,
               polishing_margin = 0)
 {
@@ -292,10 +295,10 @@ module keycap(x, y, w = 1, h = 1, legend,
 
     bottom_north_y =  bottom_h / 2;
     bottom_south_y = -bottom_h / 2;
-    bottom_north_left_x  = -bottom_w / 2 + (wall_y + bottom_north_y) / tan(90 + left_wall_angle);
-    bottom_north_right_x =  bottom_w / 2 + (wall_y + bottom_north_y) / tan(90 + right_wall_angle);
-    bottom_south_left_x  = -bottom_w / 2 + (wall_y + bottom_south_y) / tan(90 + left_wall_angle);
-    bottom_south_right_x =  bottom_w / 2 + (wall_y + bottom_south_y) / tan(90 + right_wall_angle);
+    bottom_north_left_x  = -bottom_w / 2 - left_wall_padding  + (wall_y + bottom_north_y) / tan(90 + left_wall_angle);
+    bottom_north_right_x =  bottom_w / 2 + right_wall_padding + (wall_y + bottom_north_y) / tan(90 + right_wall_angle);
+    bottom_south_left_x  = -bottom_w / 2 - left_wall_padding  + (wall_y + bottom_south_y) / tan(90 + left_wall_angle);
+    bottom_south_right_x =  bottom_w / 2 + right_wall_padding + (wall_y + bottom_south_y) / tan(90 + right_wall_angle);
 
     // このキーキャップの原点から見た、本来の原点の座標。
     keyboard_origin = [-x * key_pitch_h, -y * key_pitch_v];
@@ -471,7 +474,7 @@ module keycap(x, y, w = 1, h = 1, legend,
     }
 
     module inner() {
-        module rect_pyramid(bottom_w, bottom_h) {
+        module rect_pyramid() {
             hull() {
                 top_z = keycap_height;
 
