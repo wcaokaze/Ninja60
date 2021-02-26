@@ -285,8 +285,8 @@ module keycap(x, y, w = 1, h = 1, legend,
               left_wall_angle = 0, right_wall_angle = 0, wall_y = 0,
               polishing_margin = 0)
 {
-    top_w = 12 + key_pitch_h * (w - 1);
-    top_h = 12 + key_pitch_v * (h - 1);
+    top_w = 13 + key_pitch_h * (w - 1);
+    top_h = 13 + key_pitch_v * (h - 1);
     bottom_w = key_pitch_h * w - keycap_margin * 2;
     bottom_h = key_pitch_v * h - keycap_margin * 2;
 
