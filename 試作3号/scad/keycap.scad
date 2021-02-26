@@ -43,8 +43,8 @@ function arc_length_to_angle(arc_r, length) = length * 360 / 2 / PI / arc_r;
  *                    磨きなどする場合に削れる分を想定して指定しましょう
  */
 module thumb_keycap(arc_r, arc_start_a, arc_end_a, dish_offset, h, polishing_margin = 0) {
-    top_w = 11;
-    top_h = 11;
+    top_w = 18 - (key_pitch_h - 11);
+    top_h = h  - (key_pitch_v - 11);
 
     bottom_inner_r  = arc_r - h     + 0.375;
     bottom_center_r = arc_r - h / 2;
