@@ -1,6 +1,6 @@
 
 include <shared.scad>;
-use <../../res/Cica-Regular.ttf>;
+use <res/Cica-Regular.ttf>;
 
 enable_only_outer = true;
 enable_legends    = false;
