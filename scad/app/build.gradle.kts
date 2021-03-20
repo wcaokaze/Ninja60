@@ -1,7 +1,6 @@
 
 plugins {
    id("org.jetbrains.kotlin.jvm") version "1.4.20"
-   application
 }
 
 repositories {
@@ -11,7 +10,19 @@ repositories {
 dependencies {
 }
 
-application {
-   mainClass.set("com.wcaokaze.ninja60.scadgenerator.MainKt")
-}
+tasks.register<Exec>("generateAll") {
+   dependsOn("jar")
 
+   commandLine(
+      "kotlin",
+      "-classpath", tasks.jar.get().archiveFile.get(),
+      "com.wcaokaze.ninja60.scadgenerator.MainKt",
+      "--output-file", File(buildDir, "test.scad")
+   )
+
+   commandLine(
+      "openscad",
+      "-o", File(buildDir, "test.stl"),
+      File(buildDir, "test.scad")
+   )
+}
