@@ -1,5 +1,7 @@
 package com.wcaokaze.ninja60.scadgenerator.scadwriter
 
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.Size
+
 enum class HAlign(private val string: String) {
    LEFT  ("left"),
    RIGHT ("right"),
@@ -28,7 +30,7 @@ enum class Direction(private val string: String) {
 
 fun ScadWriter.text(
    text: String,
-   size: Double,
+   size: Size,
    fontName: String,
    hAlign: HAlign = HAlign.LEFT,
    vAlign: VAlign = VAlign.BASELINE,

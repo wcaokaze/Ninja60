@@ -1,6 +1,7 @@
 package com.wcaokaze.ninja60.scadgenerator
 
 import com.wcaokaze.ninja60.scadgenerator.scadwriter.*
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.*
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -13,7 +14,7 @@ fun main(vararg args: String) {
    }
 
    writeScad(config.outputFile) {
-      cylinder(height = 3.0, bottomRadius = 1.0, topRadius = 0.0, fa = 2.0)
+      cylinder(height = 3.mm, bottomRadius = 1.mm, topRadius = 0.mm, fa = 2.0)
    }
 }
 

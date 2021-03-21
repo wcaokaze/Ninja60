@@ -1,19 +1,21 @@
 package com.wcaokaze.ninja60.scadgenerator.scadwriter
 
-fun ScadWriter.cylinder(height: Double, radius: Double, fa: Double) {
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.Size
+
+fun ScadWriter.cylinder(height: Size, radius: Size, fa: Double) {
    writeln("cylinder(h = $height, r = $radius, \$fa = $fa);")
 }
 
-fun ScadWriter.cylinder(height: Double, bottomRadius: Double, topRadius: Double, fa: Double) {
+fun ScadWriter.cylinder(height: Size, bottomRadius: Size, topRadius: Size, fa: Double) {
    writeln("cylinder(h = $height, $bottomRadius, $topRadius, \$fa = $fa);")
 }
 
-fun ScadWriter.cylinder(height: Double, radius: Double, center: Boolean, fa: Double) {
+fun ScadWriter.cylinder(height: Size, radius: Size, center: Boolean, fa: Double) {
    writeln("cylinder(h = $height, r = $radius, center = $center, \$fa = $fa);")
 }
 
-fun ScadWriter.cylinder(height: Double,
-                        bottomRadius: Double, topRadius: Double,
+fun ScadWriter.cylinder(height: Size,
+                        bottomRadius: Size, topRadius: Size,
                         center: Boolean,
                         fa: Double)
 {

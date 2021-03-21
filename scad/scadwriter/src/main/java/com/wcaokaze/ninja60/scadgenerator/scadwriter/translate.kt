@@ -1,17 +1,17 @@
 package com.wcaokaze.ninja60.scadgenerator.scadwriter
 
-data class Translate(val x: Double, val y: Double, val z: Double) {
-   override fun toString() = "[$x, $y, $z]"
-}
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.Size
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.Size3d
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.mm
 
-inline fun ScadWriter.translate(x: Double = 0.0,
-                                y: Double = 0.0,
-                                z: Double = 0.0,
+inline fun ScadWriter.translate(x: Size = 0.mm,
+                                y: Size = 0.mm,
+                                z: Size = 0.mm,
                                 children: ScadWriter.() -> Unit)
 {
-   translate(Translate(x, y, z), children)
+   translate(Size3d(x, y, z), children)
 }
 
-inline fun ScadWriter.translate(translate: Translate, children: ScadWriter.() -> Unit) {
-   writeBlock("translate($translate)", children)
+inline fun ScadWriter.translate(distance: Size3d, children: ScadWriter.() -> Unit) {
+   writeBlock("translate($distance)", children)
 }

@@ -1,10 +1,13 @@
 package com.wcaokaze.ninja60.scadgenerator.scadwriter
 
-fun ScadWriter.cube(x: Double, y: Double, z: Double) {
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.Size
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.Size3d
+
+fun ScadWriter.cube(x: Size, y: Size, z: Size) {
    cube(Size3d(x, y, z))
 }
 
-fun ScadWriter.cube(x: Double, y: Double, z: Double, center: Boolean) {
+fun ScadWriter.cube(x: Size, y: Size, z: Size, center: Boolean) {
    cube(Size3d(x, y, z), center)
 }
 

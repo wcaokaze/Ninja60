@@ -1,5 +1,7 @@
 package com.wcaokaze.ninja60.scadgenerator.scadwriter
 
-fun ScadWriter.sphere(radius: Double, fa: Double) {
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.Size
+
+fun ScadWriter.sphere(radius: Size, fa: Double) {
    writeln("sphere($radius, \$fa = $fa);")
 }

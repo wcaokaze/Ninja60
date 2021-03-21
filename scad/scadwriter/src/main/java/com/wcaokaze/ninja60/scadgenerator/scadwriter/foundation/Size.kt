@@ -10,10 +10,10 @@ inline val Double.mm get() = Size(this)
 inline val Int   .cm get() = (this * 10).mm
 inline val Double.cm get() = (this * 10).mm
 
-data class Size2d(val x: Double, val y: Double) {
+data class Size2d(val x: Size, val y: Size) {
    override fun toString() = "[$x, $y]"
 }
 
-data class Size3d(val x: Double, val y: Double, val z: Double) {
+data class Size3d(val x: Size, val y: Size, val z: Size) {
    override fun toString() = "[$x, $y, $z]"
 }

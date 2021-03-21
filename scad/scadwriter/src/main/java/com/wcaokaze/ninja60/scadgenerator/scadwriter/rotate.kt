@@ -1,23 +1,12 @@
 package com.wcaokaze.ninja60.scadgenerator.scadwriter
 
-import java.lang.StrictMath.*
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.Angle
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.rad
 
-data class Rotate(val x: Double, val y: Double, val z: Double) {
-   override fun toString() = "[$x, $y, $z]"
-}
-
-inline fun ScadWriter.rotate(x: Double = 0.0,
-                             y: Double = 0.0,
-                             z: Double = 0.0,
+inline fun ScadWriter.rotate(x: Angle = 0.0.rad,
+                             y: Angle = 0.0.rad,
+                             z: Angle = 0.0.rad,
                              children: ScadWriter.() -> Unit)
 {
-   rotate(Rotate(x, y, z), children)
-}
-
-inline fun ScadWriter.rotate(rotate: Rotate, children: ScadWriter.() -> Unit) {
-   val x = toDegrees(rotate.x)
-   val y = toDegrees(rotate.y)
-   val z = toDegrees(rotate.z)
-
    writeBlock("rotate([$x, $y, $z])", children)
 }
