@@ -14,9 +14,13 @@ dependencies {
 tasks.register<Exec>("generateAllScads") {
    dependsOn("jar")
 
+   val classPath = HashSet<File>()
+   classPath += tasks.jar.get().archiveFile.get().asFile
+   classPath += configurations.implementationDependenciesMetadata.get().files
+
    commandLine(
-      "kotlin",
-      "-classpath", tasks.jar.get().archiveFile.get(),
+      "java",
+      "--class-path", classPath.joinToString(separator = ":"),
       "com.wcaokaze.ninja60.scadgenerator.MainKt",
       "--output-file", File(buildDir, "test.scad")
    )
