@@ -64,20 +64,25 @@ internal fun ScadWriter.writeArray(array: List<Any?>) {
    writeln()
    indent++
 
-   for (element in array) {
+   for ((i, element) in array.withIndex()) {
       writeIndent()
       write(element.toString())
-      write(",")
+
+      if (i < array.lastIndex) {
+         write(",")
+      }
+
       writeln()
    }
 
    indent--
    writeIndent()
-   writeln("]")
+   write("]")
 }
 
 @PublishedApi
 internal inline fun ScadWriter.writeBlock(str: String, block: ScadWriter.() -> Unit) {
+   writeIndent()
    write(str)
    write(" {")
    writeln()
