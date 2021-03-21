@@ -11,7 +11,7 @@ dependencies {
    implementation(project(":scadwriter"))
 }
 
-tasks.register<Exec>("generateAll") {
+tasks.register<Exec>("generateAllScads") {
    dependsOn("jar")
 
    commandLine(
@@ -20,6 +20,10 @@ tasks.register<Exec>("generateAll") {
       "com.wcaokaze.ninja60.scadgenerator.MainKt",
       "--output-file", File(buildDir, "test.scad")
    )
+}
+
+tasks.register<Exec>("generateAllStls") {
+   dependsOn("generateAllScads")
 
    commandLine(
       "openscad",
