@@ -6,6 +6,24 @@ import java.io.Writer
 class ScadWriter(@PublishedApi internal val writer: Writer) {
    @PublishedApi
    internal var indent = 0
+
+   var `$fs`: Double = 2.0
+      set(value) {
+         field = value
+         writeln("\$fs = $value;")
+      }
+
+   var `$fa`: Double = 12.0
+      set(value) {
+         field = value
+         writeln("\$fa = $value;")
+      }
+
+   var `$fn`: Double = 0.0
+      set(value) {
+         field = value
+         writeln("\$fn = $value;")
+      }
 }
 
 inline fun writeScad(outputFile: File, scad: ScadWriter.() -> Unit) {
