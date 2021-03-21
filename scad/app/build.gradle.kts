@@ -8,6 +8,7 @@ repositories {
 }
 
 dependencies {
+   implementation(project(":scadwriter"))
 }
 
 tasks.register<Exec>("generateAll") {
