@@ -1,21 +1,24 @@
+package com.wcaokaze.ninja60.scadgenerator
 
-include <shared.scad>;
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.*
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.*
 
-case_fa = 2;
+val caseFa = 2.0
 
-case_curve_r = 850;
-case_south_r = 380;
-case_north_r = 255;
+val caseCurveR = 850.mm
+val caseSouthR = 380.mm
+val caseNorthR = 255.mm
 
-case_south_x = 16 * 1;
-case_north_x = 16 * 0;
+val caseSouthX = 16.mm * 1
+val caseNorthX = 16.mm * 0
 
-case_start_angle = -90;
-case_end_angle   = -80;
+val caseStartAngle = (-90).deg
+val caseEndAngle   = (-80).deg
 
-function interpolate(start, end, rate) = start + (end - start) * rate;
+private fun interpolate(start: Angle, end: Angle, rate: Double) = start + (end - start) * rate
+private fun interpolate(start: Size,  end: Size,  rate: Double) = start + (end - start) * rate
 
-/*
+/**
  * キーボードに対して垂直に東西方向に立てた半径case_south_rの円を、
  * キーボードに対して垂直に南北方向に立てた半径case_curve_rの円弧上を
  * 走らせた場合に残る残像の形状です。
@@ -27,52 +30,65 @@ function interpolate(start, end, rate) = start + (end - start) * rate;
  * 南端に立てた円が徐々に小さくなりながら西に移動しながら円弧を描いて北に移動しています
  * 無茶苦茶ですね
  */
-module case_curve() {
-    step = 0.1;
+fun ScadWriter.caseCurve() {
+   val step = 0.1
 
-    translate([0, key_pitch_v * -0.5, case_curve_r]) union() {
-        for (i = [0 : step : 1]) {
-            a_angle = interpolate(case_start_angle, case_end_angle, i);
-            a_y = case_curve_r * cos(a_angle);
-            a_z = case_curve_r * sin(a_angle);
-
-            b_angle = interpolate(case_start_angle, case_end_angle, i + step);
-            b_y = case_curve_r * cos(b_angle);
-            b_z = case_curve_r * sin(b_angle);
-
-            a_r = interpolate(case_south_r, case_north_r, i);
-            b_r = interpolate(case_south_r, case_north_r, i + step);
-
-            a_x = interpolate(case_south_x, case_north_x, i);
-            b_x = interpolate(case_south_x, case_north_x, i + step);
-
-            hull() {
-                translate([a_x, a_y, a_z + a_r]) rotate([90, 0]) cylinder(r = a_r, h = 0.01, $fa = case_fa);
-                translate([b_x, b_y, b_z + b_r]) rotate([90, 0]) cylinder(r = b_r, h = 0.01, $fa = case_fa);
+   translate(0.mm, keyPitchV * -0.5, caseCurveR) {
+      union {
+         val seq = sequence {
+            var i = 0.0
+            while (i <= 1.0) {
+               yield(i)
+               i += step
             }
-        }
-    }
+         }
+
+         for (i in seq) {
+            val aAngle = interpolate(caseStartAngle, caseEndAngle, i)
+            val aY = caseCurveR * cos(aAngle)
+            val aZ = caseCurveR * sin(aAngle)
+
+            val bAngle = interpolate(caseStartAngle, caseEndAngle, i + step)
+            val bY = caseCurveR * cos(bAngle)
+            val bZ = caseCurveR * sin(bAngle)
+
+            val aR = interpolate(caseSouthR, caseNorthR, i)
+            val bR = interpolate(caseSouthR, caseNorthR, i + step)
+
+            val aX = interpolate(caseSouthX, caseNorthX, i)
+            val bX = interpolate(caseSouthX, caseNorthX, i + step)
+
+            hull {
+               translate(aX, aY, aZ + aR) { rotate(x = 90.deg) { cylinder(height = 0.01.mm, radius = aR, caseFa) } }
+               translate(bX, bY, bZ + bR) { rotate(x = 90.deg) { cylinder(height = 0.01.mm, radius = bR, caseFa) } }
+            }
+         }
+      }
+   }
 }
 
-function case_y_to_angle(y) = atan2(-case_curve_r, (y + 0.5 * key_pitch_v));
+fun caseYToAngle(y: Point): Angle = atan(-caseCurveR, y.distanceFromOrigin + keyPitchV * 0.5)
 
-function case_y_to_interpolate_rate(y)
-    = (case_y_to_angle(y) - case_start_angle) / (case_end_angle - case_start_angle);
+fun caseYToInterpolateRate(y: Point): Double
+      = (caseYToAngle(y) - caseStartAngle).numberAsRadian / (caseEndAngle - caseStartAngle).numberAsRadian
 
-function case_y_to_cylinder_r(y)
-    = interpolate(case_south_r, case_north_r, case_y_to_interpolate_rate(y));
+fun caseYToCylinderR(y: Point): Size
+      = interpolate(caseSouthR, caseNorthR, caseYToInterpolateRate(y))
 
-function case_pos_to_cylinder_angle(x, y)
-    = atan2(-case_y_to_cylinder_r(y),
-            x - interpolate(case_south_x, case_north_x, case_y_to_interpolate_rate(y))
-    );
+fun casePosToCylinderAngle(x: Point, y: Point): Angle
+      = atan(-caseYToCylinderR(y),
+         x.distanceFromOrigin - interpolate(caseSouthX, caseNorthX, caseYToInterpolateRate(y))
+      )
 
-/*
+/**
  * case_curveの(x, y)におけるz座標。
  *
- * x - 東西方向の位置。mm単位。
- * y - 南北方向の位置。mm単位。
+ * @param x
+ * 東西方向の位置。
+ * @param y
+ * 南北方向の位置。
  */
-function case_curve_z(x, y)
-    = case_curve_r * (1 + sin(case_y_to_angle(y)))
-    + case_y_to_cylinder_r(y) * (1 + sin(case_pos_to_cylinder_angle(x, y)));
+fun caseCurveZ(x: Point, y: Point): Point
+      = Point.ORIGIN +
+      caseCurveR * (1 + sin(caseYToAngle(y))) +
+      caseYToCylinderR(y) * (1 + sin(casePosToCylinderAngle(x, y)))

@@ -1,172 +1,204 @@
+package com.wcaokaze.ninja60.scadgenerator
 
-include <shared.scad>;
-include <keycap.scad>;
-include <case.scad>;
-include <stem_holder.scad>;
-include <o_ring.scad>;
-include <encoder_knob.scad>;
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.*
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.*
+import java.io.File
 
-/*
+/**
  * デバッグ用。キーキャップに透明のステムホルダーが挿さった状態のモデルを生成します
  *
- * x - キーの東西方向の位置。
- * y - キーの南北方向の位置。
- * case_x - ケースの原点に対してキーが配置される位置。U単位。
- *          あえてxと一致させないことでx == 0のキーを東端に配置することなどが可能
- * case_y - ケースの原点に対してキーが配置される位置。U単位。
- *          あえてyと一致させないことでy == 0のキーを南端に配置することなどが可能
+ * @param x
+ * キーの東西方向の位置。
+ * @param y
+ * キーの南北方向の位置。
+ * @param caseX
+ * ケースの原点に対してキーが配置される位置。
+ * あえてxと一致させないことでx == 0のキーを東端に配置することなどが可能
+ * @param caseY
+ * ケースの原点に対してキーが配置される位置。
+ * あえてyと一致させないことでy == 0のキーを南端に配置することなどが可能
  */
-module keycap_with_stem(x, y, case_x, case_y, w = 1, h = 1, legend = "",
-                        is_fluent_to_north = false, is_fluent_to_south = false,
-                        left_wall_padding = 0, right_wall_padding = 0,
-                        left_wall_angle = 0, right_wall_angle = 0, wall_y = 0,
-                        is_cylindrical = false, is_home_position = false, is_thin_pillar = false)
-{
-    keycap(
-        x, y, w, h, legend,
-        is_fluent_to_north, is_fluent_to_south,
-        is_cylindrical, is_home_position, is_thin_pillar,
-        bottom_z = case_curve_z(
-            close_origin(case_x, key_pitch_h * 0.5),
-            case_y - key_pitch_v * 0.5
-        ),
-        left_wall_padding  = left_wall_padding,  left_wall_angle  = left_wall_angle,
-        right_wall_padding = right_wall_padding, right_wall_angle = right_wall_angle,
-        wall_y = wall_y
-    ) {
-        translate([-case_x, -case_y]) case_curve();
-    }
+private fun ScadWriter.keycapWithStem(
+   x: Double, y: Double, caseX: Point, caseY: Point,
+   w: Double = 1.0, h: Double = 1.0, legend: String = "",
+   isFluentToNorth: Boolean = false, isFluentToSouth: Boolean = false,
+   leftWallPadding: Size = 0.mm, rightWallPadding: Size = 0.mm,
+   leftWallAngle: Angle = 0.0.rad, rightWallAngle: Angle = 0.0.rad, wallY: Point = Point(0.mm),
+   isCylindrical: Boolean = false, isHomePosition: Boolean = false,
+   isThinPillar: Boolean = false
+) {
+   keycap(
+      x, y, w, h, legend, isFluentToNorth, isFluentToSouth,
+      isCylindrical, isHomePosition, isThinPillar,
+      bottomZ = caseCurveZ(
+         caseX closeOrigin (keyPitchH * 0.5),
+         caseY - keyPitchV * 0.5
+      ),
+      leftWallPadding, rightWallPadding, leftWallAngle, rightWallAngle,
+      wallY
+   ) {
+      translate(-caseX.distanceFromOrigin, -caseY.distanceFromOrigin) { caseCurve() }
+   }
 
-    translate([0, 0, -3]) %stem_holder();
-    translate([0, 0, 0.5]) %o_ring();
+   translate(z = (-3).mm) { stemHolder() }
+   translate(z = 0.5.mm) { oRing() }
 }
 
-keycap_half_width = key_pitch_h / 2 - keycap_margin;
+fun ScadWriter.leftKeys() {
+   val keycapHalfWidth = keyPitchH / 2 - keycapMargin
 
-// x = -2
-translate([
-    -keycap_half_width * cos(0) - key_pitch_h * cos(3) - (keycap_margin - 1) * 2 * cos(3),
-    -keycap_half_width * sin(0) - key_pitch_h * sin(3) - (keycap_margin - 1) * 2 * sin(3)
-]) rotate([0, 0, 3]) {
-    s = -4;
-    for (y = [-1 : 2]) {
-        case_x = key_pitch_h * -2;
-        case_y = key_pitch_v * (y + 2) + s;
-        translate([-keycap_half_width, case_y]) keycap_with_stem(
-                -2, y, case_x, case_y,
-                right_wall_padding = -2,
-                is_thin_pillar = false
-        );
-    }
-}
+   use(File("src/main/res/Cica-Regular.ttf"))
+   prepareStemHolderModule()
+   prepareORingModule()
 
-// x = -1
-translate([
-    -keycap_half_width * cos(0) - keycap_margin * 2 * cos(3),
-    -keycap_half_width * sin(0) - keycap_margin * 2 * sin(3)
-]) rotate([0, 0, 3]) {
-    s = -1;
-    legends = ["Z", "A", "'", "1"];
-    for (y = [-1 : 2]) {
-        case_x = key_pitch_h * -1;
-        case_y = key_pitch_v * (y + 2) + s;
-        translate([-keycap_half_width, case_y]) keycap_with_stem(
-                -1, y, case_x, case_y, legend = legends[y + 1],
-                right_wall_angle = -1.5,
-                wall_y = case_y,
-                is_thin_pillar = false
-        );
-    }
-}
+   // x = -2
+   translate(
+      -keycapHalfWidth * cos(0.deg) - keyPitchH * cos(3.deg) - (keycapMargin - 1.mm) * 2 * cos(3.deg),
+      -keycapHalfWidth * sin(0.deg) - keyPitchH * sin(3.deg) - (keycapMargin - 1.mm) * 2 * sin(3.deg)
+   ) {
+      rotate(z = 3.deg) {
+         val s = (-4).mm
+         for (y in -1..2) {
+            val caseX = Point(keyPitchH * -2)
+            val caseY = Point(keyPitchV * (y + 2) + s)
+            translate(-keycapHalfWidth, caseY.distanceFromOrigin) {
+               keycapWithStem(
+                  -2.0, y.toDouble(), caseX, caseY,
+                  rightWallPadding = (-2).mm,
+                  isThinPillar = false
+               )
+            }
+         }
+      }
+   }
 
-// x = 0
-translate([
-    keycap_half_width * cos(0),
-    keycap_half_width * sin(0)
-]) rotate([0, 0, 0]) {
-    s = 9.5;
-    legends = ["Q", "O", ",", "2"];
-    for (y = [-1 : 2]) {
-        case_x = key_pitch_h * 0;
-        case_y = key_pitch_v * (y + 2) + s;
-        translate([-keycap_half_width, case_y]) keycap_with_stem(
-                0, y, case_x, case_y, legend = legends[y + 1],
-                left_wall_angle  =  1.5,
-                right_wall_angle = -1,
-                wall_y = case_y,
-                is_thin_pillar = false
-        );
-    }
-}
+   // x = -1
+   translate(
+      -keycapHalfWidth * cos(0.deg) - keycapMargin * 2 * cos(3.deg),
+      -keycapHalfWidth * sin(0.deg) - keycapMargin * 2 * sin(3.deg)
+   ) {
+      rotate(z = 3.deg) {
+         val s = (-1).mm
+         val legends = listOf("Z", "A", "'", "1")
+         for (y in -1..2) {
+            val caseX = Point(keyPitchH * -1)
+            val caseY = Point(keyPitchV * (y + 2) + s)
+            translate(-keycapHalfWidth, caseY.distanceFromOrigin) {
+               keycapWithStem(
+                  -1.0, y.toDouble(), caseX, caseY, legend = legends[y + 1],
+                  rightWallAngle = (-1.5).deg,
+                  wallY = caseY,
+                  isThinPillar = false
+               )
+            }
+         }
+      }
+   }
 
-// x = 1
-translate([
-    keycap_half_width * cos(0) + keycap_margin * 2 * cos(-2),
-    keycap_half_width * sin(0) + keycap_margin * 2 * sin(-2)
-]) rotate([0, 0, -2]) {
-    s = 14.25;
-    legends = ["J", "E", ".", "3"];
-    for (y = [-1 : 2]) {
-        case_x = key_pitch_h * 1;
-        case_y = key_pitch_v * (y + 2) + s;
-        translate([keycap_half_width, case_y]) keycap_with_stem(
-                1, y, case_x, case_y,
-                legend = legends[y + 1],
-                left_wall_angle = 1,
-                wall_y = case_y,
-                is_thin_pillar = false
-        );
-    }
-}
+   // x = 0
+   translate(
+      keycapHalfWidth * cos(0.deg),
+      keycapHalfWidth * sin(0.deg)
+   ) {
+      rotate(z = 0.deg) {
+         val s = 9.5.mm
+         val legends = listOf("Q", "O", ",", "2")
+         for (y in -1..2) {
+            val caseX = Point(keyPitchH * 0)
+            val caseY = Point(keyPitchV * (y + 2) + s)
+            translate(-keycapHalfWidth, caseY.distanceFromOrigin) {
+               keycapWithStem(
+                  0.0, y.toDouble(), caseX, caseY, legend = legends[y + 1],
+                  leftWallAngle = 1.5.deg,
+                  rightWallAngle = (-1).deg,
+                  wallY = caseY,
+                  isThinPillar = false
+               )
+            }
+         }
+      }
+   }
 
-// x = 2
-translate([
-    keycap_half_width * cos(0) + key_pitch_h * cos(-2) + 2 + keycap_margin * 2 * cos(-4),
-    keycap_half_width * sin(0) + key_pitch_h * sin(-2)     + keycap_margin * 2 * sin(-4)
-]) rotate([0, 0, -6]) {
-    s = 4;
-    legends = ["K", "U", "P", "4"];
-    for (y = [-1 : 2]) {
-        case_x = key_pitch_h * 2;
-        case_y = key_pitch_v * (y + 2) + s;
-        translate([keycap_half_width, case_y]) keycap_with_stem(
-                2, y, case_x, case_y,
-                legend = legends[y + 1],
-                wall_y = case_y,
-                is_fluent_to_north = (y == 0),
-                is_fluent_to_south = (y == 1),
-                is_home_position = (y == 0),
-                is_thin_pillar = false
-        );
-    }
-}
+   // x = 1
+   translate(
+      keycapHalfWidth * cos(0.deg) + keycapMargin * 2 * cos((-2).deg),
+      keycapHalfWidth * sin(0.deg) + keycapMargin * 2 * sin((-2).deg)
+   ) {
+      rotate(z = (-2).deg) {
+         val s = 14.25.mm
+         val legends = listOf("J", "E", ".", "3")
+         for (y in -1..2) {
+            val caseX = Point(keyPitchH * 1)
+            val caseY = Point(keyPitchV * (y + 2) + s)
+            translate(keycapHalfWidth, caseY.distanceFromOrigin) {
+               keycapWithStem(
+                  1.0, y.toDouble(), caseX, caseY, legend = legends[y + 1],
+                  leftWallAngle = 1.deg,
+                  wallY = caseY,
+                  isThinPillar = false
+               )
+            }
+         }
+      }
+   }
 
-// x = 3
-translate([
-    keycap_half_width * cos(0) + key_pitch_h * cos(-2) + 2 + key_pitch_h * cos(-4) + (keycap_margin - 1) * 2 * cos(-4),
-    keycap_half_width * sin(0) + key_pitch_h * sin(-2)     + key_pitch_h * sin(-4) + (keycap_margin - 1) * 2 * sin(-4)
-]) rotate([0, 0, -6]) {
-    legends = ["X", "I", "Y", "5"];
-    for (y = [-1 : 2]) {
-        case_x = key_pitch_h * 3;
-        case_y = key_pitch_v * (y + 2);
-        translate([keycap_half_width, case_y]) keycap_with_stem(
-                3, y, case_x, case_y,
-                legend = legends[y + 1],
-                left_wall_padding = -2,
-                wall_y = case_y,
-                is_fluent_to_north = (y == 0),
-                is_fluent_to_south = (y == 1),
-                is_thin_pillar = true
-        );
-    }
-}
+   // x = 2
+   translate(
+      keycapHalfWidth * cos(0.deg) + keyPitchH * cos((-2).deg) + 2.mm + keycapMargin * 2 * cos((-4).deg),
+      keycapHalfWidth * sin(0.deg) + keyPitchH * sin((-2).deg)        + keycapMargin * 2 * sin((-4).deg)
+   ) {
+      rotate(z = (-6).deg) {
+         val s = 4.mm
+         val legends = listOf("K", "U", "P", "4")
+         for (y in -1..2) {
+            val caseX = Point(keyPitchH * 2)
+            val caseY = Point(keyPitchV * (y + 2) + s)
+            translate(keycapHalfWidth, caseY.distanceFromOrigin) {
+               keycapWithStem(
+                  2.0, y.toDouble(), caseX, caseY, legend = legends[y + 1],
+                  wallY = caseY,
+                  isFluentToNorth = (y == 0),
+                  isFluentToSouth = (y == 1),
+                  isHomePosition = (y == 0),
+                  isThinPillar = false
+               )
+            }
+         }
+      }
+   }
 
-translate([14, 7]) encoder_knob();
+   // x = 3
+   translate(
+      keycapHalfWidth * cos(0.deg) + keyPitchH * cos((-2).deg) + 2.mm + keyPitchH * cos((-4).deg) + (keycapMargin - 1.mm) * 2 * cos((-4).deg),
+      keycapHalfWidth * sin(0.deg) + keyPitchH * sin((-2).deg)        + keyPitchH * sin((-4).deg) + (keycapMargin - 1.mm) * 2 * sin((-4).deg)
+   ) {
+      rotate(z = (-6).deg) {
+         val legends = listOf("X", "I", "Y", "5")
+         for (y in -1..2) {
+            val caseX = Point(keyPitchH * 3)
+            val caseY = Point(keyPitchV * (y + 2))
+            translate(keycapHalfWidth, caseY.distanceFromOrigin) {
+               keycapWithStem(
+                  3.0, y.toDouble(), caseX, caseY, legend = legends[y + 1],
+                  leftWallPadding = (-2).mm,
+                  wallY = caseY,
+                  isFluentToNorth = (y == 0),
+                  isFluentToSouth = (y == 1),
+                  isThinPillar = true
+               )
+            }
+         }
+      }
+   }
 
-translate([16, -63]) rotate([0, 0, 59]) {
-    rotate([0, 0, 15 * -2]) translate([73, 0]) thumb_keycap(73, -7.5, 7.5, h = 16, dish_offset = 0);
-    rotate([0, 0, 15 * -1]) translate([73, 0]) thumb_keycap(73, -7.5, 7.5, h = 16, dish_offset = 0);
-    rotate([0, 0, 15 *  0]) translate([73, 0]) thumb_keycap(73, -7.5, 7.5, h = 24, dish_offset = -1);
-    rotate([0, 0, 15 *  1]) translate([73, 0]) thumb_keycap(73, -7.5, 7.5, h = 16, dish_offset = -2);
+   translate(14.mm, 7.mm) { encoderKnob() }
+
+   translate(16.mm, (-63).mm) {
+      rotate(z = 59.deg) {
+         rotate(z = 15.deg * -2) { translate(x = 73.mm) { thumbKeycap(73.mm, (-7.5).deg / 2, 7.5.deg / 2, h = 16.mm, dishOffset =   0 .mm) } }
+         rotate(z = 15.deg * -1) { translate(x = 73.mm) { thumbKeycap(73.mm, (-7.5).deg / 2, 7.5.deg / 2, h = 16.mm, dishOffset =   0 .mm) } }
+         rotate(z = 15.deg *  0) { translate(x = 73.mm) { thumbKeycap(73.mm, (-7.5).deg / 2, 7.5.deg / 2, h = 24.mm, dishOffset = (-1).mm) } }
+         rotate(z = 15.deg *  1) { translate(x = 73.mm) { thumbKeycap(73.mm, (-7.5).deg / 2, 7.5.deg / 2, h = 16.mm, dishOffset = (-2).mm) } }
+      }
+   }
 }

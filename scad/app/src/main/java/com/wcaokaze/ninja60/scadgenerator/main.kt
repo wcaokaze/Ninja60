@@ -14,7 +14,18 @@ fun main(vararg args: String) {
    }
 
    writeScad(config.outputFile) {
-      cylinder(height = 3.mm, bottomRadius = 1.mm, topRadius = 0.mm, fa = 2.0)
+      prepareSharedScads()
+
+      /*
+      prepareBottomPlateModule()
+      prepareMiddlePlateModule()
+
+      translate(x = 19.05.mm * 2) { rotate(y = Angle.PI) { bottomPlate() } }
+      translate(z = 1.cm) { middlePlate() }
+      translate(z = 2.cm) { topPlate() }
+      */
+
+      leftKeys()
    }
 }
 

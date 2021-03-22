@@ -1,9 +1,11 @@
+package com.wcaokaze.ninja60.scadgenerator
 
-include <shared.scad>;
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.*
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.*
 
-encoder_knob_r = 11;
-encoder_knob_h = 14;
+val encoderKnobR = 11.mm
+val encoderKnobH = 14.mm
 
-module encoder_knob() {
-    cylinder(r = encoder_knob_r, h = encoder_knob_h);
+fun ScadWriter.encoderKnob() {
+   cylinder(height = encoderKnobH, radius = encoderKnobR, `$fa`)
 }

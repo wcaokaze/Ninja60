@@ -1,575 +1,647 @@
+package com.wcaokaze.ninja60.scadgenerator
 
-include <shared.scad>;
-use <res/Cica-Regular.ttf>;
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.*
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.*
 
-enable_only_outer = true;
-enable_legends    = false;
+val enableOnlyOuter = true
+val enableLegends = false
 
-keycap_invisible_fa = 8;
+val keycapInvisibleFa = 8.0
 
-key_pitch_h = 18;
-key_pitch_v = 16;
-keycap_margin = 0.375;
-keycap_thickness = 1.5;
-keycap_height = 6.93;
-keycap_wall_fa = 15; // 2;
+val keyPitchH = 18.mm
+val keyPitchV = 16.mm
+val keycapMargin = 0.375.mm
+val keycapThickness = 1.5.mm
+val keycapHeight = 6.93.mm
+val keycapWallFa = 15.0 // 2.0
 
-dish_r = 15;
-dish_fa = 15; // 2;
+val dishR = 15.mm
+val dishFa = 15.0 // 2.0
 
-tilt_xr = 260;
-tilt_yr = 130;
+val tiltXr = 260.mm
+val tiltYr = 130.mm
 
-thumb_tilt_r = 16;
-thumb_tilt_a = 3;
+val thumbTiltR = 16.mm
+val thumbTiltA = 3.deg
 
-function arc_length_to_angle(arc_r, length) = length * 360 / 2 / PI / arc_r;
+fun arcLengthToAngle(arcR: Size, length: Size) = Angle(length.numberAsMilliMeter / arcR.numberAsMilliMeter)
 
 /**
  * 親指用キーキャップ。
  * 底が扇型で皿部分は通常のキーキャップと同様長方形にシリンドリカルのカーブ。
  *
- * arc_r            - 底の扇型の半径
- * arc_start_a      - 底の扇型の開始角度
- * arc_end_a        - 底の扇型の終了角度
- * h                - キーキャップの長さ。mm単位
- *                    「半径arc_r mmのarc_start_a°からarc_end_a°までの扇型」から
- *                    「半径(arc_r - h)mmのarc_start_a°からarc_end_a°までの扇型」を
- *                    くりぬいたバウムクーヘン型がキーキャップの底面となる。
- * dish_offset      - 皿の位置。底面の扇型で言うところの0°の位置から
- *                    扇型の接線の方向(Y軸と並行の方向)に動く(mm単位)
- *                    皿は円筒形なので位置をずらすと結果的に皿が傾いているかのように見える
- * polishing_margin - ステムの十字部が太くなります。mm単位
- *                    磨きなどする場合に削れる分を想定して指定しましょう
+ * @param arcR
+ * 底の扇型の半径
+ * @param arcStartA
+ * 底の扇型の開始角度
+ * @param arcEndA
+ * 底の扇型の終了角度
+ * @param h
+ * キーキャップの長さ。
+ * 「半径arcRのarcStartAからarcEndAまでの扇型」から
+ * 「半径arcR - hのarcStartAからarcEndAまでの扇型」を
+ * くりぬいたバウムクーヘン型がキーキャップの底面となる。
+ * @param dishOffset
+ * 皿の位置。底面の扇型で言うところの0°の位置から
+ * 扇型の接線の方向(Y軸と並行の方向)に動く
+ * 皿は円筒形なので位置をずらすと結果的に皿が傾いているかのように見える
+ * @param polishingMargin
+ * ステムの十字部が太くなります。
+ * 磨きなどする場合に削れる分を想定して指定しましょう
  */
-module thumb_keycap(arc_r, arc_start_a, arc_end_a, dish_offset, h, polishing_margin = 0) {
-    top_w = 18 - (key_pitch_h - 11);
-    top_h = h  - (key_pitch_v - 11);
+fun ScadWriter.thumbKeycap(
+   arcR: Size, arcStartA: Angle, arcEndA: Angle,
+   dishOffset: Size, h: Size, polishingMargin: Size = 0.mm
+) {
+   val topW = 18.mm - (keyPitchH - 11.mm)
+   val topH = h     - (keyPitchV - 11.mm)
 
-    bottom_inner_r  = arc_r - h     + 0.375;
-    bottom_center_r = arc_r - h / 2;
-    bottom_outer_r  = arc_r         - 0.375;
+   val bottomInnerR  = arcR - h     + 0.375.mm
+   val bottomCenterR = arcR - h / 2
+   val bottomOuterR  = arcR         - 0.375.mm
 
-    bottom_arc_start_a = arc_start_a + arc_length_to_angle(bottom_inner_r, 0.375);
-    bottom_arc_end_a   = arc_end_a   - arc_length_to_angle(bottom_inner_r, 0.375);
+   val bottomArcStartA = arcStartA + arcLengthToAngle(bottomInnerR, 0.375.mm)
+   val bottomArcEndA   = arcEndA   - arcLengthToAngle(bottomInnerR, 0.375.mm)
 
-    dish_position_z = dish_offset * sin(-acos(dish_offset / dish_r));
-    bottom_z = 0;
-    top_z = keycap_height + dish_position_z;
+   val dishPositionZ = Point(dishOffset * sin(-acos(dishOffset, dishR)))
+   val bottomZ = Point(0.mm)
+   val topZ = dishPositionZ + keycapHeight
 
-    module dish(fa) {
-        translate([bottom_center_r, dish_offset, top_z + dish_r - 2]) {
-            rotate([90 - thumb_tilt_a, 0, 90]) {
-                cylinder(r = dish_r, h = 32, center = true, $fa = fa);
+   fun ScadWriter.dish(fa: Double) {
+      translate(bottomCenterR, dishOffset, (topZ + dishR - 2.mm).distanceFromOrigin) {
+         rotate(90.deg - thumbTiltA, 0.deg, 90.deg) {
+            cylinder(height = 32.mm, dishR, center = true, fa)
+         }
+      }
+   }
+
+   fun ScadWriter.arc(
+      outerR: Size, innerR: Size,
+      startA: Angle, endA: Angle,
+      topW: Size, topH: Size,
+      z: Point
+   ) {
+      fun bottomInnerX(a: Angle) = Point(innerR * cos(a))
+      fun bottomInnerY(a: Angle) = Point(innerR * sin(a))
+      fun bottomOuterX(a: Angle) = Point(outerR * cos(a))
+      fun bottomOuterY(a: Angle) = Point(outerR * sin(a))
+
+      val topInnerX = Point(bottomCenterR + -topH / 2)
+      val topOuterX = Point(bottomCenterR +  topH / 2)
+      fun topY(a: Angle) = Point(-topW / 2) + topW * ((a - startA).numberAsRadian / (endA - startA).numberAsRadian)
+
+      val points = listOf(
+         listOf(startA, endA)
+            .map { angle ->
+               Point2d(
+                  bottomInnerX(angle) + (topInnerX   - bottomInnerX(angle)) * (z.distanceFromOrigin.numberAsMilliMeter / topZ.distanceFromOrigin.numberAsMilliMeter),
+                  bottomInnerY(angle) + (topY(angle) - bottomInnerY(angle)) * (z.distanceFromOrigin.numberAsMilliMeter / topZ.distanceFromOrigin.numberAsMilliMeter)
+               )
+            },
+         (endA..startA step (startA - endA) / 16)
+            .map { angle ->
+               Point2d(
+                  bottomOuterX(angle) + (topOuterX   - bottomOuterX(angle)) * (z.distanceFromOrigin.numberAsMilliMeter / topZ.distanceFromOrigin.numberAsMilliMeter),
+                  bottomOuterY(angle) + (topY(angle) - bottomOuterY(angle)) * (z.distanceFromOrigin.numberAsMilliMeter / topZ.distanceFromOrigin.numberAsMilliMeter)
+               )
             }
-        }
-    }
+      )
 
-    module arc(outer_r, inner_r, start_a, end_a, top_w, top_h, z, fa) {
-        function bottom_inner_x(a) = inner_r * cos(a);
-        function bottom_inner_y(a) = inner_r * sin(a);
-        function bottom_outer_x(a) = outer_r * cos(a);
-        function bottom_outer_y(a) = outer_r * sin(a);
+      translate(z = z.distanceFromOrigin) {
+         linearExtrude(0.01.mm) {
+            polygon(points.flatten())
+         }
+      }
+   }
 
-        top_inner_x = bottom_center_r + -top_h / 2;
-        top_outer_x = bottom_center_r +  top_h / 2;
-        function top_y(a) = -top_w / 2 + top_w * (a - start_a) / (end_a - start_a);
+   fun ScadWriter.roundArc(
+      outerR: Size, innerR: Size,
+      startA: Angle, endA: Angle,
+      topW: Size, topH: Size,
+      roundR: Size,
+      z: Point,
+      fa: Double
+   ) {
+      minkowski {
+         arc(
+            outerR - roundR,
+            innerR + roundR,
+            startA + arcLengthToAngle(innerR, roundR),
+            endA   - arcLengthToAngle(innerR, roundR),
+            topW - roundR * 2,
+            topH - roundR * 2,
+            z
+         )
 
-        points = [
-            [
-                for (a = [start_a, end_a]) [
-                    bottom_inner_x(a) + (top_inner_x - bottom_inner_x(a)) * (z / top_z),
-                    bottom_inner_y(a) + (top_y(a)    - bottom_inner_y(a)) * (z / top_z)
-                ]
-            ],
-            [
-                [
-                    bottom_inner_x(end_a) + (top_inner_x  - bottom_inner_x(end_a)) * (z / top_z),
-                    bottom_inner_y(end_a) + (top_y(end_a) - bottom_inner_y(end_a)) * (z / top_z)
-                ]
-            ],
-            [
-                for (a = [end_a : (start_a - end_a) / 16 : start_a]) [
-                    bottom_outer_x(a) + (top_outer_x - bottom_outer_x(a)) * (z / top_z),
-                    bottom_outer_y(a) + (top_y(a)    - bottom_outer_y(a)) * (z / top_z)
-                ]
-            ],
-            [
-                [
-                    bottom_outer_x(start_a) + (top_outer_x    - bottom_outer_x(start_a)) * (z / top_z),
-                    bottom_outer_y(start_a) + (top_y(start_a) - bottom_outer_y(start_a)) * (z / top_z)
-                ]
-            ]
-        ];
+         cylinder(height = 0.01.mm, roundR, fa)
+      }
+   }
 
-        translate([0, 0, z]) linear_extrude(0.01) {
-            polygon([ for (a = points) for (p = a) p ]);
-        }
-    }
+   fun ScadWriter.outer() {
+      val bottomR = 0.mm
+      val topR = 3.mm
 
-    module round_arc(outer_r, inner_r, start_a, end_a, top_w, top_h, round_r, z, fa) {
-        minkowski() {
+      fun rAt(z: Point): Size {
+         val rate = (z - bottomZ).numberAsMilliMeter / (topZ - bottomZ).numberAsMilliMeter
+         return bottomR + (topR - bottomR) * rate
+      }
+
+      difference {
+         union {
+            val step = 0.5.mm
+            for (z in bottomZ..topZ step step) {
+               hull {
+                  roundArc(
+                     bottomOuterR,
+                     bottomInnerR,
+                     bottomArcStartA,
+                     bottomArcEndA,
+                     topW, topH,
+                     rAt(z),
+                     z,
+                     keycapWallFa
+                  )
+
+                  roundArc(
+                     bottomOuterR,
+                     bottomInnerR,
+                     bottomArcStartA,
+                     bottomArcEndA,
+                     topW, topH,
+                     rAt(z + step),
+                     z + step,
+                     keycapWallFa
+                  )
+               }
+            }
+         }
+
+         hull {
+            cylinder(height = 0.01.mm, radius = bottomInnerR, fa = keycapWallFa)
+
+            translate(z = topZ.distanceFromOrigin) {
+               cube(bottomCenterR * 2 - topH, topW, 0.01.mm, center = true)
+            }
+         }
+
+         dish(dishFa)
+      }
+   }
+
+   fun ScadWriter.inner() {
+      difference {
+         hull {
             arc(
-                outer_r - round_r,
-                inner_r + round_r,
-                start_a + arc_length_to_angle(inner_r, round_r),
-                end_a   - arc_length_to_angle(inner_r, round_r),
-                top_w - round_r * 2,
-                top_h - round_r * 2,
-                z,
-                fa
-            );
+               bottomOuterR - keycapThickness,
+               bottomInnerR + keycapThickness,
+               bottomArcStartA + arcLengthToAngle(bottomInnerR, keycapThickness),
+               bottomArcEndA   - arcLengthToAngle(bottomInnerR, keycapThickness),
+               topW, topH,
+               z = Point(0.mm)
+            )
 
-            cylinder(r = round_r, h = 0.01, $fa = fa);
-        }
-    }
+            translate(bottomCenterR, 0.mm, topZ.distanceFromOrigin - keycapThickness) {
+               cube(
+                  topH - keycapThickness * 2,
+                  topW - keycapThickness * 2,
+                  0.01.mm,
+                  center = true
+               )
+            }
+         }
 
-    module outer() {
-        bottom_r = 0;
-        top_r = 3;
+         hull {
+            cylinder(
+               height = 0.01.mm,
+               radius = bottomInnerR + keycapThickness,
+               keycapInvisibleFa
+            )
 
-        function get_rate(z) = (z - bottom_z) / (top_z - bottom_z);
-        function r_at(z) = bottom_r + (top_r - bottom_r) * get_rate(z);
+            translate(z = topZ.distanceFromOrigin - keycapThickness) {
+               cube(
+                  bottomCenterR * 2 - (topH - keycapThickness * 2),
+                  topW - keycapThickness * 2,
+                  0.01.mm,
+                  center = true
+               )
+            }
+         }
 
-        difference() {
-            union() {
-                step = 0.5;
-                for (z = [bottom_z : step : top_z]) {
-                    hull() {
-                        round_arc(
-                            bottom_outer_r,
-                            bottom_inner_r,
-                            bottom_arc_start_a,
-                            bottom_arc_end_a,
-                            top_w, top_h,
-                            r_at(z),
-                            z,
-                            keycap_wall_fa
-                        );
+         translate(z = -keycapThickness) {
+            dish(keycapInvisibleFa)
+         }
+      }
+   }
 
-                        round_arc(
-                            bottom_outer_r,
-                            bottom_inner_r,
-                            bottom_arc_start_a,
-                            bottom_arc_end_a,
-                            top_w, top_h,
-                            r_at(z + step),
-                            z + step,
-                            keycap_wall_fa
-                        );
-                    }
-                }
+   fun ScadWriter.pillar() {
+      intersection {
+         union {
+            translate(z = 2.5.mm) {
+               difference {
+                  cylinder(height = 24.mm, radius = bottomCenterR + 1.mm, keycapInvisibleFa)
+                  cylinder(height = 24.mm, radius = bottomCenterR - 1.mm, keycapInvisibleFa)
+               }
             }
 
-            hull() {
-                cylinder(r = bottom_inner_r, h = 0.01, $fa = keycap_wall_fa);
-                translate([0, 0, top_z]) cube([bottom_center_r * 2 - top_h, top_w, 0.01], center = true);
+            translate(0.mm, (-1).mm, 2.5.mm) {
+               cube(bottomOuterR, 2.mm, 24.mm)
             }
 
-            dish(dish_fa);
-        }
-    }
+            translate(x = (bottomOuterR + bottomInnerR) / 2) {
+               translate(z = 2.5.mm) {
+                  polygonPyramid(16, height = 24.mm, radius = 4.3.mm)
+               }
 
-    module inner() {
-        difference() {
-            hull() {
-                arc(
-                    bottom_outer_r - keycap_thickness,
-                    bottom_inner_r + keycap_thickness,
-                    bottom_arc_start_a + arc_length_to_angle(bottom_inner_r, keycap_thickness),
-                    bottom_arc_end_a   - arc_length_to_angle(bottom_inner_r, keycap_thickness),
-                    top_w, top_h,
-                    0,
-                    keycap_invisible_fa
-                );
+               val northSouthThickness = 1.05.mm + polishingMargin
+               val eastWestThickness   = 1.25.mm + polishingMargin
 
-                translate([bottom_center_r, 0, top_z - keycap_thickness]) {
-                    cube(center = true, [
-                        top_w - keycap_thickness * 2,
-                        top_h - keycap_thickness * 2,
-                        0.01
-                    ]);
-                }
+               translate(z = 12.5.mm) { cube(northSouthThickness, 4.mm, 24.mm, center = true) }
+               translate(z = 12.5.mm) { cube(4.mm, eastWestThickness,   24.mm, center = true) }
+            }
+         }
+
+         outer()
+      }
+   }
+
+   translate(x = -arcR) {
+      union {
+         if (enableOnlyOuter) {
+            outer()
+         } else {
+            difference {
+               outer()
+               inner()
             }
 
-            hull() {
-                cylinder(
-                    r = bottom_inner_r + keycap_thickness,
-                    h = 0.01, $fa = keycap_invisible_fa
-                );
-
-                translate([0, 0, top_z - keycap_thickness]) {
-                    cube(center = true, [
-                        bottom_center_r * 2 - (top_h - keycap_thickness * 2),
-                        top_w - keycap_thickness * 2,
-                        0.01
-                    ]);
-                }
-            }
-
-            translate([0, 0, -keycap_thickness]) dish(keycap_invisible_fa);
-        }
-    }
-
-    module pillar() {
-        intersection() {
-            union() {
-                translate([0, 0, 2.5]) difference() {
-                    cylinder(r = bottom_center_r + 1, h = 24, $fa = keycap_invisible_fa);
-                    cylinder(r = bottom_center_r - 1, h = 24, $fa = keycap_invisible_fa);
-                }
-
-                translate([0, -1, 2.5]) cube([bottom_outer_r, 2, 24]);
-
-                translate([(bottom_outer_r + bottom_inner_r) / 2, 0]) {
-                    translate([0, 0, 2.5]) {
-                        polygon_pyramid(16, 4.3, h = 24);
-                    }
-
-                    north_south_thickness = 1.05 + polishing_margin;
-                    east_west_thickness   = 1.25 + polishing_margin;
-
-                    translate([0, 0, 12.5]) cube([north_south_thickness, 4, 24], center = true);
-                    translate([0, 0, 12.5]) cube([4, east_west_thickness,   24], center = true);
-                }
-            }
-
-            outer();
-        }
-    }
-
-    translate([-arc_r, 0]) union() {
-        if (enable_only_outer) {
-            outer();
-        } else {
-            difference() {
-                outer();
-                inner();
-            }
-
-            pillar();
-        }
-    }
+            pillar()
+         }
+      }
+   }
 }
 
-/*
+/**
  * キーキャップ。子を渡すとintersectionによって外形が調整されます
  *
- * x                  - 東西方向のキーの位置。U(1Uのキーの長さを1とする)単位。
- * y                  - 南北方向のキーの位置。U単位。
- * w                  - 東西方向のキーの長さ。U単位。
- * h                  - 南北方向のキーの長さ。U単位。
- * legend             - 刻印の文字列。
- * is_fluent_to_north - 上面の凹みが北側のキーと繋がるようになります。
- *                      is_cylindricalがtrueの場合は無視されます。
- * is_fluent_to_south - 上面の凹みが南側のキーと繋がるようになります。
- *                      is_cylindricalがtrueの場合は無視されます。
- * is_cylindrical     - 上面の凹みの形状。trueで円筒形、falseで球形。
- * is_home_position   - trueにするとホームポジションを指で確かめるための突起がつきます。
- * bottom_z           - 外形の底面のZ座標。
- *                      この高さにおける幅がキーピッチいっぱいに広がるため、
- *                      調整用の子に合わせてこの値を指定することで、
- *                      なるべくキー間の隙間を詰める効果を期待できます。
- * left_wall_padding  - 外形の左側がさらに左に移動します。mm単位
- * right_wall_padding - 外形の右側がさらに右に移動します。mm単位
- * left_wall_angle    - 外形の左側に角度がつきます。0が北、90が西向き
- * right_wall_angle   - 外形の右側に角度がつきます。0が北、-90が東向き
- * wall_y             - left_wall_angle, right_wall_angleを指定する場合の
- *                      このキーの中心のY座標。mm単位
- *                      この値が大きいほどキーの幅が広くなることになりますね
- * polishing_margin   - ステムの十字部が太くなります。mm単位
- *                      磨きなどする場合に削れる分を想定して指定しましょう
+ * @param x
+ * 東西方向のキーの位置。U(1Uのキーの長さを1とする)単位。
+ * @param y
+ * 南北方向のキーの位置。U単位。
+ * @param w
+ * 東西方向のキーの長さ。U単位。
+ * @param h
+ * 南北方向のキーの長さ。U単位。
+ * @param legend
+ * 刻印の文字列。
+ * @param isFluentToNorth
+ * 上面の凹みが北側のキーと繋がるようになります。
+ * isCylindricalがtrueの場合は無視されます。
+ * @param isFluentToSouth
+ * 上面の凹みが南側のキーと繋がるようになります。
+ * isCylindricalがtrueの場合は無視されます。
+ * @param isCylindrical
+ * 上面の凹みの形状。trueで円筒形、falseで球形。
+ * @param isHomePosition
+ * trueにするとホームポジションを指で確かめるための突起がつきます。
+ * @param bottomZ
+ * 外形の底面のZ座標。
+ * この高さにおける幅がキーピッチいっぱいに広がるため、
+ * 調整用の子に合わせてこの値を指定することで、
+ * なるべくキー間の隙間を詰める効果を期待できます。
+ * @param leftWallPadding
+ * 外形の左側がさらに左に移動します。
+ * @param rightWallPadding
+ * 外形の右側がさらに右に移動します。
+ * @param leftWallAngle
+ * 外形の左側に角度がつきます。0°が北、90°が向き
+ * @param rightWallAngle
+ * 外形の右側に角度がつきます。0°が北、-90°が東向き
+ * @param wallY
+ * leftWallAngle, rightWallAngleを指定する場合の
+ * このキーの中心のY座標。
+ * この値が大きいほどキーの幅が広くなることになりますね
+ * @param polishingMargin
+ * ステムの十字部が太くなります。
+ * 磨きなどする場合に削れる分を想定して指定しましょう
  */
-module keycap(x, y, w = 1, h = 1, legend,
-              is_fluent_to_north = false, is_fluent_to_south = false,
-              is_cylindrical = false, is_home_position = false, is_thin_pillar = false,
-              bottom_z = 0,
-              left_wall_padding = 0, right_wall_padding = 0,
-              left_wall_angle = 0, right_wall_angle = 0, wall_y = 0,
-              polishing_margin = 0)
-{
-    top_w = 13 + key_pitch_h * (w - 1);
-    top_h = 13 + key_pitch_v * (h - 1);
-    bottom_w = key_pitch_h * w - keycap_margin * 2;
-    bottom_h = key_pitch_v * h - keycap_margin * 2;
+fun ScadWriter.keycap(
+   x: Double, y: Double, w: Double = 1.0, h: Double = 1.0, legend: String,
+   isFluentToNorth: Boolean = false, isFluentToSouth: Boolean = false,
+   isCylindrical: Boolean = false, isHomePosition: Boolean = false,
+   isThinPillar: Boolean = false, bottomZ: Point = Point(0.mm),
+   leftWallPadding: Size = 0.mm, rightWallPadding: Size = 0.mm,
+   leftWallAngle: Angle = 0.0.rad, rightWallAngle: Angle = 0.0.rad,
+   wallY: Point = Point(0.mm),
+   polishingMargin: Size = 0.mm,
+   children: ScadWriter.() -> Unit
+) {
+   val topW = 13.mm + keyPitchH * (w - 1)
+   val topH = 13.mm + keyPitchV * (h - 1)
+   val bottomW = keyPitchH * w - keycapMargin * 2
+   val bottomH = keyPitchV * h - keycapMargin * 2
 
-    bottom_north_y =  bottom_h / 2;
-    bottom_south_y = -bottom_h / 2;
-    bottom_north_left_x  = -bottom_w / 2 - left_wall_padding  + (wall_y + bottom_north_y) / tan(90 + left_wall_angle);
-    bottom_north_right_x =  bottom_w / 2 + right_wall_padding + (wall_y + bottom_north_y) / tan(90 + right_wall_angle);
-    bottom_south_left_x  = -bottom_w / 2 - left_wall_padding  + (wall_y + bottom_south_y) / tan(90 + left_wall_angle);
-    bottom_south_right_x =  bottom_w / 2 + right_wall_padding + (wall_y + bottom_south_y) / tan(90 + right_wall_angle);
+   val bottomNorthY = Point( bottomH / 2)
+   val bottomSouthY = Point(-bottomH / 2)
+   val bottomNorthLeftX  = Point(-bottomW / 2 - leftWallPadding  + (wallY.distanceFromOrigin + bottomNorthY.distanceFromOrigin) / tan(90.deg + leftWallAngle))
+   val bottomNorthRightX = Point( bottomW / 2 + rightWallPadding + (wallY.distanceFromOrigin + bottomNorthY.distanceFromOrigin) / tan(90.deg + rightWallAngle))
+   val bottomSouthLeftX  = Point(-bottomW / 2 - leftWallPadding  + (wallY.distanceFromOrigin + bottomSouthY.distanceFromOrigin) / tan(90.deg + leftWallAngle))
+   val bottomSouthRightX = Point( bottomW / 2 + rightWallPadding + (wallY.distanceFromOrigin + bottomSouthY.distanceFromOrigin) / tan(90.deg + rightWallAngle))
 
-    // このキーキャップの原点から見た、本来の原点の座標。
-    keyboard_origin = [-x * key_pitch_h, -y * key_pitch_v];
+   // このキーキャップの原点から見た、本来の原点の座標までの距離。
+   val keyboardOrigin = Size2d(keyPitchH * -x, keyPitchV * -y)
 
-    tilt_xa = asin(-keyboard_origin.x / tilt_xr);
-    tilt_ya = asin(-keyboard_origin.y / tilt_yr);
+   val tiltXa = asin(-keyboardOrigin.x, tiltXr)
+   val tiltYa = asin(-keyboardOrigin.y, tiltYr)
 
-    /*
-     * 高さ tilt_xr の点を中心としてX方向に(Y軸方向の直線を軸として) tilt_xa° 回転
-     * 高さ tilt_yr の点を中心としてY方向に(X軸方向の直線を軸として) tilt_ya° 回転
-     * X軸方向に -cos(tilt_xr) 、Y軸方向に -cos(tilt_yr) 移動する。
-     *
-     * 要するにtilt_xa, tilt_yaで回転し、XY座標は回転前の位置に戻してZ座標だけそのままにする。
-     */
-    module rotate_for_tilt() {
-        translate([0, 0, tilt_xr * (1 - cos(-tilt_xa)) + tilt_yr * (1 - cos(tilt_ya))]) {
-            rotate([tilt_ya, -tilt_xa]) {
-                children();
+   /*
+    * 高さ tiltXr の点を中心としてX方向に(Y軸方向の直線を軸として) tiltXa 回転
+    * 高さ tiltYr の点を中心としてY方向に(X軸方向の直線を軸として) tiltYa 回転
+    * X軸方向に -cos(tiltXr) 、Y軸方向に -cos(tiltYr) 移動する。
+    *
+    * 要するにtiltXa, tiltYaで回転し、XY座標は回転前の位置に戻してZ座標だけそのままにする。
+    */
+   fun ScadWriter.rotateForTilt(children: ScadWriter.() -> Unit) {
+      translate(z = tiltXr * (1 - cos(-tiltXa)) + tiltYr * (1 - cos(tiltYa))) {
+         rotate(tiltYa, -tiltXa) {
+            children()
+         }
+      }
+   }
+
+   fun rotatePointForTilt(point: Point3d): Point3d {
+      return Point3d(
+         x = Point(
+              point.x.distanceFromOrigin * cos(-tiltXa)
+            + point.z.distanceFromOrigin * sin(-tiltXa)
+         ),
+         y = Point(
+              point.y.distanceFromOrigin * cos(tiltYa)
+            + point.x.distanceFromOrigin * sin(tiltYa) * sin(-tiltXa)
+            - point.z.distanceFromOrigin * sin(tiltYa) * cos(-tiltXa)
+         ),
+         z = Point(
+              point.y.distanceFromOrigin * sin(tiltYa)
+            - point.x.distanceFromOrigin * cos(tiltYa) * sin(-tiltXa)
+            + point.z.distanceFromOrigin * cos(tiltYa) * cos(-tiltXa)
+         )
+      ) +
+      Size3d(0.mm, 0.mm, tiltXr * (1 - cos(-tiltXa)) + tiltYr * (1 - cos(tiltYa)))
+   }
+
+   fun ScadWriter.dish(keycapHeight: Size, fa: Double) {
+      if (isCylindrical) {
+         minkowski {
+            cube(
+               keyPitchH * (w - 1) + 0.001.mm,
+               keyPitchV * (h - 1) + 0.001.mm,
+               0.001.mm,
+               center = true
+            )
+
+            translate(z = keycapHeight) {
+               rotateForTilt {
+                  translate(z = dishR) {
+                     rotate(-tiltYa) {
+                        cylinder(height = 32.mm, radius = dishR, center = true, fa)
+                     }
+                  }
+               }
             }
-        }
-    }
-
-    function rotate_point_for_tilt(point) = transition_point(
-        [
-            point.x * cos(-tilt_xa) + point.z * sin(-tilt_xa),
-            point.y * cos( tilt_ya) + point.x * sin( tilt_ya) * sin(-tilt_xa) - point.z * sin(tilt_ya) * cos(-tilt_xa),
-            point.y * sin( tilt_ya) - point.x * cos( tilt_ya) * sin(-tilt_xa) + point.z * cos(tilt_ya) * cos(-tilt_xa)
-        ],
-        [0, 0, tilt_xr * (1 - cos(-tilt_xa)) + tilt_yr * (1 - cos(tilt_ya))]
-    );
-
-    module dish(keycap_height, fa) {
-        if (is_cylindrical) {
-            minkowski() {
-                cube(center = true, [
-                        key_pitch_h * (w - 1) + 0.001,
-                        key_pitch_v * (h - 1) + 0.001,
-                        0.001
-                ]);
-
-                translate([0, 0, keycap_height]) {
-                    rotate_for_tilt() {
-                        translate([0, 0, dish_r]) rotate([-tilt_ya, 0, 0]) {
-                            cylinder(r = dish_r, h = 32, center = true, $fa = fa);
-                        }
-                    }
-                }
-            }
-        } else {
-            minkowski() {
-                translate([0, (is_fluent_to_south ? -key_pitch_v : 0)]) {
-                    cube([
-                            0.001,
-                            0.001 +
-                                (is_fluent_to_north ? key_pitch_v : 0) +
-                                (is_fluent_to_south ? key_pitch_v : 0),
-                            0.001
-                    ]);
-                }
-
-                translate([0, 0, keycap_height]) {
-                    rotate_for_tilt() {
-                        translate([0, 0, dish_r]) {
-                            sphere(dish_r, $fa = fa);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    module legend(text) {
-        intersection() {
-            translate([0, 0, keycap_height]) {
-                rotate_for_tilt() {
-                    translate([0, 0, -0.5]) linear_extrude(8) text(
-                        text, size = 6,
-                        font = "Cica", halign = "center", valign = "center",
-                        direction = "ltr", language = "en",
-                        $fa = 1
-                    );
-                }
+         }
+      } else {
+         minkowski {
+            translate(y = if (isFluentToSouth) { -keyPitchV } else { 0.mm }) {
+               cube(
+                  0.001.mm,
+                  0.001.mm +
+                        if (isFluentToNorth) { keyPitchV } else { 0.mm } +
+                        if (isFluentToSouth) { keyPitchV } else { 0.mm },
+                  0.001.mm
+               )
             }
 
-            dish(keycap_height - 0.5, dish_fa);
-        }
-    }
+            translate(z = keycapHeight) {
+               rotateForTilt {
+                  translate(z = dishR) {
+                     sphere(dishR, fa)
+                  }
+               }
+            }
+         }
+      }
+   }
 
-    module outer() {
-        module round_rect_pyramid() {
-            function dish_position(x, y) = transition_point(
-                rotate_point_for_tilt([
-                    x, y,
-                    dish_r * (1 - sin(acos(x / dish_r))) +
-                    dish_r * (1 - sin(acos(y / dish_r)))
-                ]),
-                [0, 0, keycap_height]
-            );
+   fun ScadWriter.legend(text: String) {
+      intersection {
+         translate(z = keycapHeight) {
+            rotateForTilt {
+               translate(z = (-0.5).mm) {
+                  linearExtrude(8.mm) {
+                     text(
+                        text, size = 6.mm,
+                        fontName = "Cica", HAlign.CENTER, VAlign.CENTER,
+                        Direction.LEFT_TO_RIGHT
+                     )
+                  }
+               }
+            }
+         }
 
-            function extract_xy(point) = [point.x, point.y];
+         dish(keycapHeight - 0.5.mm, dishFa)
+      }
+   }
 
-            module polygon_from_3d(points) {
-                linear_extrude(0.1) polygon([
-                    for (p = points) extract_xy(p)
-                ]);
+   fun ScadWriter.outer(children: ScadWriter.() -> Unit) {
+      fun ScadWriter.roundRectPyramid() {
+         fun dishPosition(x: Point, y: Point): Point3d {
+            return rotatePointForTilt(Point3d(
+                     x, y,
+                     z = Point(
+                           dishR * (1 - sin(acos(x.distanceFromOrigin, dishR))) +
+                           dishR * (1 - sin(acos(y.distanceFromOrigin, dishR)))
+                     )
+                  )) +
+                  Size3d(0.mm, 0.mm, keycapHeight)
+         }
+
+         fun extractXy(point: Point3d) = Point2d(point.x, point.y)
+
+         fun ScadWriter.polygonFrom3d(points: List<Point3d>) {
+            linearExtrude(0.1.mm) {
+               polygon(points.map { extractXy(it) })
+            }
+         }
+
+         val bottomR = 0.mm
+         val topR = 3.mm
+
+         val bottomPoints = listOf(
+            Point3d(bottomNorthLeftX  + bottomR, bottomNorthY - bottomR, bottomZ),
+            Point3d(bottomNorthRightX - bottomR, bottomNorthY - bottomR, bottomZ),
+            Point3d(bottomSouthRightX - bottomR, bottomSouthY + bottomR, bottomZ),
+            Point3d(bottomSouthLeftX  + bottomR, bottomSouthY + bottomR, bottomZ)
+         )
+
+         val topPoints = listOf(
+            dishPosition(Point(-(topW / 2 - topR)), Point( (topH / 2 - topR))),
+            dishPosition(Point( (topW / 2 - topR)), Point( (topH / 2 - topR))),
+            dishPosition(Point( (topW / 2 - topR)), Point(-(topH / 2 - topR))),
+            dishPosition(Point(-(topW / 2 - topR)), Point(-(topH / 2 - topR)))
+         )
+
+         val topZ = maxOf(
+            dishPosition(Point(-topW / 2), Point( topH / 2)).z,
+            dishPosition(Point( topW / 2), Point( topH / 2)).z,
+            dishPosition(Point( topW / 2), Point(-topH / 2)).z,
+            dishPosition(Point(-topW / 2), Point(-topH / 2)).z
+         )
+
+         fun getRate(z: Point) = (z - bottomZ).numberAsMilliMeter / (topZ - bottomZ).numberAsMilliMeter
+         fun rAt(z: Point) = bottomR + (topR - bottomR) * getRate(z)
+
+         union {
+            val step = 0.5.mm
+            for (z in bottomZ..topZ step step) {
+               hull {
+                  translate(z = z.distanceFromOrigin) {
+                     minkowski {
+                        polygonFrom3d(
+                           (bottomPoints zip topPoints)
+                              .map { (b, t) -> zPointOnLine(b, t, z) }
+                        )
+
+                        cylinder(height = 0.001.mm, radius = rAt(z), keycapWallFa)
+                     }
+                  }
+
+                  translate(z = z.distanceFromOrigin + step) {
+                     minkowski {
+                        polygonFrom3d(
+                           (bottomPoints zip topPoints)
+                              .map { (b, t) -> zPointOnLine(b, t, z + step) }
+                        )
+
+                        cylinder(height = 0.001.mm, radius = rAt(z + step), keycapWallFa)
+                     }
+                  }
+               }
+            }
+         }
+      }
+
+      intersection {
+         difference {
+            roundRectPyramid()
+            dish(keycapHeight, dishFa)
+         }
+
+         children()
+      }
+   }
+
+   fun ScadWriter.inner() {
+      fun ScadWriter.rectPyramid() {
+         hull {
+            val topZ = Point(keycapHeight)
+
+            translate(z = topZ.distanceFromOrigin) {
+               rotateForTilt {
+                  cube(
+                     topW - keycapThickness * 2,
+                     topH - keycapThickness * 2,
+                     0.01.mm,
+                     center = true
+                  )
+               }
             }
 
-            bottom_r = 0;
-            top_r = 3;
-
-            bottom_points = [
-                [bottom_north_left_x  + bottom_r, bottom_north_y - bottom_r, bottom_z],
-                [bottom_north_right_x - bottom_r, bottom_north_y - bottom_r, bottom_z],
-                [bottom_south_right_x - bottom_r, bottom_south_y + bottom_r, bottom_z],
-                [bottom_south_left_x  + bottom_r, bottom_south_y + bottom_r, bottom_z]
-            ];
-
-            top_points = [
-                dish_position(-(top_w / 2 - top_r),  (top_h / 2 - top_r)),
-                dish_position( (top_w / 2 - top_r),  (top_h / 2 - top_r)),
-                dish_position( (top_w / 2 - top_r), -(top_h / 2 - top_r)),
-                dish_position(-(top_w / 2 - top_r), -(top_h / 2 - top_r))
-            ];
-
-            top_z = max(
-                dish_position(-top_w / 2,  top_h / 2).z,
-                dish_position( top_w / 2,  top_h / 2).z,
-                dish_position( top_w / 2, -top_h / 2).z,
-                dish_position(-top_w / 2, -top_h / 2).z
-            );
-
-            function get_rate(z) = (z - bottom_z) / (top_z - bottom_z);
-            function r_at(z) = bottom_r + (top_r - bottom_r) * get_rate(z);
-
-            union() {
-                step = 0.5;
-                for (z = [bottom_z : step : top_z]) {
-                    hull() {
-                        translate([0, 0, z]) minkowski() {
-                            polygon_from_3d([
-                                z_point_on_line(bottom_points[0], top_points[0], z),
-                                z_point_on_line(bottom_points[1], top_points[1], z),
-                                z_point_on_line(bottom_points[2], top_points[2], z),
-                                z_point_on_line(bottom_points[3], top_points[3], z),
-                            ]);
-
-                            cylinder(r = r_at(z), h = 0.001, $fa = keycap_wall_fa);
-                        }
-
-                        translate([0, 0, z + step]) minkowski() {
-                            polygon_from_3d([
-                                z_point_on_line(bottom_points[0], top_points[0], z + step),
-                                z_point_on_line(bottom_points[1], top_points[1], z + step),
-                                z_point_on_line(bottom_points[2], top_points[2], z + step),
-                                z_point_on_line(bottom_points[3], top_points[3], z + step),
-                            ]);
-
-                            cylinder(r = r_at(z + step), h = 0.001, $fa = keycap_wall_fa);
-                        }
-                    }
-                }
+            translate(z = bottomZ.distanceFromOrigin) {
+               linearExtrude(0.01.mm) {
+                  polygon(listOf(
+                     Point2d(bottomNorthLeftX  + keycapThickness, bottomNorthY - keycapThickness),
+                     Point2d(bottomNorthRightX - keycapThickness, bottomNorthY - keycapThickness),
+                     Point2d(bottomSouthRightX - keycapThickness, bottomSouthY + keycapThickness),
+                     Point2d(bottomSouthLeftX  + keycapThickness, bottomSouthY + keycapThickness)
+                  ))
+               }
             }
-        }
+         }
+      }
 
-        intersection() {
-            difference() {
-                round_rect_pyramid();
-                dish(keycap_height, fa = dish_fa);
+      difference {
+         rectPyramid()
+         dish(keycapHeight - keycapThickness, keycapInvisibleFa)
+      }
+   }
+
+   fun ScadWriter.pillar(children: ScadWriter.() -> Unit) {
+      intersection {
+         union {
+            translate((-16).mm, (- 1.5).mm, 2.5.mm) { cube(32.mm,  3.mm, 24.mm) }
+            translate((- 1).mm, (-16.0).mm, 2.5.mm) { cube( 2.mm, 32.mm, 24.mm) }
+
+            translate(z = 2.5.mm) {
+               polygonPyramid(
+                  16,
+                  height = if (isThinPillar) { 2.mm } else { 24.mm },
+                  radius = 4.3.mm
+               )
             }
 
-            children();
-        }
-    }
+            val northSouthThickness = 1.05.mm + polishingMargin
+            val eastWestThickness   = 1.25.mm + polishingMargin
 
-    module inner() {
-        module rect_pyramid() {
-            hull() {
-                top_z = keycap_height;
+            translate(z = 12.5.mm) { cube(northSouthThickness, 4.mm, 24.mm, center = true) }
+            translate(z = 12.5.mm) { cube(4.mm, eastWestThickness,   24.mm, center = true) }
+         }
 
-                translate([0, 0, top_z]) {
-                    rotate_for_tilt() {
-                        cube(
-                            [
-                                top_w - keycap_thickness * 2,
-                                top_h - keycap_thickness * 2,
-                                0.01
-                            ],
-                            center = true
-                        );
-                    }
-                }
+         union {
+            outer { children() }
 
-                translate([0, 0, bottom_z]) {
-                    linear_extrude(0.01) polygon([
-                        [bottom_north_left_x  + keycap_thickness, bottom_north_y - keycap_thickness],
-                        [bottom_north_right_x - keycap_thickness, bottom_north_y - keycap_thickness],
-                        [bottom_south_right_x - keycap_thickness, bottom_south_y + keycap_thickness],
-                        [bottom_south_left_x  + keycap_thickness, bottom_south_y + keycap_thickness]
-                    ]);
-                }
+            difference {
+               translate(z = (-3).mm) { polygonPyramid(16, height = 24.mm, radius = 4.3.mm) }
+               dish(keycapHeight - keycapThickness, keycapInvisibleFa)
             }
-        }
+         }
+      }
+   }
 
-        difference() {
-            rect_pyramid();
-            dish(keycap_height - keycap_thickness, fa = keycap_invisible_fa);
-        }
-    }
+   fun ScadWriter.homePositionMark() {
+      translate(z = keycapHeight) {
+         rotateForTilt {
+            translate((-0.5).mm, -topH / 2 + 0.15.mm, (-1.5).mm) {
+               minkowski {
+                  cube(1.mm, 0.001.mm, 2.75.mm)
+                  sphere(0.3.mm, fa = 12.0)
+               }
+            }
+         }
+      }
+   }
 
-    module pillar() {
-        intersection() {
-            union() {
-                translate([-16, - 1.5, 2.5]) cube([32,  3, 24]);
-                translate([- 1, -16.0, 2.5]) cube([ 2, 32, 24]);
+   difference {
+      if (enableOnlyOuter) {
+         outer { children() }
+      } else {
+         union {
+            difference {
+               union {
+                  outer { children() }
 
-                translate([0, 0, 2.5]) {
-                    polygon_pyramid(16, 4.3, h = is_thin_pillar ? 2 : 24);
-                }
+                  if (isHomePosition) {
+                     homePositionMark()
+                  }
+               }
 
-                north_south_thickness = 1.05 + polishing_margin;
-                east_west_thickness   = 1.25 + polishing_margin;
-
-                translate([0, 0, 12.5]) cube([north_south_thickness, 4, 24], center = true);
-                translate([0, 0, 12.5]) cube([4, east_west_thickness,   24], center = true);
+               inner()
             }
 
-            union() {
-                outer() { children(); }
+            pillar { children() }
+         }
+      }
 
-                difference() {
-                    translate([0, 0, -3]) polygon_pyramid(16, 4.3, h = 24);
-                    dish(keycap_height - keycap_thickness, fa = keycap_invisible_fa);
-                }
-            }
-        }
-    }
-
-    module home_position_mark() {
-        translate([0, 0, keycap_height]) {
-            rotate_for_tilt() {
-                translate([-0.5, -top_h / 2 + 0.15, -1.5]) minkowski() {
-                    cube([1, 0.001, 2.75]);
-                    sphere(0.3);
-                }
-            }
-        }
-    }
-
-    difference() {
-        if (enable_only_outer) {
-            outer() { children(); }
-        } else {
-            union() {
-                difference() {
-                    union() {
-                        outer() { children(); }
-
-                        if (is_home_position) {
-                            home_position_mark();
-                        }
-                    }
-
-                    inner();
-                }
-
-                pillar() { children(); }
-            }
-        }
-
-        if (enable_legends) {
-            legend(legend);
-        }
-    }
+      if (enableLegends) {
+         legend(legend)
+      }
+   }
 }

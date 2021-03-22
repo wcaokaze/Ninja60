@@ -1,69 +1,92 @@
+package com.wcaokaze.ninja60.scadgenerator
 
-$fs = 0.1;
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.*
+import com.wcaokaze.ninja60.scadgenerator.scadwriter.foundation.*
 
-module polygon_pyramid(n, r, h) {
-    linear_extrude(h) polygon([
-        for (a = [180.0 / n : 360.0 / n : 360.0 + 180.0 / n])
-            [r * sin(a), r * cos(a)]
-    ]);
+fun ScadWriter.prepareSharedScads() {
+   val fs = "\$fs"
+   writeRawScad("""
+      $fs = 0.1;
+
+      module polygon_pyramid(n, r, h) {
+         linear_extrude(h) polygon([
+            for (a = [180.0 / n : 360.0 / n : 360.0 + 180.0 / n])
+               [r * sin(a), r * cos(a)]
+         ]);
+      }
+   """)
+}
+fun ScadWriter.polygonPyramid(n: Int, height: Size, radius: Size) {
+   writeRawScad("polygon_pyramid($n, $radius, $height);")
 }
 
-// aを0に近くなるようにdで減算します
-function close_origin(a, d) =
-    (a < -d) ?
-        a + d
-    : (a < d) ?
-        0
-    :
-        a - d
-    ;
+/**
+ * [原点][Point.ORIGIN]に近くなるようにdで減算します
+ */
+infix fun Point.closeOrigin(d: Size): Point {
+   return when {
+      this.distanceFromOrigin < -d -> this + d
+      this.distanceFromOrigin <  d -> Point.ORIGIN
+      else                         -> this - d
+   }
+}
 
-// aを0から遠ざかるように加算します
-function leave_origin(a, d) =
-    (a < 0) ?
-        a - d
-    :
-        a + d
-    ;
+/**
+ * [原点][Point.ORIGIN]から遠ざかるように加算します
+ */
+infix fun Point.leaveOrigin(d: Size): Point {
+   return if (this < Point.ORIGIN) {
+      this - d
+   } else {
+      this + d
+   }
+}
 
-function transition_point(p, t) = [
-    p.x + t.x,
-    p.y + t.y,
-    p.z + t.z
-];
+/**
+ * a, bの2点を通る直線の高さzにおける座標
+ */
+fun zPointOnLine(a: Point3d, b: Point3d, z: Point) = Point3d(
+   a.x + (z - a.z) * ((b.x - a.x).numberAsMilliMeter / (b.z - a.z).numberAsMilliMeter),
+   a.y + (z - a.z) * ((b.y - a.y).numberAsMilliMeter / (b.z - a.z).numberAsMilliMeter),
+   z
+)
 
-// a, bの2点を通る直線の高さzにおける座標
-function z_point_on_line(a, b, z) = [
-    (z - a.z) * (b.x - a.x) / (b.z - a.z) + a.x,
-    (z - a.z) * (b.y - a.y) / (b.z - a.z) + a.y,
-    z
-];
-
-/*
+/**
  * キーを2層に並べるときに便利なやつ
  *
- * x              - 東西方向の位置。U単位
- * y              - 南北方向の位置。U単位
- * rotation_x     - X軸の回転角度。degree
- * rotation_y     - Y軸の回転角度。degree
- * rotation_z     - Z軸の回転角度。degree
- * is_upper_layer - trueで上の層に配置。このとき自動的にX軸で180°回転して裏返されます
+ * @param x
+ * 東西方向の位置。U単位
+ * @param y
+ * 南北方向の位置。U単位
+ * @param rotationX
+ * X軸の回転角度。
+ * @param rotationY
+ * Y軸の回転角度。
+ * @param rotationZ
+ * Z軸の回転角度。
+ * @param isUpperLayer
+ * trueで上の層に配置。このとき自動的にX軸で180°回転して裏返されます
  */
-module layout(x, y, rotation_x = 0, rotation_y = 0, rotation_z = 0, is_upper_layer = false) {
-    key_distance = 16.5;
-    upper_layer_z_offset = 28.5;
+fun ScadWriter.layout(
+   x: Double, y: Double,
+   rotationX: Angle = 0.0.rad, rotationY: Angle = 0.0.rad, rotationZ: Angle = 0.0.rad,
+   isUpperLayer: Boolean = false,
+   children: ScadWriter.() -> Unit
+) {
+   val keyDistance = 16.5.mm
+   val upperLayerZOffset = 28.5.mm
 
-    translate([
-            (x + 0.5) * key_distance,
-            (y + 0.5) * key_distance,
-            is_upper_layer ? upper_layer_z_offset : 0
-    ]) {
-        rotate([
-                rotation_x + (is_upper_layer ? 180 : 0),
-                rotation_y,
-                rotation_z
-        ]) {
-            children();
-        }
-    }
+   translate(
+      keyDistance * (x + 0.5),
+      keyDistance * (y + 0.5),
+      if (isUpperLayer) { upperLayerZOffset } else { 0.mm }
+   ) {
+      rotate(
+         rotationX + if (isUpperLayer) { Angle.PI } else { 0.0.rad },
+         rotationY,
+         rotationZ
+      ) {
+         children()
+      }
+   }
 }
