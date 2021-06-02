@@ -27,7 +27,11 @@ fun main(vararg args: String) {
       leftKeys()
       */
 
-      muteForm()
+      val column = Column(Point3d.ORIGIN, 60.mm)
+
+      for (p in column.keyPlates) {
+         hullPoints(p.points)
+      }
    }
 }
 

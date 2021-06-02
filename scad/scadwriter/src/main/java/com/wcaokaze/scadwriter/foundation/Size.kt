@@ -51,3 +51,6 @@ data class Size2d(val x: Size, val y: Size) {
 data class Size3d(val x: Size, val y: Size, val z: Size) {
    override fun toString() = "[$x, $y, $z]"
 }
+
+fun Iterable<Size>.sum() = Size(sumByDouble { it.numberAsMilliMeter })
+fun Iterable<Size>.average() = Size(map { it.numberAsMilliMeter } .average())

@@ -68,3 +68,7 @@ data class Point3d(val x: Point, val y: Point, val z: Point) {
    operator fun minus(size: Size3d) = Point3d(x - size.x, y - size.y, z - size.z)
    operator fun minus(point: Point3d) = Size3d(x - point.x, y - point.y, z - point.z)
 }
+
+fun Iterable<Point>  .average() = Point(map { it.distanceFromOrigin } .average())
+fun Iterable<Point2d>.average() = Point2d(map { it.x } .average(), map { it.y } .average())
+fun Iterable<Point3d>.average() = Point3d(map { it.x } .average(), map { it.y } .average(), map { it.z } .average())
