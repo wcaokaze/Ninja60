@@ -21,7 +21,7 @@ tasks.register<Exec>("generateAllScads") {
    commandLine(
       "java",
       "--class-path", classPath.joinToString(separator = ":"),
-      "com.wcaokaze.ninja60.scadgenerator.MainKt",
+      "com.wcaokaze.ninja60.MainKt",
       "--output-file", File(buildDir, "test.scad")
    )
 }
