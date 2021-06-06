@@ -11,7 +11,6 @@ val keycapInvisibleFa = 8.0
 val keyPitchH = 18.mm
 val keyPitchV = 16.mm
 val keycapMargin = 0.375.mm
-val keycapThickness = 1.5.mm
 val keycapHeight = 6.93.mm
 val keycapWallFa = 15.0 // 2.0
 
@@ -23,6 +22,12 @@ val tiltYr = 130.mm
 
 val thumbTiltR = 16.mm
 val thumbTiltA = 3.deg
+
+class Keycap {
+   companion object {
+      val THICKNESS = 1.5.mm
+   }
+}
 
 fun arcLengthToAngle(arcR: Size, length: Size) = Angle(length.numberAsMilliMeter / arcR.numberAsMilliMeter)
 
@@ -192,18 +197,18 @@ fun ScadWriter.thumbKeycap(
       difference {
          hull {
             arc(
-               bottomOuterR - keycapThickness,
-               bottomInnerR + keycapThickness,
-               bottomArcStartA + arcLengthToAngle(bottomInnerR, keycapThickness),
-               bottomArcEndA   - arcLengthToAngle(bottomInnerR, keycapThickness),
+               bottomOuterR - Keycap.THICKNESS,
+               bottomInnerR + Keycap.THICKNESS,
+               bottomArcStartA + arcLengthToAngle(bottomInnerR, Keycap.THICKNESS),
+               bottomArcEndA   - arcLengthToAngle(bottomInnerR, Keycap.THICKNESS),
                topW, topH,
                z = Point(0.mm)
             )
 
-            translate(bottomCenterR, 0.mm, topZ.distanceFromOrigin - keycapThickness) {
+            translate(bottomCenterR, 0.mm, topZ.distanceFromOrigin - Keycap.THICKNESS) {
                cube(
-                  topH - keycapThickness * 2,
-                  topW - keycapThickness * 2,
+                  topH - Keycap.THICKNESS * 2,
+                  topW - Keycap.THICKNESS * 2,
                   0.01.mm,
                   center = true
                )
@@ -213,21 +218,21 @@ fun ScadWriter.thumbKeycap(
          hull {
             cylinder(
                height = 0.01.mm,
-               radius = bottomInnerR + keycapThickness,
+               radius = bottomInnerR + Keycap.THICKNESS,
                keycapInvisibleFa
             )
 
-            translate(z = topZ.distanceFromOrigin - keycapThickness) {
+            translate(z = topZ.distanceFromOrigin - Keycap.THICKNESS) {
                cube(
-                  bottomCenterR * 2 - (topH - keycapThickness * 2),
-                  topW - keycapThickness * 2,
+                  bottomCenterR * 2 - (topH - Keycap.THICKNESS * 2),
+                  topW - Keycap.THICKNESS * 2,
                   0.01.mm,
                   center = true
                )
             }
          }
 
-         translate(z = -keycapThickness) {
+         translate(z = -Keycap.THICKNESS) {
             dish(keycapInvisibleFa)
          }
       }
@@ -547,8 +552,8 @@ fun ScadWriter.keycap(
             translate(z = topZ.distanceFromOrigin) {
                rotateForTilt {
                   cube(
-                     topW - keycapThickness * 2,
-                     topH - keycapThickness * 2,
+                     topW - Keycap.THICKNESS * 2,
+                     topH - Keycap.THICKNESS * 2,
                      0.01.mm,
                      center = true
                   )
@@ -558,10 +563,10 @@ fun ScadWriter.keycap(
             translate(z = bottomZ.distanceFromOrigin) {
                linearExtrude(0.01.mm) {
                   polygon(listOf(
-                     Point2d(bottomNorthLeftX  + keycapThickness, bottomNorthY - keycapThickness),
-                     Point2d(bottomNorthRightX - keycapThickness, bottomNorthY - keycapThickness),
-                     Point2d(bottomSouthRightX - keycapThickness, bottomSouthY + keycapThickness),
-                     Point2d(bottomSouthLeftX  + keycapThickness, bottomSouthY + keycapThickness)
+                     Point2d(bottomNorthLeftX  + Keycap.THICKNESS, bottomNorthY - Keycap.THICKNESS),
+                     Point2d(bottomNorthRightX - Keycap.THICKNESS, bottomNorthY - Keycap.THICKNESS),
+                     Point2d(bottomSouthRightX - Keycap.THICKNESS, bottomSouthY + Keycap.THICKNESS),
+                     Point2d(bottomSouthLeftX  + Keycap.THICKNESS, bottomSouthY + Keycap.THICKNESS)
                   ))
                }
             }
@@ -570,7 +575,7 @@ fun ScadWriter.keycap(
 
       difference {
          rectPyramid()
-         dish(keycapHeight - keycapThickness, keycapInvisibleFa)
+         dish(keycapHeight - Keycap.THICKNESS, keycapInvisibleFa)
       }
    }
 
@@ -600,7 +605,7 @@ fun ScadWriter.keycap(
 
             difference {
                translate(z = (-3).mm) { polygonPyramid(16, height = 24.mm, radius = 4.3.mm) }
-               dish(keycapHeight - keycapThickness, keycapInvisibleFa)
+               dish(keycapHeight - Keycap.THICKNESS, keycapInvisibleFa)
             }
          }
       }
