@@ -63,3 +63,37 @@ data class Column(
    val keyPlates: List<KeyPlate>
       get() = listOf(row1, row2, row3, row4)
 }
+
+fun Column.translate(distance: Size3d) = Column(
+   row1.translate(distance),
+   row2.translate(distance),
+   row3.translate(distance),
+   row4.translate(distance)
+)
+
+fun Column.translate(
+   x: Size = 0.mm,
+   y: Size = 0.mm,
+   z: Size = 0.mm
+): Column = translate(Size3d(x, y, z))
+
+fun Column.rotateX(axis: Point3d, angle: Angle) = Column(
+   row1.rotateX(axis, angle),
+   row2.rotateX(axis, angle),
+   row3.rotateX(axis, angle),
+   row4.rotateX(axis, angle)
+)
+
+fun Column.rotateY(axis: Point3d, angle: Angle) = Column(
+   row1.rotateY(axis, angle),
+   row2.rotateY(axis, angle),
+   row3.rotateY(axis, angle),
+   row4.rotateY(axis, angle)
+)
+
+fun Column.rotateZ(axis: Point3d, angle: Angle) = Column(
+   row1.rotateZ(axis, angle),
+   row2.rotateZ(axis, angle),
+   row3.rotateZ(axis, angle),
+   row4.rotateZ(axis, angle)
+)
