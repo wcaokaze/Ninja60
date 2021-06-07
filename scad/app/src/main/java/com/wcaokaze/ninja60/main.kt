@@ -27,9 +27,9 @@ fun main(vararg args: String) {
       leftKeys()
       */
 
-      val alphanumericColumns = AlphanumericColumns(0.mm)
+      val topPlate = TopPlate()
 
-      for (c in alphanumericColumns.columns) {
+      for (c in topPlate.alphanumericColumns.columns) {
          for (p in c.keyPlates) {
             hullPoints(p.points)
          }
