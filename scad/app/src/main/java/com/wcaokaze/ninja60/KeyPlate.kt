@@ -13,9 +13,6 @@ data class KeyPlate(
       /** 1UのキーでのKeyPlateのサイズ */
       val SIZE = Size2d(16.mm, 16.mm)
 
-      /** 原点に配置された1UのKeyPlate */
-      val U = KeyPlate(center = Point3d.ORIGIN, SIZE)
-
       operator fun invoke(center: Point3d, size: Size2d) = KeyPlate(
          frontLeft  = center + Size3d(-size.x / 2, -size.y / 2, 0.mm),
          frontRight = center + Size3d( size.x / 2, -size.y / 2, 0.mm),
