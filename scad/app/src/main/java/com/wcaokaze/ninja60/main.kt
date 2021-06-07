@@ -27,13 +27,7 @@ fun main(vararg args: String) {
       leftKeys()
       */
 
-      val topPlate = TopPlate()
-
-      for (c in topPlate.alphanumericColumns.columns) {
-         for (p in c.keyPlates) {
-            hullPoints(p.points)
-         }
-      }
+      topPlate()
    }
 }
 
