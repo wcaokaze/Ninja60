@@ -11,7 +11,7 @@ data class KeyPlate(
 ) {
    companion object {
       /** 1UのキーでのKeyPlateのサイズ */
-      val SIZE = Size2d(19.05.mm, 19.05.mm)
+      val SIZE = Size2d(16.mm, 16.mm)
 
       /** 原点に配置された1UのKeyPlate */
       val U = KeyPlate(center = Point3d.ORIGIN, SIZE)
