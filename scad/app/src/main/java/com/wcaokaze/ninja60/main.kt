@@ -27,13 +27,11 @@ fun main(vararg args: String) {
       leftKeys()
       */
 
-      val alphanumericColumns = (0.mm .. (-20).mm step (-5).mm).map { AlphanumericColumns(it) }
+      val alphanumericColumns = AlphanumericColumns(0.mm)
 
-      for (a in alphanumericColumns) {
-         for (c in a.columns) {
-            for (p in c.keyPlates) {
-               hullPoints(p.points)
-            }
+      for (c in alphanumericColumns.columns) {
+         for (p in c.keyPlates) {
+            hullPoints(p.points)
          }
       }
    }
