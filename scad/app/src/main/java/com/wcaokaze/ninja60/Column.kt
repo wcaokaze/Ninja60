@@ -2,12 +2,10 @@ package com.wcaokaze.ninja60
 
 import com.wcaokaze.scadwriter.foundation.*
 
-/** [KeyPlate] を縦に4枚並べた列 */
+/** [KeyPlate] を縦に複数枚並べた列 */
 data class Column(
-   val row1: KeyPlate,
-   val row2: KeyPlate,
-   val row3: KeyPlate,
-   val row4: KeyPlate
+   /** この列に含まれる[KeyPlate]のリスト。上から順 */
+   val keyPlates: List<KeyPlate>
 ) {
    companion object {
       /**
@@ -56,19 +54,13 @@ data class Column(
             .translate(y = -keyPitchV, z = layerDistance)
             .rotateX(row4Axis, (-83).deg)
 
-         return Column(layeredRow1, layeredRow2, layeredRow3, layeredRow4)
+         return Column(listOf(layeredRow1, layeredRow2, layeredRow3, layeredRow4))
       }
    }
-
-   val keyPlates: List<KeyPlate>
-      get() = listOf(row1, row2, row3, row4)
 }
 
 fun Column.translate(distance: Size3d) = Column(
-   row1.translate(distance),
-   row2.translate(distance),
-   row3.translate(distance),
-   row4.translate(distance)
+   keyPlates.map { it.translate(distance) }
 )
 
 fun Column.translate(
@@ -78,22 +70,13 @@ fun Column.translate(
 ): Column = translate(Size3d(x, y, z))
 
 fun Column.rotateX(axis: Point3d, angle: Angle) = Column(
-   row1.rotateX(axis, angle),
-   row2.rotateX(axis, angle),
-   row3.rotateX(axis, angle),
-   row4.rotateX(axis, angle)
+   keyPlates.map { it.rotateX(axis, angle) }
 )
 
 fun Column.rotateY(axis: Point3d, angle: Angle) = Column(
-   row1.rotateY(axis, angle),
-   row2.rotateY(axis, angle),
-   row3.rotateY(axis, angle),
-   row4.rotateY(axis, angle)
+   keyPlates.map { it.rotateY(axis, angle) }
 )
 
 fun Column.rotateZ(axis: Point3d, angle: Angle) = Column(
-   row1.rotateZ(axis, angle),
-   row2.rotateZ(axis, angle),
-   row3.rotateZ(axis, angle),
-   row4.rotateZ(axis, angle)
+   keyPlates.map { it.rotateZ(axis, angle) }
 )
