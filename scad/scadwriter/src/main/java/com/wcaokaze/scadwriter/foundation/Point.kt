@@ -7,19 +7,11 @@ inline class Point(val distanceFromOrigin: Size) : Comparable<Point> {
 
    override fun toString() = distanceFromOrigin.toString()
 
-   operator fun times(n: Int)    = Point(distanceFromOrigin * n)
-   operator fun times(n: Double) = Point(distanceFromOrigin * n)
-   operator fun div  (n: Int)    = Point(distanceFromOrigin / n)
-   operator fun div  (n: Double) = Point(distanceFromOrigin / n)
-
    operator fun plus (size: Size) = Point(distanceFromOrigin + size)
    operator fun minus(size: Size) = Point(distanceFromOrigin - size)
    operator fun minus(point: Point): Size = distanceFromOrigin - point.distanceFromOrigin
 
    override operator fun compareTo(other: Point): Int = distanceFromOrigin.compareTo(other.distanceFromOrigin)
-
-   operator fun unaryMinus() = Point(-distanceFromOrigin)
-   operator fun unaryPlus () = Point(+distanceFromOrigin)
 
    operator fun rangeTo(end: Point) = PointRange(this, end)
 }
