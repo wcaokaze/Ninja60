@@ -37,6 +37,11 @@ class Line2d
       x = point.x + (y - point.y) * (direction.x / direction.y),
       y
    )
+
+   /**
+    * この直線の向きを表すベクトルを返す。長さは1mm
+    */
+   val vector: Vector2d get() = vector.toUnitVector()
 }
 
 class Line3d
@@ -51,6 +56,12 @@ class Line3d
 
    /** 2点を通る直線 */
    constructor(a: Point3d, b: Point3d) : this(a, Vector3d(a, b))
+
+   /**
+    * この直線上の一点を返す。
+    * どこでもいいから直線上の点がほしいときに。
+    */
+   internal val somePoint: Point3d get() = point
 
    /**
     * 指定したX座標でのこの直線上の点の座標を返します。
@@ -90,6 +101,11 @@ class Line3d
       y = point.y + (z - point.z) * (direction.y / direction.z),
       z
    )
+
+   /**
+    * この直線の向きを表すベクトルを返す。長さは1mm
+    */
+   val vector: Vector3d get() = direction.toUnitVector()
 }
 
 private operator fun Size.div(size: Size): Double = numberAsMilliMeter / size.numberAsMilliMeter

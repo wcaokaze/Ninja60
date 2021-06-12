@@ -37,6 +37,12 @@ data class Vector2d(val x: Size, val y: Size) {
       sqrt(x.numberAsMilliMeter * x.numberAsMilliMeter
          + y.numberAsMilliMeter * y.numberAsMilliMeter)
    )
+
+   /** このベクトルと同じ向きで長さが1mmのベクトルを生成する */
+   fun toUnitVector() = Vector2d(
+      Size(x.numberAsMilliMeter / norm.numberAsMilliMeter),
+      Size(y.numberAsMilliMeter / norm.numberAsMilliMeter)
+   )
 }
 
 /**
@@ -75,6 +81,13 @@ data class Vector3d(val x: Size, val y: Size, val z: Size) {
       sqrt(x.numberAsMilliMeter * x.numberAsMilliMeter
          + y.numberAsMilliMeter * y.numberAsMilliMeter
          + z.numberAsMilliMeter * z.numberAsMilliMeter)
+   )
+
+   /** このベクトルと同じ向きで長さが1mmのベクトルを生成する */
+   fun toUnitVector() = Vector3d(
+      Size(x.numberAsMilliMeter / norm.numberAsMilliMeter),
+      Size(y.numberAsMilliMeter / norm.numberAsMilliMeter),
+      Size(z.numberAsMilliMeter / norm.numberAsMilliMeter)
    )
 }
 
