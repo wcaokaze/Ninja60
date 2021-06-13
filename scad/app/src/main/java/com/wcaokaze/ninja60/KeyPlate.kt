@@ -1,5 +1,6 @@
 package com.wcaokaze.ninja60
 
+import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.foundation.*
 
 /** 基板や各種プレートでキーひとつに当てられる領域 */

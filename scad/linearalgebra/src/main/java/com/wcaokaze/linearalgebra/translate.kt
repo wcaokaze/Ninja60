@@ -1,4 +1,4 @@
-package com.wcaokaze.ninja60
+package com.wcaokaze.linearalgebra
 
 import com.wcaokaze.scadwriter.foundation.*
 
@@ -7,6 +7,9 @@ fun Point3d.translate(distance: Size3d) = Point3d(
    y + distance.y,
    z + distance.z
 )
+
+fun Point3d.translate(distance: Vector3d): Point3d
+      = translate(Size3d(distance.x, distance.y, distance.z))
 
 fun Point3d.translate(
    x: Size = 0.mm,

@@ -1,5 +1,6 @@
 package com.wcaokaze.ninja60
 
+import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.foundation.*
 
 /** 人差し指から小指の4本の指で押す、アルファベットと数字のキーの行列 */

@@ -1,5 +1,6 @@
 package com.wcaokaze.ninja60
 
+import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.foundation.*
 
 /** [KeyPlate] を縦に複数枚並べた列 */
