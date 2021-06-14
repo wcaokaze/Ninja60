@@ -20,6 +20,27 @@ class Plane3d
     * どこでもいいから平面上の点がほしいときに。
     */
    internal val somePoint: Point3d get() = point
+
+   infix fun intersection(line: Line3d): Point3d {
+      val (ppx, ppy, ppz) = point
+      val pvx = normalVector.x.numberAsMilliMeter
+      val pvy = normalVector.y.numberAsMilliMeter
+      val pvz = normalVector.z.numberAsMilliMeter
+
+      val (lpx, lpy, lpz) = line.somePoint
+      val lvx = line.vector.x.numberAsMilliMeter
+      val lvy = line.vector.y.numberAsMilliMeter
+      val lvz = line.vector.z.numberAsMilliMeter
+
+      val t = ((ppx - lpx) * pvx + (ppy - lpy) * pvy + (ppz - lpz) * pvz) /
+            (pvx * lvx + pvy * lvy + pvz * lvz)
+
+      return Point3d(
+         lpx + t * lvx,
+         lpy + t * lvy,
+         lpz + t * lvz
+      )
+   }
 }
 
 fun Plane3d.translate(distance: Size3d)
