@@ -109,3 +109,20 @@ class Line3d
 }
 
 private operator fun Size.div(size: Size): Double = numberAsMilliMeter / size.numberAsMilliMeter
+
+fun Line3d.translate(distance: Size3d)
+      = Line3d(somePoint.translate(distance), vector)
+
+fun Line3d.translate(distance: Vector3d): Line3d
+      = translate(Size3d(distance.x, distance.y, distance.z))
+
+fun Line3d.translate(
+   x: Size = 0.mm,
+   y: Size = 0.mm,
+   z: Size = 0.mm
+): Line3d = translate(Size3d(x, y, z))
+
+fun Line3d.rotate(axis: Line3d, angle: Angle) = Line3d(
+   somePoint.rotate(axis, angle),
+   vector.rotate(Line3d(Point3d.ORIGIN, axis.vector), angle)
+)
