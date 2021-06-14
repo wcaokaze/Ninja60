@@ -124,5 +124,5 @@ fun Line3d.translate(
 
 fun Line3d.rotate(axis: Line3d, angle: Angle) = Line3d(
    somePoint.rotate(axis, angle),
-   vector.rotate(Line3d(Point3d.ORIGIN, axis.vector), angle)
+   vector.rotate(axis.vector, angle)
 )

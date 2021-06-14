@@ -107,9 +107,9 @@ fun Iterable<Vector3d>.sum(): Vector3d {
    return sum
 }
 
-fun Vector3d.rotate(axis: Line3d, angle: Angle): Vector3d {
+fun Vector3d.rotate(axis: Vector3d, angle: Angle): Vector3d {
    val p = Point3d(Point(x), Point(y), Point(z))
-   val (x, y, z) = p.rotate(axis, angle)
+   val (x, y, z) = p.rotate(Line3d(Point3d.ORIGIN, axis), angle)
 
    return Vector3d(
       x.distanceFromOrigin,
