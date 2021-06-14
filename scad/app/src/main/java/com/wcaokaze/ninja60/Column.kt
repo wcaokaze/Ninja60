@@ -39,21 +39,21 @@ data class Column(
          val row2Angle = atan(keyPitchV / 2, radius) * 2
          val layeredRow2 = row3
             .translate(z = layerDistance)
-            .rotateX(referencePoint, row2Angle)
+            .rotate(Line3d(referencePoint, Vector3d.X_UNIT_VECTOR), row2Angle)
 
          val row1Axis = row3Center
             .translate(y = keyPitchV / 2)
-            .rotateX(referencePoint, row2Angle)
+            .rotate(Line3d(referencePoint, Vector3d.X_UNIT_VECTOR), row2Angle)
          val layeredRow1 = row3
             .translate(y = keyPitchV, z = layerDistance)
-            .rotateX(referencePoint, row2Angle)
-            .rotateX(row1Axis, 90.deg - row2Angle)
+            .rotate(Line3d(referencePoint, Vector3d.X_UNIT_VECTOR), row2Angle)
+            .rotate(Line3d(row1Axis, Vector3d.X_UNIT_VECTOR), 90.deg - row2Angle)
 
          val row4Axis = row3Center
             .translate(y = -keyPitchV / 2)
          val layeredRow4 = row3
             .translate(y = -keyPitchV, z = layerDistance)
-            .rotateX(row4Axis, (-83).deg)
+            .rotate(Line3d(row4Axis, Vector3d.X_UNIT_VECTOR), (-83).deg)
 
          return Column(listOf(layeredRow1, layeredRow2, layeredRow3, layeredRow4))
       }
@@ -70,14 +70,6 @@ fun Column.translate(
    z: Size = 0.mm
 ): Column = translate(Size3d(x, y, z))
 
-fun Column.rotateX(axis: Point3d, angle: Angle) = Column(
-   keyPlates.map { it.rotateX(axis, angle) }
-)
-
-fun Column.rotateY(axis: Point3d, angle: Angle) = Column(
-   keyPlates.map { it.rotateY(axis, angle) }
-)
-
-fun Column.rotateZ(axis: Point3d, angle: Angle) = Column(
-   keyPlates.map { it.rotateZ(axis, angle) }
+fun Column.rotate(axis: Line3d, angle: Angle) = Column(
+   keyPlates.map { it.rotate(axis, angle) }
 )

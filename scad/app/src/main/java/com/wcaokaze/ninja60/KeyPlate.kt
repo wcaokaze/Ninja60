@@ -39,23 +39,9 @@ fun KeyPlate.translate(
    z: Size = 0.mm
 ): KeyPlate = translate(Size3d(x, y, z))
 
-fun KeyPlate.rotateX(axis: Point3d, angle: Angle) = KeyPlate(
-   frontLeft .rotateX(axis, angle),
-   frontRight.rotateX(axis, angle),
-   backRight .rotateX(axis, angle),
-   backLeft  .rotateX(axis, angle)
-)
-
-fun KeyPlate.rotateY(axis: Point3d, angle: Angle) = KeyPlate(
-   frontLeft .rotateY(axis, angle),
-   frontRight.rotateY(axis, angle),
-   backRight .rotateY(axis, angle),
-   backLeft  .rotateY(axis, angle)
-)
-
-fun KeyPlate.rotateZ(axis: Point3d, angle: Angle) = KeyPlate(
-   frontLeft .rotateZ(axis, angle),
-   frontRight.rotateZ(axis, angle),
-   backRight .rotateZ(axis, angle),
-   backLeft  .rotateZ(axis, angle)
+fun KeyPlate.rotate(axis: Line3d, angle: Angle) = KeyPlate(
+   frontLeft .rotate(axis, angle),
+   frontRight.rotate(axis, angle),
+   backRight .rotate(axis, angle),
+   backLeft  .rotate(axis, angle)
 )

@@ -18,8 +18,8 @@ data class AlphanumericColumns(
                   radius,
                   layerDistance
                )
-               .rotateZ(
-                  Point3d.ORIGIN.translate(y = (-30).mm),
+               .rotate(
+                  Line3d.Z_AXIS.translate(y = (-30).mm),
                   angle
                )
                .translate(x = dx, z = dz)
