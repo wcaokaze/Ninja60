@@ -43,6 +43,16 @@ data class Vector2d(val x: Size, val y: Size) {
       Size(x.numberAsMilliMeter / norm.numberAsMilliMeter),
       Size(y.numberAsMilliMeter / norm.numberAsMilliMeter)
    )
+
+   infix fun innerProduct(v: Vector3d) = Size(
+      x.numberAsMilliMeter * v.x.numberAsMilliMeter +
+      y.numberAsMilliMeter * v.y.numberAsMilliMeter
+   )
+
+   infix fun angleWith(v: Vector3d) = Angle(
+      acos(innerProduct(v).numberAsMilliMeter
+            / (norm.numberAsMilliMeter * v.norm.numberAsMilliMeter))
+   )
 }
 
 /**
@@ -88,6 +98,23 @@ data class Vector3d(val x: Size, val y: Size, val z: Size) {
       Size(x.numberAsMilliMeter / norm.numberAsMilliMeter),
       Size(y.numberAsMilliMeter / norm.numberAsMilliMeter),
       Size(z.numberAsMilliMeter / norm.numberAsMilliMeter)
+   )
+
+   infix fun vectorProduct(v: Vector3d) = Vector3d(
+      Size(y.numberAsMilliMeter * v.z.numberAsMilliMeter - z.numberAsMilliMeter * v.y.numberAsMilliMeter),
+      Size(z.numberAsMilliMeter * v.x.numberAsMilliMeter - x.numberAsMilliMeter * v.z.numberAsMilliMeter),
+      Size(x.numberAsMilliMeter * v.y.numberAsMilliMeter - y.numberAsMilliMeter * v.x.numberAsMilliMeter)
+   )
+
+   infix fun innerProduct(v: Vector3d) = Size(
+      x.numberAsMilliMeter * v.x.numberAsMilliMeter +
+      y.numberAsMilliMeter * v.y.numberAsMilliMeter +
+      z.numberAsMilliMeter * v.z.numberAsMilliMeter
+   )
+
+   infix fun angleWith(v: Vector3d) = Angle(
+      acos(innerProduct(v).numberAsMilliMeter
+            / (norm.numberAsMilliMeter * v.norm.numberAsMilliMeter))
    )
 }
 
