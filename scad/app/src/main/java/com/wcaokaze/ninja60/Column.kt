@@ -33,7 +33,11 @@ data class Column(
          layerDistance: Size
       ): Column {
          val row3Center = referencePoint - Size3d(0.mm, 0.mm, radius)
-         val row3 = KeyPlate(row3Center, KeyPlate.SIZE)
+         val row3 = KeyPlate(
+            row3Center, KeyPlate.SIZE,
+            normalVector = Vector3d.Z_UNIT_VECTOR,
+            frontVector = -Vector3d.Y_UNIT_VECTOR
+         )
          val layeredRow3 = row3.translate(z = layerDistance)
 
          val row2Angle = atan(keyPitchV / 2, radius) * 2
