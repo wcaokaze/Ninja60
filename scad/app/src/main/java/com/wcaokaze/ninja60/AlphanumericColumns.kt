@@ -15,6 +15,8 @@ data class AlphanumericColumns(
          fun column(dx: Size, dy: Size, dz: Size, radius: Size, angle: Angle): Column {
             return Column(
                   Point3d.ORIGIN.translate(y = dy),
+                  -Vector3d.Z_UNIT_VECTOR,
+                  -Vector3d.Y_UNIT_VECTOR,
                   radius,
                   layerDistance
                )

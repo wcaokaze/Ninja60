@@ -61,6 +61,9 @@ data class KeyPlate(
 fun KeyPlate.translate(distance: Size3d)
       = KeyPlate(center.translate(distance), size, normalVector, frontVector)
 
+fun KeyPlate.translate(distance: Vector3d)
+      = KeyPlate(center.translate(distance), size, normalVector, frontVector)
+
 fun KeyPlate.translate(
    x: Size = 0.mm,
    y: Size = 0.mm,
