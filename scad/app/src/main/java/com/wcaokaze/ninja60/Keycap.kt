@@ -8,7 +8,7 @@ val enableLegends = false
 
 val keycapInvisibleFa = 8.0
 
-val keyPitchH = 18.mm
+val keyPitchH = 19.05.mm
 val keyPitchV = 16.mm
 val keycapMargin = 0.375.mm
 val keycapHeight = 6.93.mm

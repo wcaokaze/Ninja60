@@ -27,13 +27,7 @@ fun main(vararg args: String) {
       leftKeys()
       */
 
-      val columns = (0.mm .. (-20).mm step (-5).mm) .map { Column(Point3d.ORIGIN, 60.mm, it) }
-
-      for (c in columns) {
-         for (p in c.keyPlates) {
-            hullPoints(p.points)
-         }
-      }
+      topPlate()
    }
 }
 

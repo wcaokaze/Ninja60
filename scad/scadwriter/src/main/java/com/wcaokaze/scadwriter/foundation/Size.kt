@@ -46,10 +46,32 @@ inline val Double.cm get() = (this * 10).mm
 
 data class Size2d(val x: Size, val y: Size) {
    override fun toString() = "[$x, $y]"
+
+   operator fun plus (another: Size2d) = Size2d(x + another.x, y + another.y)
+   operator fun minus(another: Size2d) = Size2d(x - another.x, y - another.y)
+
+   operator fun times(n: Int)    = Size2d(x * n, y * n)
+   operator fun times(n: Double) = Size2d(x * n, y * n)
+   operator fun div  (n: Int)    = Size2d(x / n, y / n)
+   operator fun div  (n: Double) = Size2d(x / n, y / n)
+
+   operator fun unaryMinus() = Size2d(-x, -y)
+   operator fun unaryPlus () = Size2d(+x, +y)
 }
 
 data class Size3d(val x: Size, val y: Size, val z: Size) {
    override fun toString() = "[$x, $y, $z]"
+
+   operator fun plus (another: Size3d) = Size3d(x + another.x, y + another.y, z + another.z)
+   operator fun minus(another: Size3d) = Size3d(x - another.x, y - another.y, z - another.z)
+
+   operator fun times(n: Int)    = Size3d(x * n, y * n, z * n)
+   operator fun times(n: Double) = Size3d(x * n, y * n, z * n)
+   operator fun div  (n: Int)    = Size3d(x / n, y / n, z / n)
+   operator fun div  (n: Double) = Size3d(x / n, y / n, z / n)
+
+   operator fun unaryMinus() = Size3d(-x, -y, -z)
+   operator fun unaryPlus () = Size3d(+x, +y, +z)
 }
 
 fun Iterable<Size>.sum() = Size(sumByDouble { it.numberAsMilliMeter })
