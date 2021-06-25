@@ -22,24 +22,13 @@ data class TopPlate(
 fun ScadWriter.topPlate() {
    val topPlate = TopPlate()
 
-   val points = topPlate.alphanumericColumns.points()
-
-   for ((leftPoints, rightPoints) in points.zipWithNext()) {
-      for ((backPoints, frontPoints) in (leftPoints zip rightPoints).zipWithNext()) {
-         val (backLeft, backRight) = backPoints
-         val (frontLeft, frontRight) = frontPoints
-
-         hullPoints(backLeft, backRight, frontRight, frontLeft)
-      }
-   }
+   alphanumericColumns(topPlate.alphanumericColumns)
 }
 
-private fun AlphanumericColumns.points(): List<List<Point3d>> {
-   val points = ArrayList<List<Point3d>>()
+private fun ScadWriter.alphanumericColumns(alphanumericColumns: AlphanumericColumns) {
+   val leftmostColumn = alphanumericColumns.columns[0]
 
-   val leftmostColumn = columns.first()
-
-   val leftmostWall = Plane3d(
+   val leftmostWallPlane = Plane3d(
       leftmostColumn.keyPlates
          .flatMap { listOf(it.backLeft, it.frontLeft) }
          .minByOrNull {
@@ -54,17 +43,16 @@ private fun AlphanumericColumns.points(): List<List<Point3d>> {
       leftmostColumn.alignmentVector vectorProduct leftmostColumn.bottomVector
    )
 
-   points += leftmostColumn.boundaryLines().map { leftmostWall intersection it }
+   val leftmostRightWallPlane = getWallPlane(
+      alphanumericColumns.columns[0],
+      alphanumericColumns.columns[1]
+   )
 
-   for ((left, right) in columns.zipWithNext()) {
-      val wallPlane = getWallPlane(left, right)
-      points += left .boundaryLines().map { wallPlane intersection it }
-      points += right.boundaryLines().map { wallPlane intersection it }
-   }
+   // --------
 
-   val rightmostColumn = columns.last()
+   val rightmostColumn = alphanumericColumns.columns[alphanumericColumns.columns.lastIndex]
 
-   val rightmostWall = Plane3d(
+   val rightmostWallPlane = Plane3d(
       rightmostColumn.keyPlates
          .flatMap { listOf(it.backRight, it.frontRight) }
          .maxByOrNull {
@@ -76,9 +64,34 @@ private fun AlphanumericColumns.points(): List<List<Point3d>> {
       rightmostColumn.alignmentVector vectorProduct rightmostColumn.bottomVector
    )
 
-   points += rightmostColumn.boundaryLines().map { rightmostWall intersection it }
+   val rightmostLeftWallPlane = getWallPlane(
+      alphanumericColumns.columns[alphanumericColumns.columns.lastIndex - 1],
+      alphanumericColumns.columns[alphanumericColumns.columns.lastIndex]
+   )
 
-   return points
+   // --------
+
+   union {
+      hullPoints(
+         leftmostColumn.boundaryLines().map { leftmostWallPlane      intersection it } +
+         leftmostColumn.boundaryLines().map { leftmostRightWallPlane intersection it }
+      )
+
+      for ((left, column, right) in alphanumericColumns.columns.windowed(3)) {
+         val leftWallPlane  = getWallPlane(left, column)
+         val rightWallPlane = getWallPlane(column, right)
+
+         hullPoints(
+            column.boundaryLines().map { leftWallPlane  intersection it } +
+            column.boundaryLines().map { rightWallPlane intersection it }
+         )
+      }
+
+      hullPoints(
+         rightmostColumn.boundaryLines().map { rightmostLeftWallPlane intersection it } +
+         rightmostColumn.boundaryLines().map { rightmostWallPlane     intersection it }
+      )
+   }
 }
 
 /** このColumnの各KeyPlate同士の境界線(最上段の奥のフチと最下段の手前のフチを含む) */
