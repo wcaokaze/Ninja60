@@ -23,8 +23,8 @@ fun ScadWriter.topPlate() {
    val topPlate = TopPlate()
 
    difference {
-      alphanumericColumns(topPlate.alphanumericColumns, layerOffset = 1.5.mm, frontBackOffset = 0.mm, leftRightOffset = 1.5.mm)
-      alphanumericColumns(topPlate.alphanumericColumns, layerOffset = 0.0.mm, frontBackOffset = 5.mm, leftRightOffset = 0.0.mm)
+      alphanumericColumns(topPlate.alphanumericColumns, layerOffset = 1.5.mm, frontBackOffset =  0.mm, leftRightOffset = 1.5.mm)
+      alphanumericColumns(topPlate.alphanumericColumns, layerOffset = 0.0.mm, frontBackOffset = 20.mm, leftRightOffset = 0.0.mm)
    }
 }
 
@@ -91,41 +91,61 @@ private fun ScadWriter.alphanumericColumns(
 
    // --------
 
-   union {
-      hullPoints(
-         leftmostColumn.boundaryLines(frontBackOffset).map { leftmostWallPlane      intersection it } +
-         leftmostColumn.boundaryLines(frontBackOffset).map { leftmostRightWallPlane intersection it }
+   fun ScadWriter.column(
+      column: Column,
+      leftWallPlane: Plane3d,
+      rightWallPlane: Plane3d
+   ) {
+      val mostBackPlate  = column.keyPlates.first()
+      val mostFrontPlate = column.keyPlates.last()
+
+      val boundaryLines = column.boundaryLines()
+
+      val mostBackLine  = boundaryLines.first().translate(mostBackPlate .frontVector.toUnitVector() * -frontBackOffset.numberAsMilliMeter)
+      val mostFrontLine = boundaryLines.last() .translate(mostFrontPlate.frontVector.toUnitVector() *  frontBackOffset.numberAsMilliMeter)
+
+      val mostBackLayeredLine  = mostBackLine .translate(mostBackPlate .normalVector.toUnitVector() * 20)
+      val mostFrontLayeredLine = mostFrontLine.translate(mostFrontPlate.normalVector.toUnitVector() * 20)
+
+      val lines = listOf(
+         mostBackLayeredLine,
+         mostBackLine,
+         *boundaryLines.drop(1).dropLast(1).toTypedArray(),
+         mostFrontLine,
+         mostFrontLayeredLine
       )
 
-      for ((left, column, right) in columns.windowed(3)) {
-         val leftWallPlane  = getWallPlane(left, column) .translateByNormalVector(-leftRightOffset)
-         val rightWallPlane = getWallPlane(column, right).translateByNormalVector( leftRightOffset)
+      hullPoints(
+         lines.map { leftWallPlane  intersection it } +
+         lines.map { rightWallPlane intersection it }
+      )
+   }
 
-         hullPoints(
-            column.boundaryLines(frontBackOffset).map { leftWallPlane  intersection it } +
-            column.boundaryLines(frontBackOffset).map { rightWallPlane intersection it }
+   // --------
+
+   union {
+      column(leftmostColumn, leftmostWallPlane, leftmostRightWallPlane)
+
+      for ((left, column, right) in columns.windowed(3)) {
+         column(
+            column,
+            getWallPlane(left, column) .translateByNormalVector(-leftRightOffset),
+            getWallPlane(column, right).translateByNormalVector( leftRightOffset)
          )
       }
 
-      hullPoints(
-         rightmostColumn.boundaryLines(frontBackOffset).map { rightmostLeftWallPlane intersection it } +
-         rightmostColumn.boundaryLines(frontBackOffset).map { rightmostWallPlane     intersection it }
-      )
+      column(rightmostColumn, rightmostLeftWallPlane, rightmostWallPlane)
    }
 }
 
 /**
  * このColumnの各KeyPlate同士の境界線(最上段の奥のフチと最下段の手前のフチを含む)
- *
- * @param offset
- * 一番奥の境界線がさらに奥に、一番手前の境界線がさらに手前に移動する
  */
-fun Column.boundaryLines(offset: Size): List<Line3d> {
+fun Column.boundaryLines(): List<Line3d> {
    val lines = ArrayList<Line3d>()
 
    val mostBackPlate = keyPlates.first()
    lines += Line3d(mostBackPlate.backLeft, mostBackPlate.backRight)
-      .translate(mostBackPlate.frontVector.toUnitVector() * -offset.numberAsMilliMeter)
 
    for ((back, front) in keyPlates.zipWithNext()) {
       val backPlane  = Plane3d(back .center, back .normalVector)
@@ -135,7 +155,6 @@ fun Column.boundaryLines(offset: Size): List<Line3d> {
 
    val mostFrontPlate = keyPlates.last()
    lines += Line3d(mostFrontPlate.frontLeft, mostFrontPlate.frontRight)
-      .translate(mostFrontPlate.frontVector.toUnitVector() * offset.numberAsMilliMeter)
 
    return lines
 }
