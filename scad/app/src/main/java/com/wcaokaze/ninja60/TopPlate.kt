@@ -25,6 +25,17 @@ fun ScadWriter.topPlate() {
    difference {
       alphanumericColumns(topPlate.alphanumericColumns, layerOffset = 1.5.mm, frontBackOffset =  0.mm, leftRightOffset = 1.5.mm)
       alphanumericColumns(topPlate.alphanumericColumns, layerOffset = 0.0.mm, frontBackOffset = 20.mm, leftRightOffset = 0.0.mm)
+
+      topPlate.alphanumericColumns.columns
+         .flatMap { it.keyPlates }
+         .map { it.copy(size = Size2d(14.mm, 14.mm)) }
+         .map { keyPlate ->
+            keyPlate.points +
+                  keyPlate.points.map {
+                     it.translate(keyPlate.normalVector.toUnitVector() * -2)
+                  }
+         }
+         .forEach { hullPoints(it) }
    }
 }
 

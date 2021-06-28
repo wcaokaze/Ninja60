@@ -1,5 +1,6 @@
 package com.wcaokaze.linearalgebra
 
+import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
 fun Point3d.rotate(axis: Line3d, angle: Angle): Point3d {
@@ -26,4 +27,8 @@ fun Point3d.rotate(axis: Line3d, angle: Angle): Point3d {
              + ty * (ay * az * (1.0 - cos(angle)) + ax * sin(angle))
              + tz * (cos(angle) + az * az * (1.0 - cos(angle)))
    )
+}
+
+inline fun ScadWriter.rotate(a: Angle, v: Vector3d, children: ScadWriter.() -> Unit)  {
+   rotate(a, Point3d.ORIGIN.translate(v), children)
 }
