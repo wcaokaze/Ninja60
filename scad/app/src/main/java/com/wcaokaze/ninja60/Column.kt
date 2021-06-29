@@ -67,11 +67,11 @@ data class Column(
          .twist()
 
       val row1Axis = Line3d(row3Center, rightVector)
-         .translate(alignmentVector.norm(-keyPitchV / 2.0))
+         .translate(alignmentVector.norm(-keyPitchV / 2))
          .rotate(alignmentAxis, row2Angle)
       val layeredRow1 = row3
          .translate(bottomVector.norm(-layerDistance))
-         .translate(alignmentVector.norm(-keyPitchV / 2.0))
+         .translate(alignmentVector.norm(-keyPitchV))
          .rotate(alignmentAxis, row2Angle)
          .rotate(row1Axis, 90.deg - row2Angle)
          .twist()
