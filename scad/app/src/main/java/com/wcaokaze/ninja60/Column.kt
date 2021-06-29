@@ -111,6 +111,9 @@ fun Column.translate(distance: Size3d) = Column(
    twistAngle
 )
 
+fun Column.translate(distance: Vector3d): Column
+      = translate(Size3d(distance.x, distance.y, distance.z))
+
 fun Column.translate(
    x: Size = 0.mm,
    y: Size = 0.mm,
