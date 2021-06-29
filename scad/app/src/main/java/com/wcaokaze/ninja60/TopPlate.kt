@@ -23,8 +23,8 @@ fun ScadWriter.topPlate() {
    val topPlate = TopPlate()
 
    difference {
-      alphanumericColumns(topPlate.alphanumericColumns, layerOffset = 1.5.mm, frontBackOffset =  0.mm, leftRightOffset = 1.mm)
-      alphanumericColumns(topPlate.alphanumericColumns, layerOffset = 0.0.mm, frontBackOffset = 20.mm, leftRightOffset = 0.mm)
+      alphanumericColumns(topPlate.alphanumericColumns, layerOffset = 1.5.mm, frontBackOffset =  1.5.mm, leftRightOffset = 1.mm)
+      alphanumericColumns(topPlate.alphanumericColumns, layerOffset = 0.0.mm, frontBackOffset = 20.0.mm, leftRightOffset = 0.mm)
 
       topPlate.alphanumericColumns.columns
          .flatMap { it.keyPlates }
