@@ -32,6 +32,12 @@ import com.wcaokaze.scadwriter.foundation.*
  * 各[KeyPlate]が[referencePoint]側に移動する。
  * 0のときキーキャップの上面の位置となるので、
  * たとえば `-9.mm` でトッププレートの位置など
+ *
+ * @param twistAngle
+ * [KeyPlate.frontVector]の向きの直線を軸として各KeyPlateを回転する。
+ * ただし、軸とする直線の位置は回転結果が[KeyPlate.normalVector]側に上がるように選択される。
+ * 具体的にはtwistAngleが正のときKeyPlateの左端、twistAngleが負のときKeyPlateの右端が
+ * 軸となる。
  */
 data class Column(
    val referencePoint: Point3d,
@@ -45,7 +51,15 @@ data class Column(
 
    /** この列に含まれる[KeyPlate]のリスト。上から順 */
    val keyPlates: List<KeyPlate> get() {
-      fun KeyPlate.twist() = rotate(Line3d(center, frontVector), twistAngle)
+      fun KeyPlate.twist(): KeyPlate {
+         val axis = if (twistAngle > 0.deg) {
+            Line3d(frontLeft, frontVector)
+         } else {
+            Line3d(frontRight, frontVector)
+         }
+
+         return rotate(axis, twistAngle)
+      }
 
       val rightVector = alignmentVector vectorProduct bottomVector
       val alignmentAxis = Line3d(referencePoint, rightVector)
