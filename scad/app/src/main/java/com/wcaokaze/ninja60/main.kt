@@ -28,6 +28,11 @@ fun main(vararg args: String) {
       */
 
       topPlate()
+
+      AlphanumericColumns(layerDistance = 0.mm)
+         .columns
+         .flatMap { it.keyPlates }
+         .forEach { hullPoints(it.points) }
    }
 }
 

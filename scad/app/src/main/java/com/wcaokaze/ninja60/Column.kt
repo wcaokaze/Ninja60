@@ -32,18 +32,35 @@ import com.wcaokaze.scadwriter.foundation.*
  * 各[KeyPlate]が[referencePoint]側に移動する。
  * 0のときキーキャップの上面の位置となるので、
  * たとえば `-9.mm` でトッププレートの位置など
+ *
+ * @param twistAngle
+ * [KeyPlate.frontVector]の向きの直線を軸として各KeyPlateを回転する。
+ * ただし、軸とする直線の位置は回転結果が[KeyPlate.normalVector]側に上がるように選択される。
+ * 具体的にはtwistAngleが正のときKeyPlateの左端、twistAngleが負のときKeyPlateの右端が
+ * 軸となる。
  */
 data class Column(
    val referencePoint: Point3d,
    val bottomVector: Vector3d,
    val alignmentVector: Vector3d,
    val radius: Size,
-   val layerDistance: Size
+   val layerDistance: Size,
+   val twistAngle: Angle
 ) {
    private fun Vector3d.norm(norm: Size): Vector3d = toUnitVector() * norm.numberAsMilliMeter
 
    /** この列に含まれる[KeyPlate]のリスト。上から順 */
    val keyPlates: List<KeyPlate> get() {
+      fun KeyPlate.twist(): KeyPlate {
+         val axis = if (twistAngle > 0.deg) {
+            Line3d(frontLeft, frontVector)
+         } else {
+            Line3d(frontRight, frontVector)
+         }
+
+         return rotate(axis, twistAngle)
+      }
+
       val rightVector = alignmentVector vectorProduct bottomVector
       val alignmentAxis = Line3d(referencePoint, rightVector)
 
@@ -53,21 +70,25 @@ data class Column(
          normalVector = -bottomVector,
          frontVector = alignmentVector
       )
-      val layeredRow3 = row3.translate(bottomVector.norm(-layerDistance))
+      val layeredRow3 = row3
+         .translate(bottomVector.norm(-layerDistance))
+         .twist()
 
       val row2Angle = atan(keyPitchV / 2, radius) * 2
       val layeredRow2 = row3
          .translate(bottomVector.norm(-layerDistance))
          .rotate(alignmentAxis, row2Angle)
+         .twist()
 
       val row1Axis = Line3d(row3Center, rightVector)
-         .translate(alignmentVector.norm(-keyPitchV / 2.0))
+         .translate(alignmentVector.norm(-keyPitchV / 2))
          .rotate(alignmentAxis, row2Angle)
       val layeredRow1 = row3
          .translate(bottomVector.norm(-layerDistance))
-         .translate(alignmentVector.norm(-keyPitchV / 2.0))
+         .translate(alignmentVector.norm(-keyPitchV))
          .rotate(alignmentAxis, row2Angle)
          .rotate(row1Axis, 90.deg - row2Angle)
+         .twist()
 
       val row4Axis = Line3d(row3Center, rightVector)
          .translate(alignmentVector.norm(keyPitchV / 2))
@@ -75,6 +96,7 @@ data class Column(
          .translate(bottomVector.norm(-layerDistance))
          .translate(alignmentVector.norm(keyPitchV))
          .rotate(row4Axis, (-83).deg)
+         .twist()
 
       return listOf(layeredRow1, layeredRow2, layeredRow3, layeredRow4)
    }
@@ -85,8 +107,12 @@ fun Column.translate(distance: Size3d) = Column(
    bottomVector,
    alignmentVector,
    radius,
-   layerDistance
+   layerDistance,
+   twistAngle
 )
+
+fun Column.translate(distance: Vector3d): Column
+      = translate(Size3d(distance.x, distance.y, distance.z))
 
 fun Column.translate(
    x: Size = 0.mm,
@@ -99,5 +125,6 @@ fun Column.rotate(axis: Line3d, angle: Angle) = Column(
    bottomVector.rotate(axis.vector, angle),
    alignmentVector.rotate(axis.vector, angle),
    radius,
-   layerDistance
+   layerDistance,
+   twistAngle
 )

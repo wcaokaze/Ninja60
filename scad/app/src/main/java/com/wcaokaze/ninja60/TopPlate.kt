@@ -22,66 +22,136 @@ data class TopPlate(
 fun ScadWriter.topPlate() {
    val topPlate = TopPlate()
 
-   val points = topPlate.alphanumericColumns.points()
+   difference {
+      alphanumericColumns(topPlate.alphanumericColumns, layerOffset = 1.5.mm, frontBackOffset =  1.5.mm, leftRightOffset = 1.mm)
+      alphanumericColumns(topPlate.alphanumericColumns, layerOffset = 0.0.mm, frontBackOffset = 20.0.mm, leftRightOffset = 0.mm)
 
-   for ((leftPoints, rightPoints) in points.zipWithNext()) {
-      for ((backPoints, frontPoints) in (leftPoints zip rightPoints).zipWithNext()) {
-         val (backLeft, backRight) = backPoints
-         val (frontLeft, frontRight) = frontPoints
+      topPlate.alphanumericColumns.columns
+         .flatMap { it.keyPlates }
+         .map { it.copy(size = Size2d(14.mm, 14.mm)) }
+         .map { keyPlate ->
+            keyPlate.points +
+                  keyPlate.points.map {
+                     it.translate(keyPlate.normalVector.toUnitVector() * -2)
+                  }
+         }
+         .forEach { hullPoints(it) }
+   }
+}
 
-         hullPoints(backLeft, backRight, frontRight, frontLeft)
+/**
+ * @param layerOffset
+ * 各Columnの[layerDistance][Column.layerDistance]が足される。つまり各Column深くなる
+ * @param frontBackOffset
+ * [Column.boundaryLines]に渡されるoffset。各Column手前と奥に広がる
+ * が、Ninja60の場合手前と奥のKeyPlateは上を向いているので上に広がる
+ * @param leftRightOffset
+ * 各Column 左右方向に広がる
+ */
+private fun ScadWriter.alphanumericColumns(
+   alphanumericColumns: AlphanumericColumns,
+   layerOffset: Size,
+   frontBackOffset: Size,
+   leftRightOffset: Size
+) {
+   fun Plane3d.translateByNormalVector(size: Size): Plane3d {
+      return translate(normalVector.toUnitVector() * size.numberAsMilliMeter)
+   }
+
+   val columns = alphanumericColumns.columns.map { it.copy(layerDistance = it.layerDistance - layerOffset) }
+   val leftmostColumn = columns[0]
+
+   val leftmostWallPlane = Plane3d(
+         leftmostColumn.keyPlates
+            .flatMap { listOf(it.backLeft, it.frontLeft) }
+            .minByOrNull {
+               // いやこのへんのコード汚すぎでしょ
+               // とりあえずColumnから見て一番左の座標が知りたいだけなので
+               // 真面目に回転せずalignmentVectorのX成分がゼロになればいいくらいの感じ
+               it.rotate(
+                  Line3d.Z_AXIS,
+                  leftmostColumn.alignmentVector.copy(z = 0.mm) angleWith Vector3d.Y_UNIT_VECTOR
+               ).x
+            } !!,
+         leftmostColumn.alignmentVector vectorProduct leftmostColumn.bottomVector
+      )
+      .translateByNormalVector(-frontBackOffset)
+
+   val leftmostRightWallPlane = getWallPlane(columns[0], columns[1])
+      .translateByNormalVector(leftRightOffset)
+
+   // --------
+
+   val rightmostColumn = columns[columns.lastIndex]
+
+   val rightmostWallPlane = Plane3d(
+         rightmostColumn.keyPlates
+            .flatMap { listOf(it.backRight, it.frontRight) }
+            .maxByOrNull {
+               it.rotate(
+                  Line3d.Z_AXIS,
+                  rightmostColumn.alignmentVector.copy(z = 0.mm) angleWith Vector3d.Y_UNIT_VECTOR
+               ).x
+            } !!,
+         rightmostColumn.alignmentVector vectorProduct rightmostColumn.bottomVector
+      )
+      .translateByNormalVector(frontBackOffset)
+
+   val rightmostLeftWallPlane = getWallPlane(columns[columns.lastIndex - 1], columns[columns.lastIndex])
+      .translateByNormalVector(-leftRightOffset)
+
+   // --------
+
+   fun ScadWriter.column(
+      column: Column,
+      leftWallPlane: Plane3d,
+      rightWallPlane: Plane3d
+   ) {
+      val mostBackPlate  = column.keyPlates.first()
+      val mostFrontPlate = column.keyPlates.last()
+
+      val boundaryLines = column.boundaryLines()
+
+      val mostBackLine  = boundaryLines.first().translate(mostBackPlate .frontVector.toUnitVector() * -frontBackOffset.numberAsMilliMeter)
+      val mostFrontLine = boundaryLines.last() .translate(mostFrontPlate.frontVector.toUnitVector() *  frontBackOffset.numberAsMilliMeter)
+
+      val mostBackLayeredLine  = mostBackLine .translate(mostBackPlate .normalVector.toUnitVector() * 20)
+      val mostFrontLayeredLine = mostFrontLine.translate(mostFrontPlate.normalVector.toUnitVector() * 20)
+
+      val lines = listOf(
+         mostBackLayeredLine,
+         mostBackLine,
+         *boundaryLines.drop(1).dropLast(1).toTypedArray(),
+         mostFrontLine,
+         mostFrontLayeredLine
+      )
+
+      hullPoints(
+         lines.map { leftWallPlane  intersection it } +
+         lines.map { rightWallPlane intersection it }
+      )
+   }
+
+   // --------
+
+   union {
+      column(leftmostColumn, leftmostWallPlane, leftmostRightWallPlane)
+
+      for ((left, column, right) in columns.windowed(3)) {
+         column(
+            column,
+            getWallPlane(left, column) .translateByNormalVector(-leftRightOffset),
+            getWallPlane(column, right).translateByNormalVector( leftRightOffset)
+         )
       }
+
+      column(rightmostColumn, rightmostLeftWallPlane, rightmostWallPlane)
    }
 }
 
-private fun AlphanumericColumns.points(): List<List<Point3d>> {
-   val points = ArrayList<List<Point3d>>()
-
-   val leftmostColumn = columns.first()
-
-   val leftmostWall = Plane3d(
-      leftmostColumn.keyPlates
-         .flatMap { listOf(it.backLeft, it.frontLeft) }
-         .minByOrNull {
-            // いやこのへんのコード汚すぎでしょ
-            // とりあえずColumnから見て一番左の座標が知りたいだけなので
-            // 真面目に回転せずalignmentVectorのX成分がゼロになればいいくらいの感じ
-            it.rotate(
-               Line3d.Z_AXIS,
-               leftmostColumn.alignmentVector.copy(z = 0.mm) angleWith Vector3d.Y_UNIT_VECTOR
-            ).x
-         } !!,
-      leftmostColumn.alignmentVector vectorProduct leftmostColumn.bottomVector
-   )
-
-   points += leftmostColumn.boundaryLines().map { leftmostWall intersection it }
-
-   for ((left, right) in columns.zipWithNext()) {
-      val wallPlane = getWallPlane(left, right)
-      points += left .boundaryLines().map { wallPlane intersection it }
-      points += right.boundaryLines().map { wallPlane intersection it }
-   }
-
-   val rightmostColumn = columns.last()
-
-   val rightmostWall = Plane3d(
-      rightmostColumn.keyPlates
-         .flatMap { listOf(it.backRight, it.frontRight) }
-         .maxByOrNull {
-            it.rotate(
-               Line3d.Z_AXIS,
-               rightmostColumn.alignmentVector.copy(z = 0.mm) angleWith Vector3d.Y_UNIT_VECTOR
-            ).x
-         } !!,
-      rightmostColumn.alignmentVector vectorProduct rightmostColumn.bottomVector
-   )
-
-   points += rightmostColumn.boundaryLines().map { rightmostWall intersection it }
-
-   return points
-}
-
-/** このColumnの各KeyPlate同士の境界線(最上段の奥のフチと最下段の手前のフチを含む) */
+/**
+ * このColumnの各KeyPlate同士の境界線(最上段の奥のフチと最下段の手前のフチを含む)
+ */
 fun Column.boundaryLines(): List<Line3d> {
    val lines = ArrayList<Line3d>()
 
