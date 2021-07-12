@@ -23,8 +23,9 @@ fun ScadWriter.topPlate() {
    val topPlate = TopPlate()
 
    difference {
-      alphanumericColumns(topPlate.alphanumericColumns, layerOffset = 1.5.mm, frontBackOffset =  1.5.mm, leftRightOffset = 1.mm)
-      alphanumericColumns(topPlate.alphanumericColumns, layerOffset = 0.0.mm, frontBackOffset = 20.0.mm, leftRightOffset = 0.mm)
+      //                                           layerOffset, frontBackOffset, leftRightOffset, columnOffset
+      alphanumericColumns(topPlate.alphanumericColumns, 1.5.mm,          1.5.mm,          3.0.mm,         1.mm)
+      alphanumericColumns(topPlate.alphanumericColumns, 0.0.mm,         20.0.mm,          1.5.mm,         0.mm)
 
       topPlate.alphanumericColumns.columns
          .flatMap { it.keyPlates }
@@ -43,16 +44,18 @@ fun ScadWriter.topPlate() {
  * @param layerOffset
  * 各Columnの[layerDistance][Column.layerDistance]が足される。つまり各Column深くなる
  * @param frontBackOffset
- * [Column.boundaryLines]に渡されるoffset。各Column手前と奥に広がる
- * が、Ninja60の場合手前と奥のKeyPlateは上を向いているので上に広がる
+ * 各Column手前と奥に広がるが、Ninja60の場合手前と奥のKeyPlateは上を向いているので上に広がる
  * @param leftRightOffset
+ * 一番左のColumnの左、一番右のColumnの右が広がる
+ * @param columnOffset
  * 各Column 左右方向に広がる
  */
 private fun ScadWriter.alphanumericColumns(
    alphanumericColumns: AlphanumericColumns,
    layerOffset: Size,
    frontBackOffset: Size,
-   leftRightOffset: Size
+   leftRightOffset: Size,
+   columnOffset: Size
 ) {
    fun Plane3d.translateByNormalVector(size: Size): Plane3d {
       return translate(normalVector.toUnitVector() * size.numberAsMilliMeter)
@@ -75,10 +78,10 @@ private fun ScadWriter.alphanumericColumns(
             } !!,
          leftmostColumn.alignmentVector vectorProduct leftmostColumn.bottomVector
       )
-      .translateByNormalVector(-frontBackOffset)
+      .translateByNormalVector(-leftRightOffset)
 
    val leftmostRightWallPlane = getWallPlane(columns[0], columns[1])
-      .translateByNormalVector(leftRightOffset)
+      .translateByNormalVector(columnOffset)
 
    // --------
 
@@ -95,10 +98,10 @@ private fun ScadWriter.alphanumericColumns(
             } !!,
          rightmostColumn.alignmentVector vectorProduct rightmostColumn.bottomVector
       )
-      .translateByNormalVector(frontBackOffset)
+      .translateByNormalVector(leftRightOffset)
 
    val rightmostLeftWallPlane = getWallPlane(columns[columns.lastIndex - 1], columns[columns.lastIndex])
-      .translateByNormalVector(-leftRightOffset)
+      .translateByNormalVector(-columnOffset)
 
    // --------
 
@@ -140,8 +143,8 @@ private fun ScadWriter.alphanumericColumns(
       for ((left, column, right) in columns.windowed(3)) {
          column(
             column,
-            getWallPlane(left, column) .translateByNormalVector(-leftRightOffset),
-            getWallPlane(column, right).translateByNormalVector( leftRightOffset)
+            getWallPlane(left, column) .translateByNormalVector(-columnOffset),
+            getWallPlane(column, right).translateByNormalVector( columnOffset)
          )
       }
 
