@@ -74,27 +74,27 @@ data class Column(
          .translate(bottomVector.norm(-layerDistance))
          .twist()
 
-      val row2Angle = atan(keyPitchV / 2, radius) * 2
+      val row2Angle = atan(keyPitch.y / 2, radius) * 2
       val layeredRow2 = row3
          .translate(bottomVector.norm(-layerDistance))
          .rotate(alignmentAxis, row2Angle)
          .twist()
 
       val row1Axis = Line3d(row3Center, rightVector)
-         .translate(alignmentVector.norm(-keyPitchV / 2))
+         .translate(alignmentVector.norm(-keyPitch.y / 2))
          .rotate(alignmentAxis, row2Angle)
       val layeredRow1 = row3
          .translate(bottomVector.norm(-layerDistance))
-         .translate(alignmentVector.norm(-keyPitchV))
+         .translate(alignmentVector.norm(-keyPitch.y))
          .rotate(alignmentAxis, row2Angle)
          .rotate(row1Axis, 90.deg - row2Angle)
          .twist()
 
       val row4Axis = Line3d(row3Center, rightVector)
-         .translate(alignmentVector.norm(keyPitchV / 2))
+         .translate(alignmentVector.norm(keyPitch.y / 2))
       val layeredRow4 = row3
          .translate(bottomVector.norm(-layerDistance))
-         .translate(alignmentVector.norm(keyPitchV))
+         .translate(alignmentVector.norm(keyPitch.y))
          .rotate(row4Axis, (-83).deg)
          .twist()
 

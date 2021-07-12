@@ -31,8 +31,8 @@ private fun ScadWriter.keycapWithStem(
       x, y, w, h, legend, isFluentToNorth, isFluentToSouth,
       isCylindrical, isHomePosition, isThinPillar,
       bottomZ = caseCurveZ(
-         caseX closeOrigin (keyPitchH * 0.5),
-         caseY - keyPitchV * 0.5
+         caseX closeOrigin (keyPitch.x * 0.5),
+         caseY - keyPitch.y * 0.5
       ),
       leftWallPadding, rightWallPadding, leftWallAngle, rightWallAngle,
       wallY
@@ -45,7 +45,7 @@ private fun ScadWriter.keycapWithStem(
 }
 
 fun ScadWriter.leftKeys() {
-   val keycapHalfWidth = keyPitchH / 2 - keycapMargin
+   val keycapHalfWidth = keyPitch.x / 2 - keycapMargin
 
    use(File("src/main/res/Cica-Regular.ttf"))
    prepareStemHolderModule()
@@ -53,14 +53,14 @@ fun ScadWriter.leftKeys() {
 
    // x = -2
    translate(
-      -keycapHalfWidth * cos(0.deg) - keyPitchH * cos(3.deg) - (keycapMargin - 1.mm) * 2 * cos(3.deg),
-      -keycapHalfWidth * sin(0.deg) - keyPitchH * sin(3.deg) - (keycapMargin - 1.mm) * 2 * sin(3.deg)
+      -keycapHalfWidth * cos(0.deg) - keyPitch.x * cos(3.deg) - (keycapMargin - 1.mm) * 2 * cos(3.deg),
+      -keycapHalfWidth * sin(0.deg) - keyPitch.x * sin(3.deg) - (keycapMargin - 1.mm) * 2 * sin(3.deg)
    ) {
       rotate(z = 3.deg) {
          val s = (-4).mm
          for (y in -1..2) {
-            val caseX = Point(keyPitchH * -2)
-            val caseY = Point(keyPitchV * (y + 2) + s)
+            val caseX = Point(keyPitch.x * -2)
+            val caseY = Point(keyPitch.y * (y + 2) + s)
             translate(-keycapHalfWidth, caseY.distanceFromOrigin) {
                keycapWithStem(
                   -2.0, y.toDouble(), caseX, caseY,
@@ -81,8 +81,8 @@ fun ScadWriter.leftKeys() {
          val s = (-1).mm
          val legends = listOf("Z", "A", "'", "1")
          for (y in -1..2) {
-            val caseX = Point(keyPitchH * -1)
-            val caseY = Point(keyPitchV * (y + 2) + s)
+            val caseX = Point(keyPitch.x * -1)
+            val caseY = Point(keyPitch.y * (y + 2) + s)
             translate(-keycapHalfWidth, caseY.distanceFromOrigin) {
                keycapWithStem(
                   -1.0, y.toDouble(), caseX, caseY, legend = legends[y + 1],
@@ -104,8 +104,8 @@ fun ScadWriter.leftKeys() {
          val s = 9.5.mm
          val legends = listOf("Q", "O", ",", "2")
          for (y in -1..2) {
-            val caseX = Point(keyPitchH * 0)
-            val caseY = Point(keyPitchV * (y + 2) + s)
+            val caseX = Point(keyPitch.x * 0)
+            val caseY = Point(keyPitch.y * (y + 2) + s)
             translate(-keycapHalfWidth, caseY.distanceFromOrigin) {
                keycapWithStem(
                   0.0, y.toDouble(), caseX, caseY, legend = legends[y + 1],
@@ -128,8 +128,8 @@ fun ScadWriter.leftKeys() {
          val s = 14.25.mm
          val legends = listOf("J", "E", ".", "3")
          for (y in -1..2) {
-            val caseX = Point(keyPitchH * 1)
-            val caseY = Point(keyPitchV * (y + 2) + s)
+            val caseX = Point(keyPitch.x * 1)
+            val caseY = Point(keyPitch.y * (y + 2) + s)
             translate(keycapHalfWidth, caseY.distanceFromOrigin) {
                keycapWithStem(
                   1.0, y.toDouble(), caseX, caseY, legend = legends[y + 1],
@@ -144,15 +144,15 @@ fun ScadWriter.leftKeys() {
 
    // x = 2
    translate(
-      keycapHalfWidth * cos(0.deg) + keyPitchH * cos((-2).deg) + 2.mm + keycapMargin * 2 * cos((-4).deg),
-      keycapHalfWidth * sin(0.deg) + keyPitchH * sin((-2).deg)        + keycapMargin * 2 * sin((-4).deg)
+      keycapHalfWidth * cos(0.deg) + keyPitch.x * cos((-2).deg) + 2.mm + keycapMargin * 2 * cos((-4).deg),
+      keycapHalfWidth * sin(0.deg) + keyPitch.x * sin((-2).deg)        + keycapMargin * 2 * sin((-4).deg)
    ) {
       rotate(z = (-6).deg) {
          val s = 4.mm
          val legends = listOf("K", "U", "P", "4")
          for (y in -1..2) {
-            val caseX = Point(keyPitchH * 2)
-            val caseY = Point(keyPitchV * (y + 2) + s)
+            val caseX = Point(keyPitch.x * 2)
+            val caseY = Point(keyPitch.y * (y + 2) + s)
             translate(keycapHalfWidth, caseY.distanceFromOrigin) {
                keycapWithStem(
                   2.0, y.toDouble(), caseX, caseY, legend = legends[y + 1],
@@ -169,14 +169,14 @@ fun ScadWriter.leftKeys() {
 
    // x = 3
    translate(
-      keycapHalfWidth * cos(0.deg) + keyPitchH * cos((-2).deg) + 2.mm + keyPitchH * cos((-4).deg) + (keycapMargin - 1.mm) * 2 * cos((-4).deg),
-      keycapHalfWidth * sin(0.deg) + keyPitchH * sin((-2).deg)        + keyPitchH * sin((-4).deg) + (keycapMargin - 1.mm) * 2 * sin((-4).deg)
+      keycapHalfWidth * cos(0.deg) + keyPitch.x * cos((-2).deg) + 2.mm + keyPitch.x * cos((-4).deg) + (keycapMargin - 1.mm) * 2 * cos((-4).deg),
+      keycapHalfWidth * sin(0.deg) + keyPitch.x * sin((-2).deg)        + keyPitch.x * sin((-4).deg) + (keycapMargin - 1.mm) * 2 * sin((-4).deg)
    ) {
       rotate(z = (-6).deg) {
          val legends = listOf("X", "I", "Y", "5")
          for (y in -1..2) {
-            val caseX = Point(keyPitchH * 3)
-            val caseY = Point(keyPitchV * (y + 2))
+            val caseX = Point(keyPitch.x * 3)
+            val caseY = Point(keyPitch.y * (y + 2))
             translate(keycapHalfWidth, caseY.distanceFromOrigin) {
                keycapWithStem(
                   3.0, y.toDouble(), caseX, caseY, legend = legends[y + 1],

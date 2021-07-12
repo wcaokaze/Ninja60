@@ -33,7 +33,7 @@ private fun interpolate(start: Size,  end: Size,  rate: Double) = start + (end -
 fun ScadWriter.caseCurve() {
    val step = 0.1
 
-   translate(0.mm, keyPitchV * -0.5, caseCurveR) {
+   translate(0.mm, keyPitch.y * -0.5, caseCurveR) {
       union {
          val seq = sequence {
             var i = 0.0
@@ -67,7 +67,7 @@ fun ScadWriter.caseCurve() {
    }
 }
 
-fun caseYToAngle(y: Point): Angle = atan(-caseCurveR, y.distanceFromOrigin + keyPitchV * 0.5)
+fun caseYToAngle(y: Point): Angle = atan(-caseCurveR, y.distanceFromOrigin + keyPitch.y * 0.5)
 
 fun caseYToInterpolateRate(y: Point): Double
       = (caseYToAngle(y) - caseStartAngle).numberAsRadian / (caseEndAngle - caseStartAngle).numberAsRadian

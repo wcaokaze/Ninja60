@@ -8,8 +8,6 @@ val enableLegends = false
 
 val keycapInvisibleFa = 8.0
 
-val keyPitchH = 19.05.mm
-val keyPitchV = 16.mm
 val keycapMargin = 0.375.mm
 val keycapHeight = 6.93.mm
 val keycapWallFa = 15.0 // 2.0
@@ -58,8 +56,8 @@ fun ScadWriter.thumbKeycap(
    arcR: Size, arcStartA: Angle, arcEndA: Angle,
    dishOffset: Size, h: Size, polishingMargin: Size = 0.mm
 ) {
-   val topW = 18.mm - (keyPitchH - 11.mm)
-   val topH = h     - (keyPitchV - 11.mm)
+   val topW = 18.mm - (keyPitch.x - 11.mm)
+   val topH = h     - (keyPitch.y - 11.mm)
 
    val bottomInnerR  = arcR - h     + 0.375.mm
    val bottomCenterR = arcR - h / 2
@@ -340,10 +338,10 @@ fun ScadWriter.keycap(
    polishingMargin: Size = 0.mm,
    children: ScadWriter.() -> Unit
 ) {
-   val topW = 13.mm + keyPitchH * (w - 1)
-   val topH = 13.mm + keyPitchV * (h - 1)
-   val bottomW = keyPitchH * w - keycapMargin * 2
-   val bottomH = keyPitchV * h - keycapMargin * 2
+   val topW = 13.mm + keyPitch.x * (w - 1)
+   val topH = 13.mm + keyPitch.y * (h - 1)
+   val bottomW = keyPitch.x * w - keycapMargin * 2
+   val bottomH = keyPitch.y * h - keycapMargin * 2
 
    val bottomNorthY = Point( bottomH / 2)
    val bottomSouthY = Point(-bottomH / 2)
@@ -353,7 +351,7 @@ fun ScadWriter.keycap(
    val bottomSouthRightX = Point( bottomW / 2 + rightWallPadding + (wallY.distanceFromOrigin + bottomSouthY.distanceFromOrigin) / tan(90.deg + rightWallAngle))
 
    // このキーキャップの原点から見た、本来の原点の座標までの距離。
-   val keyboardOrigin = Size2d(keyPitchH * -x, keyPitchV * -y)
+   val keyboardOrigin = Size2d(keyPitch.x * -x, keyPitch.y * -y)
 
    val tiltXa = asin(-keyboardOrigin.x, tiltXr)
    val tiltYa = asin(-keyboardOrigin.y, tiltYr)
@@ -397,8 +395,8 @@ fun ScadWriter.keycap(
       if (isCylindrical) {
          minkowski {
             cube(
-               keyPitchH * (w - 1) + 0.001.mm,
-               keyPitchV * (h - 1) + 0.001.mm,
+               keyPitch.x * (w - 1) + 0.001.mm,
+               keyPitch.y * (h - 1) + 0.001.mm,
                0.001.mm,
                center = true
             )
@@ -415,12 +413,12 @@ fun ScadWriter.keycap(
          }
       } else {
          minkowski {
-            translate(y = if (isFluentToSouth) { -keyPitchV } else { 0.mm }) {
+            translate(y = if (isFluentToSouth) { -keyPitch.y } else { 0.mm }) {
                cube(
                   0.001.mm,
                   0.001.mm +
-                        if (isFluentToNorth) { keyPitchV } else { 0.mm } +
-                        if (isFluentToSouth) { keyPitchV } else { 0.mm },
+                        if (isFluentToNorth) { keyPitch.y } else { 0.mm } +
+                        if (isFluentToSouth) { keyPitch.y } else { 0.mm },
                   0.001.mm
                )
             }

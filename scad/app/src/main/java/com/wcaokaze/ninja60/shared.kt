@@ -3,6 +3,8 @@ package com.wcaokaze.ninja60
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
+val keyPitch = Size2d(19.05.mm, 16.mm)
+
 fun ScadWriter.prepareSharedScads() {
    val fs = "\$fs"
    writeRawScad("""
