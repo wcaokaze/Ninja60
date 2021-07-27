@@ -9,18 +9,18 @@ val topPlateHeight = 5.mm - topPlateThickness
 
 val topPlateHoleSize = Size2d(14.mm, 14.mm)
 
-data class TopPlate(
+data class AlphanumericPlate(
    val alphanumericColumns: AlphanumericColumns
 ) {
    companion object {
-      operator fun invoke() = TopPlate(
+      operator fun invoke() = AlphanumericPlate(
          AlphanumericColumns(-Keycap.THICKNESS - KeySwitch.STEM_HEIGHT - KeySwitch.TOP_HEIGHT)
       )
    }
 }
 
-fun ScadWriter.topPlate() {
-   val topPlate = TopPlate()
+fun ScadWriter.alphanumericPlate() {
+   val topPlate = AlphanumericPlate()
 
    difference {
       //                                           layerOffset, frontBackOffset, leftRightOffset, columnOffset
@@ -32,9 +32,7 @@ fun ScadWriter.topPlate() {
          .map { it.copy(size = Size2d(14.mm, 14.mm)) }
          .map { keyPlate ->
             keyPlate.points +
-                  keyPlate.points.map {
-                     it.translate(keyPlate.normalVector, (-2).mm)
-                  }
+                  keyPlate.points.map { it.translate(keyPlate.normalVector, (-2).mm) }
          }
          .forEach { hullPoints(it) }
    }
@@ -118,15 +116,12 @@ private fun ScadWriter.alphanumericColumns(
       val mostBackLine  = boundaryLines.first().translate(mostBackPlate .frontVector, -frontBackOffset)
       val mostFrontLine = boundaryLines.last() .translate(mostFrontPlate.frontVector,  frontBackOffset)
 
-      val mostBackLayeredLine  = mostBackLine .translate(mostBackPlate .normalVector, 20.mm)
-      val mostFrontLayeredLine = mostFrontLine.translate(mostFrontPlate.normalVector, 20.mm)
-
       val lines = listOf(
-         mostBackLayeredLine,
+         mostBackLine.translate(mostBackPlate.normalVector, 20.mm),
          mostBackLine,
          *boundaryLines.drop(1).dropLast(1).toTypedArray(),
          mostFrontLine,
-         mostFrontLayeredLine
+         mostFrontLine.translate(mostFrontPlate.normalVector, 20.mm)
       )
 
       hullPoints(
@@ -155,7 +150,7 @@ private fun ScadWriter.alphanumericColumns(
 /**
  * このColumnの各KeyPlate同士の境界線(最上段の奥のフチと最下段の手前のフチを含む)
  */
-fun Column.boundaryLines(): List<Line3d> {
+private fun Column.boundaryLines(): List<Line3d> {
    val lines = ArrayList<Line3d>()
 
    val mostBackPlate = keyPlates.first()

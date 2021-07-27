@@ -75,7 +75,7 @@ class Plane3d
          vector.y < (-0.01).mm || vector.y > 0.01.mm -> Point3d(
             ((vx1 * vz2 * px1) - (vz1 * vx2 * px2) + (vy1 * vz2 * py1) - (vz1 * vy2 * py2) + (vz1 * vz2 * pz1) - (vz1 * vz2 * pz2)) / -(vz1 * vx2 - vx1 * vz2),
             0.0,
-            ((vy1 * vx2 * py1) - (vx1 * vy2 * py2) + (vz1 * vx1 * pz1) - (vx1 * vz2 * pz2) + (vx1 * vx2 * px1) - (vx1 * vx2 * px2)) /  (vz1 * vx2 - vx1 * vz2)
+            ((vy1 * vx2 * py1) - (vx1 * vy2 * py2) + (vz1 * vx2 * pz1) - (vx1 * vz2 * pz2) + (vx1 * vx2 * px1) - (vx1 * vx2 * px2)) /  (vz1 * vx2 - vx1 * vz2)
          )
 
          // 同様にZ成分が0でないとき

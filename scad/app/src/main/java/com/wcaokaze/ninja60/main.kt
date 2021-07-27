@@ -27,12 +27,7 @@ fun main(vararg args: String) {
       leftKeys()
       */
 
-      topPlate()
-
-      AlphanumericColumns(layerDistance = 0.mm)
-         .columns
-         .flatMap { it.keyPlates }
-         .forEach { hullPoints(it.points) }
+      thumbPlate()
    }
 }
 
