@@ -33,7 +33,7 @@ fun ScadWriter.topPlate() {
          .map { keyPlate ->
             keyPlate.points +
                   keyPlate.points.map {
-                     it.translate(keyPlate.normalVector.toUnitVector() * -2)
+                     it.translate(keyPlate.normalVector, (-2).mm)
                   }
          }
          .forEach { hullPoints(it) }
@@ -58,7 +58,7 @@ private fun ScadWriter.alphanumericColumns(
    columnOffset: Size
 ) {
    fun Plane3d.translateByNormalVector(size: Size): Plane3d {
-      return translate(normalVector.toUnitVector() * size.numberAsMilliMeter)
+      return translate(normalVector, size)
    }
 
    val columns = alphanumericColumns.columns.map { it.copy(layerDistance = it.layerDistance - layerOffset) }
@@ -115,11 +115,11 @@ private fun ScadWriter.alphanumericColumns(
 
       val boundaryLines = column.boundaryLines()
 
-      val mostBackLine  = boundaryLines.first().translate(mostBackPlate .frontVector.toUnitVector() * -frontBackOffset.numberAsMilliMeter)
-      val mostFrontLine = boundaryLines.last() .translate(mostFrontPlate.frontVector.toUnitVector() *  frontBackOffset.numberAsMilliMeter)
+      val mostBackLine  = boundaryLines.first().translate(mostBackPlate .frontVector, -frontBackOffset)
+      val mostFrontLine = boundaryLines.last() .translate(mostFrontPlate.frontVector,  frontBackOffset)
 
-      val mostBackLayeredLine  = mostBackLine .translate(mostBackPlate .normalVector.toUnitVector() * 20)
-      val mostFrontLayeredLine = mostFrontLine.translate(mostFrontPlate.normalVector.toUnitVector() * 20)
+      val mostBackLayeredLine  = mostBackLine .translate(mostBackPlate .normalVector, 20.mm)
+      val mostFrontLayeredLine = mostFrontLine.translate(mostFrontPlate.normalVector, 20.mm)
 
       val lines = listOf(
          mostBackLayeredLine,

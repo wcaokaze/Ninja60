@@ -99,6 +99,9 @@ fun Plane3d.translate(distance: Size3d)
 fun Plane3d.translate(distance: Vector3d): Plane3d
       = translate(Size3d(distance.x, distance.y, distance.z))
 
+fun Plane3d.translate(direction: Vector3d, distance: Size): Plane3d
+      = translate(direction.toUnitVector() * distance.numberAsMilliMeter)
+
 fun Plane3d.translate(
    x: Size = 0.mm,
    y: Size = 0.mm,

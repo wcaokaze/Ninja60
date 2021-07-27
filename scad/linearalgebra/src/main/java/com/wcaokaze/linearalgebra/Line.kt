@@ -116,6 +116,9 @@ fun Line3d.translate(distance: Size3d)
 fun Line3d.translate(distance: Vector3d): Line3d
       = translate(Size3d(distance.x, distance.y, distance.z))
 
+fun Line3d.translate(direction: Vector3d, distance: Size): Line3d
+      = translate(direction.toUnitVector() * distance.numberAsMilliMeter)
+
 fun Line3d.translate(
    x: Size = 0.mm,
    y: Size = 0.mm,

@@ -43,10 +43,9 @@ data class KeyPlate(
    private fun point(x: Double, y: Double): Point3d {
       val rightVector = normalVector vectorProduct frontVector
 
-      val xDistance = rightVector.toUnitVector() * size.x.numberAsMilliMeter * x
-      val yDistance = frontVector.toUnitVector() * size.y.numberAsMilliMeter * y
-
-      return center.translate(xDistance).translate(yDistance)
+      return center
+         .translate(rightVector, size.x * x)
+         .translate(frontVector, size.y * y)
    }
 
    val frontLeft:  Point3d get() = point(-0.5,  0.5)
@@ -63,6 +62,9 @@ fun KeyPlate.translate(distance: Size3d)
 
 fun KeyPlate.translate(distance: Vector3d)
       = KeyPlate(center.translate(distance), size, normalVector, frontVector)
+
+fun KeyPlate.translate(direction: Vector3d, distance: Size)
+      = KeyPlate(center.translate(direction, distance), size, normalVector, frontVector)
 
 fun KeyPlate.translate(
    x: Size = 0.mm,
