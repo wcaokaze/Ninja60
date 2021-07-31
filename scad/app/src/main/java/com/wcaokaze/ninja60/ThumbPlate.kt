@@ -14,22 +14,14 @@ data class ThumbPlate(
             bottomVector = -Vector3d.Z_UNIT_VECTOR,
             alignmentVector = -Vector3d.Y_UNIT_VECTOR,
             radius = 16.mm,
-            layerDistance = 0.mm//-Keycap.THICKNESS - KeySwitch.STEM_HEIGHT - KeySwitch.TOP_HEIGHT
+            layerDistance = -Keycap.THICKNESS - KeySwitch.STEM_HEIGHT - KeySwitch.TOP_HEIGHT
          )
       )
    }
 }
 
 fun ScadWriter.thumbPlate() {
-   val plate = ThumbPlate(
-      ThumbKeys(
-         referencePoint = Point3d.ORIGIN,
-         bottomVector = -Vector3d.Z_UNIT_VECTOR,
-         alignmentVector = -Vector3d.Y_UNIT_VECTOR,
-         radius = 16.mm,
-         layerDistance = -Keycap.THICKNESS - KeySwitch.STEM_HEIGHT - KeySwitch.TOP_HEIGHT
-      )
-   )
+   val plate = ThumbPlate()
 
    difference {
       //                     layerOffset, leftRightOffset, frontOffset
