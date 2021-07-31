@@ -28,6 +28,12 @@ fun main(vararg args: String) {
       */
 
       thumbPlate()
+
+      ThumbPlate()
+         .thumbKeys
+         .copy(layerDistance = 0.mm)
+         .let { it.column + it.backKey }
+         .forEach { hullPoints(it.points) }
    }
 }
 
