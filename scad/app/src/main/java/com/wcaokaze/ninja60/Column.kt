@@ -47,8 +47,6 @@ data class Column(
    val layerDistance: Size,
    val twistAngle: Angle
 ) {
-   private fun Vector3d.norm(norm: Size): Vector3d = toUnitVector() * norm.numberAsMilliMeter
-
    /** この列に含まれる[KeyPlate]のリスト。上から順 */
    val keyPlates: List<KeyPlate> get() {
       fun KeyPlate.twist(): KeyPlate {
@@ -64,37 +62,37 @@ data class Column(
       val rightVector = alignmentVector vectorProduct bottomVector
       val alignmentAxis = Line3d(referencePoint, rightVector)
 
-      val row3Center = referencePoint.translate(bottomVector.norm(radius))
+      val row3Center = referencePoint.translate(bottomVector, radius)
       val row3 = KeyPlate(
          row3Center, KeyPlate.SIZE,
          normalVector = -bottomVector,
          frontVector = alignmentVector
       )
       val layeredRow3 = row3
-         .translate(bottomVector.norm(-layerDistance))
+         .translate(bottomVector, -layerDistance)
          .twist()
 
       val row2Angle = atan(keyPitch.y / 2, radius) * 2
       val layeredRow2 = row3
-         .translate(bottomVector.norm(-layerDistance))
+         .translate(bottomVector, -layerDistance)
          .rotate(alignmentAxis, row2Angle)
          .twist()
 
       val row1Axis = Line3d(row3Center, rightVector)
-         .translate(alignmentVector.norm(-keyPitch.y / 2))
+         .translate(alignmentVector, -keyPitch.y / 2)
          .rotate(alignmentAxis, row2Angle)
       val layeredRow1 = row3
-         .translate(bottomVector.norm(-layerDistance))
-         .translate(alignmentVector.norm(-keyPitch.y))
+         .translate(bottomVector, -layerDistance)
+         .translate(alignmentVector, -keyPitch.y)
          .rotate(alignmentAxis, row2Angle)
          .rotate(row1Axis, 90.deg - row2Angle)
          .twist()
 
       val row4Axis = Line3d(row3Center, rightVector)
-         .translate(alignmentVector.norm(keyPitch.y / 2))
+         .translate(alignmentVector, keyPitch.y / 2)
       val layeredRow4 = row3
-         .translate(bottomVector.norm(-layerDistance))
-         .translate(alignmentVector.norm(keyPitch.y))
+         .translate(bottomVector, -layerDistance)
+         .translate(alignmentVector, keyPitch.y)
          .rotate(row4Axis, (-83).deg)
          .twist()
 
@@ -113,6 +111,9 @@ fun Column.translate(distance: Size3d) = Column(
 
 fun Column.translate(distance: Vector3d): Column
       = translate(Size3d(distance.x, distance.y, distance.z))
+
+fun Column.translate(direction: Vector3d, distance: Size): Column
+      = translate(direction.toUnitVector() * distance.numberAsMilliMeter)
 
 fun Column.translate(
    x: Size = 0.mm,

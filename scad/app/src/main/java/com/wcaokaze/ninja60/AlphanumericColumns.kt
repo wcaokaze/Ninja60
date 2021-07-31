@@ -2,7 +2,6 @@ package com.wcaokaze.ninja60
 
 import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.foundation.*
-import kotlin.math.abs
 
 /** 人差し指から小指の4本の指で押す、アルファベットと数字のキーの行列 */
 data class AlphanumericColumns(
@@ -35,7 +34,7 @@ data class AlphanumericColumns(
                   column.rotate(
                      Line3d(
                         column.referencePoint
-                           .translate(column.bottomVector.toUnitVector() * radius.numberAsMilliMeter),
+                           .translate(column.bottomVector, radius),
                         column.alignmentVector
                      ),
                      ax
