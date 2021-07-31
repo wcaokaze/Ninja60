@@ -14,7 +14,7 @@ data class ThumbPlate(
             bottomVector = -Vector3d.Z_UNIT_VECTOR,
             alignmentVector = -Vector3d.Y_UNIT_VECTOR,
             radius = 16.mm,
-            keySize = Size2d(KeyPlate.SIZE.x, KeyPlate.SIZE.y * 1.5),
+            keySize = KeyPlate.SIZE.copy(y = 22.4.mm),
             layerDistance = -Keycap.THICKNESS - KeySwitch.STEM_HEIGHT - KeySwitch.TOP_HEIGHT
          )
       )
