@@ -10,16 +10,19 @@ import com.wcaokaze.scadwriter.foundation.*
  *
  * @param bottomVector 下向きベクトル。
  * @param alignmentVector 手前向きベクトル。
+ * @param keySize
+ * [column]の各KeyPlateのサイズ。[backKey]には影響しない。
+ * また、各KeyPlateの間隔は[keyPitch]で決まっていて、
+ * このkeySizeを大きくとったからといってうまく間隔が広がるわけではないことに注意
  */
 data class ThumbKeys(
    val referencePoint: Point3d,
    val bottomVector: Vector3d,
    val alignmentVector: Vector3d,
    val radius: Size,
+   val keySize: Size2d,
    val layerDistance: Size
 ) {
-   private fun Vector3d.norm(norm: Size): Vector3d = toUnitVector() * norm.numberAsMilliMeter
-
    /**
     * 左右方向に並ぶキーのリスト。左から右の順。
     * 凹面を作ることは問題ないが、一周して円にすることはできないものとする。
@@ -29,22 +32,22 @@ data class ThumbKeys(
    val column: List<KeyPlate> get() {
       val alignmentAxis = Line3d(referencePoint, alignmentVector)
 
-      val row2Center = referencePoint.translate(bottomVector.norm(radius))
+      val row2Center = referencePoint.translate(bottomVector, radius)
       val row2 = KeyPlate(
-         row2Center, KeyPlate.SIZE,
+         row2Center, keySize,
          normalVector = -bottomVector,
          frontVector = alignmentVector
       )
-      val layeredRow2 = row2.translate(bottomVector.norm(-layerDistance))
+      val layeredRow2 = row2.translate(bottomVector, -layerDistance)
 
       val row1Angle = atan(-keyPitch.x / 2, radius) * 2
       val layeredRow1 = row2
-         .translate(bottomVector.norm(-layerDistance))
+         .translate(bottomVector, -layerDistance)
          .rotate(alignmentAxis, row1Angle)
 
       val row3Angle = atan(keyPitch.x / 2, radius) * 2
       val layeredRow3 = row2
-         .translate(bottomVector.norm(-layerDistance))
+         .translate(bottomVector, -layerDistance)
          .rotate(alignmentAxis, row3Angle)
 
       return listOf(layeredRow1, layeredRow2, layeredRow3)
@@ -54,18 +57,20 @@ data class ThumbKeys(
     * 親指の先、奥にあるキー。
     */
    val backKey: KeyPlate get() {
+      val dy = column.maxOf { it.size.y }
+
       return KeyPlate(
-            referencePoint.translate(bottomVector.norm(radius)),
+            referencePoint.translate(bottomVector, radius),
             KeyPlate.SIZE,
             normalVector = -bottomVector,
             frontVector = alignmentVector
          )
-         .translate(bottomVector.norm(-layerDistance))
-         .translate(alignmentVector.norm(-keyPitch.y))
+         .translate(bottomVector, -layerDistance)
+         .translate(-alignmentVector, dy / 2 + KeyPlate.SIZE.y / 2)
          .rotate(
             Line3d(referencePoint, alignmentVector vectorProduct bottomVector)
-               .translate(bottomVector.norm(radius))
-               .translate(alignmentVector.norm(-keyPitch.y / 2)),
+               .translate(bottomVector, radius)
+               .translate(-alignmentVector, dy / 2),
             80.deg
          )
    }
