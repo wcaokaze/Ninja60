@@ -1,5 +1,6 @@
 package com.wcaokaze.ninja60
 
+import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 import java.io.File
@@ -27,13 +28,10 @@ fun main(vararg args: String) {
       leftKeys()
       */
 
-      thumbPlate()
-
-      ThumbPlate()
-         .thumbKeys
-         .copy(layerDistance = 0.mm)
-         .let { it.column + it.backKey }
-         .forEach { hullPoints(it.points) }
+      rotaryEncoderMountHole(
+         RotaryEncoderMountHole(Point3d.ORIGIN, Vector3d.Z_UNIT_VECTOR, Vector3d.Y_UNIT_VECTOR),
+         0.mm .. 1.6.mm
+      )
    }
 }
 
