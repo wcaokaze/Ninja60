@@ -13,6 +13,8 @@ data class AlphanumericPlate(
    val alphanumericColumns: AlphanumericColumns
 ) {
    companion object {
+      val THICKNESS = 1.5.mm
+
       operator fun invoke() = AlphanumericPlate(
          AlphanumericColumns(-Keycap.THICKNESS - KeySwitch.STEM_HEIGHT - KeySwitch.TOP_HEIGHT)
       )
@@ -22,6 +24,14 @@ data class AlphanumericPlate(
 fun ScadWriter.alphanumericPlate() {
    val topPlate = AlphanumericPlate()
 
+   for ((l, c, r) in topPlate.alphanumericColumns.columns.windowed(3)) {
+      column(c,
+         getWallPlane(l, c),
+         getWallPlane(c, r)
+      )
+   }
+
+   /*
    difference {
       //                                           layerOffset, frontBackOffset, leftRightOffset, columnOffset
       alphanumericColumns(topPlate.alphanumericColumns, 1.5.mm,          1.5.mm,          1.5.mm,         1.mm)
@@ -35,6 +45,32 @@ fun ScadWriter.alphanumericPlate() {
                   keyPlate.points.map { it.translate(keyPlate.normalVector, (-2).mm) }
          }
          .forEach { hullPoints(it) }
+   }
+   */
+}
+
+private fun ScadWriter.column(column: Column, leftWall: Plane3d, rightWall: Plane3d) {
+   val thickenedColumn = column.copy(layerDistance = column.layerDistance - AlphanumericPlate.THICKNESS)
+
+   val boundaryLines       = column         .boundaryLines()
+   val bottomBoundaryLines = thickenedColumn.boundaryLines()
+
+   val plateLines: List<List<Line3d>>
+      = (boundaryLines zip bottomBoundaryLines)
+      .zipWithNext { (back, bottomBack), (front, bottomFront) ->
+         listOf(back, bottomBack, front, bottomFront)
+      }
+
+   val thickenedLeftWall  = leftWall .translate(-leftWall .normalVector, AlphanumericPlate.THICKNESS)
+   val thickenedRightWall = rightWall.translate( rightWall.normalVector, AlphanumericPlate.THICKNESS)
+
+   union {
+      for (lines in plateLines) {
+         hullPoints(
+            lines.map { thickenedLeftWall  intersection it } +
+            lines.map { thickenedRightWall intersection it }
+         )
+      }
    }
 }
 
