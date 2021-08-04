@@ -8,16 +8,6 @@ import com.wcaokaze.scadwriter.foundation.*
  *
  * Ninja60の実装では[keyPlates]は4枚のKeyPlateを生成する。
  *
- * 3行目を[referencePoint]の真下とし、
- * 2行目は[radius]を半径とする円弧上でちょうど3行目と接触する位置、
- * 1行目は2行目と接触する位置で3行目に対して(ほぼ)垂直、
- * 4行目は3行目と接触する位置で3行目に対して(ほぼ)垂直の位置に整列される。
- *
- * ただし4行目は若干深い位置に整列される。
- * これはDvorak配列において3行目の直後に同列の4行目を押す手順が多いためである。
- * つまり3行目を押した状態からそのまま4行目を押せるように
- * 4行目のキーは3行目のキーストローク分タテに長く、深い位置にある。
- *
  * @param bottomVector
  * このColumnの下向きのベクトル。全く回転していないColumnの場合Z軸の負の方向。
  * Ninja60では[referencePoint]から[bottomVector]方向に[radius]移動したところに
@@ -78,14 +68,9 @@ data class Column(
          .rotate(alignmentAxis, row2Angle)
          .twist()
 
-      val row1Axis = Line3d(row3Center, rightVector)
-         .translate(alignmentVector, -keyPitch.y / 2)
-         .rotate(alignmentAxis, row2Angle)
-      val layeredRow1 = row3
-         .translate(bottomVector, -layerDistance)
-         .translate(alignmentVector, -keyPitch.y)
-         .rotate(alignmentAxis, row2Angle)
-         .rotate(row1Axis, 90.deg - row2Angle)
+      val row1Angle = atan(keyPitch.y / 2, radius) * 2
+      val layeredRow1 = layeredRow2
+         .rotate(alignmentAxis, row1Angle)
          .twist()
 
       val row4Axis = Line3d(row3Center, rightVector)

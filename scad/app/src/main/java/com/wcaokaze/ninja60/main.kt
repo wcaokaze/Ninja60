@@ -28,10 +28,7 @@ fun main(vararg args: String) {
       leftKeys()
       */
 
-      rotaryEncoderMountHole(
-         RotaryEncoderMountHole(Point3d.ORIGIN, Vector3d.Z_UNIT_VECTOR, Vector3d.Y_UNIT_VECTOR),
-         0.mm .. 1.6.mm
-      )
+      alphanumericPlate()
    }
 }
 
