@@ -24,8 +24,8 @@ fun ScadWriter.alphanumericPlate() {
 
    difference {
       //                                           layerOffset, frontBackOffset, leftRightOffset, columnOffset
-      alphanumericColumns(topPlate.alphanumericColumns, 1.5.mm,          1.5.mm,          3.0.mm,         1.mm)
-      alphanumericColumns(topPlate.alphanumericColumns, 0.0.mm,         20.0.mm,          1.5.mm,         0.mm)
+      alphanumericColumns(topPlate.alphanumericColumns, 1.5.mm,          1.5.mm,          1.5.mm,         1.mm)
+      alphanumericColumns(topPlate.alphanumericColumns, 0.0.mm,         20.0.mm,          3.0.mm,         0.mm)
 
       topPlate.alphanumericColumns.columns
          .flatMap { it.keyPlates }
