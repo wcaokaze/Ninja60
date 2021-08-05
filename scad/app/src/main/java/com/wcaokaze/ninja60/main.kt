@@ -28,7 +28,18 @@ fun main(vararg args: String) {
       leftKeys()
       */
 
-      alphanumericPlate()
+      alphanumericPlate(
+         AlphanumericPlate()
+            .rotate(Line3d.Y_AXIS, (-15).deg)
+            .translate(x = 75.mm, y = 80.mm, z = 85.mm)
+      )
+
+      thumbPlate(
+         ThumbPlate()
+            .rotate(Line3d.Y_AXIS, 70.deg)
+            .rotate(Line3d.Z_AXIS, (-12).deg)
+            .translate(x = 141.mm, y = 20.mm, z = 40.mm)
+      )
    }
 }
 

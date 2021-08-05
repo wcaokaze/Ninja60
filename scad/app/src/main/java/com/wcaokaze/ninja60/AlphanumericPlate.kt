@@ -19,15 +19,37 @@ data class AlphanumericPlate(
    }
 }
 
-fun ScadWriter.alphanumericPlate() {
-   val topPlate = AlphanumericPlate()
+fun AlphanumericPlate.translate(distance: Size3d) = AlphanumericPlate(
+   alphanumericColumns.translate(distance)
+)
 
+fun AlphanumericPlate.translate(distance: Vector3d) = AlphanumericPlate(
+   alphanumericColumns.translate(distance)
+)
+
+fun AlphanumericPlate.translate(direction: Vector3d, distance: Size) = AlphanumericPlate(
+   alphanumericColumns.translate(direction, distance)
+)
+
+fun AlphanumericPlate.translate(
+   x: Size = 0.mm,
+   y: Size = 0.mm,
+   z: Size = 0.mm
+): AlphanumericPlate = translate(Size3d(x, y, z))
+
+fun AlphanumericPlate.rotate(axis: Line3d, angle: Angle) = AlphanumericPlate(
+   alphanumericColumns.rotate(axis, angle)
+)
+
+fun ScadWriter.alphanumericPlate(alphanumericPlate: AlphanumericPlate) {
    difference {
-      //                                           layerOffset, frontBackOffset, leftRightOffset, columnOffset
-      alphanumericColumns(topPlate.alphanumericColumns, 1.5.mm,          1.5.mm,          1.5.mm,         1.mm)
-      alphanumericColumns(topPlate.alphanumericColumns, 0.0.mm,         20.0.mm,          3.0.mm,         0.mm)
+      val ac = alphanumericPlate.alphanumericColumns
 
-      topPlate.alphanumericColumns.columns
+      //                 layerOffset, frontBackOffset, leftRightOffset, columnOffset
+      alphanumericColumns(ac, 1.5.mm,          1.5.mm,          1.5.mm,         1.mm)
+      alphanumericColumns(ac, 0.0.mm,         20.0.mm,          3.0.mm,         0.mm)
+
+      alphanumericPlate.alphanumericColumns.columns
          .flatMap { it.keyPlates }
          .map { it.copy(size = Size2d(14.mm, 14.mm)) }
          .map { keyPlate ->

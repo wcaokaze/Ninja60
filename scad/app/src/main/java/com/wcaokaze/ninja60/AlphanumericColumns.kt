@@ -55,3 +55,25 @@ data class AlphanumericColumns(
       }
    }
 }
+
+fun AlphanumericColumns.translate(distance: Size3d) = AlphanumericColumns(
+   columns.map { it.translate(distance) }
+)
+
+fun AlphanumericColumns.translate(distance: Vector3d) = AlphanumericColumns(
+   columns.map { it.translate(distance) }
+)
+
+fun AlphanumericColumns.translate(direction: Vector3d, distance: Size) = AlphanumericColumns(
+   columns.map { it.translate(direction, distance) }
+)
+
+fun AlphanumericColumns.translate(
+   x: Size = 0.mm,
+   y: Size = 0.mm,
+   z: Size = 0.mm
+): AlphanumericColumns = translate(Size3d(x, y, z))
+
+fun AlphanumericColumns.rotate(axis: Line3d, angle: Angle) = AlphanumericColumns(
+   columns.map { it.rotate(axis, angle) }
+)

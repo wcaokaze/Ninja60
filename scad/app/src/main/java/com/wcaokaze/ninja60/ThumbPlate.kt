@@ -21,16 +21,36 @@ data class ThumbPlate(
    }
 }
 
-fun ScadWriter.thumbPlate() {
-   val plate = ThumbPlate()
+fun ThumbPlate.translate(distance: Size3d) = ThumbPlate(
+   thumbKeys.translate(distance)
+)
 
+fun ThumbPlate.translate(distance: Vector3d) = ThumbPlate(
+   thumbKeys.translate(distance)
+)
+
+fun ThumbPlate.translate(direction: Vector3d, distance: Size) = ThumbPlate(
+   thumbKeys.translate(direction, distance)
+)
+
+fun ThumbPlate.translate(
+   x: Size = 0.mm,
+   y: Size = 0.mm,
+   z: Size = 0.mm
+): ThumbPlate = translate(Size3d(x, y, z))
+
+fun ThumbPlate.rotate(axis: Line3d, angle: Angle) = ThumbPlate(
+   thumbKeys.rotate(axis, angle)
+)
+
+fun ScadWriter.thumbPlate(thumbPlate: ThumbPlate) {
    difference {
-      //                     layerOffset, leftRightOffset, frontOffset
-      thumbKeys(plate.thumbKeys, 1.5.mm,          1.5.mm,      1.5.mm)
-      thumbKeys(plate.thumbKeys, 0.0.mm,         20.0.mm,     20.0.mm)
+      //                         layerOffset, leftRightOffset, frontOffset
+      thumbKeys(thumbPlate.thumbKeys, 1.5.mm,          1.5.mm,      1.5.mm)
+      thumbKeys(thumbPlate.thumbKeys, 0.0.mm,         20.0.mm,     20.0.mm)
 
-      plate.thumbKeys.column
-         .plus(plate.thumbKeys.backKey)
+      thumbPlate.thumbKeys.column
+         .plus(thumbPlate.thumbKeys.backKey)
          .map { it.copy(size = Size2d(14.mm, 14.mm)) }
          .map { keyPlate ->
             keyPlate.points +

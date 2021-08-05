@@ -75,3 +75,33 @@ data class ThumbKeys(
          )
    }
 }
+
+fun ThumbKeys.translate(distance: Size3d) = ThumbKeys(
+   referencePoint.translate(distance),
+   bottomVector,
+   alignmentVector,
+   radius,
+   keySize,
+   layerDistance
+)
+
+fun ThumbKeys.translate(distance: Vector3d): ThumbKeys
+      = translate(Size3d(distance.x, distance.y, distance.z))
+
+fun ThumbKeys.translate(direction: Vector3d, distance: Size): ThumbKeys
+      = translate(direction.toUnitVector() * distance.numberAsMilliMeter)
+
+fun ThumbKeys.translate(
+   x: Size = 0.mm,
+   y: Size = 0.mm,
+   z: Size = 0.mm
+): ThumbKeys = translate(Size3d(x, y, z))
+
+fun ThumbKeys.rotate(axis: Line3d, angle: Angle) = ThumbKeys(
+   referencePoint.rotate(axis, angle),
+   bottomVector.rotate(axis.vector, angle),
+   alignmentVector.rotate(axis.vector, angle),
+   radius,
+   keySize,
+   layerDistance
+)
