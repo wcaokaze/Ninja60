@@ -45,18 +45,15 @@ fun ThumbPlate.rotate(axis: Line3d, angle: Angle) = ThumbPlate(
 
 fun ScadWriter.thumbPlate(thumbPlate: ThumbPlate) {
    difference {
-      //                         layerOffset, leftRightOffset, frontOffset
-      thumbKeys(thumbPlate.thumbKeys, 1.5.mm,          1.5.mm,      1.5.mm)
-      thumbKeys(thumbPlate.thumbKeys, 0.0.mm,         20.0.mm,     20.0.mm)
+      val tk = thumbPlate.thumbKeys
 
-      thumbPlate.thumbKeys.column
-         .plus(thumbPlate.thumbKeys.backKey)
-         .map { it.copy(size = Size2d(14.mm, 14.mm)) }
-         .map { keyPlate ->
-            keyPlate.points +
-                  keyPlate.points.map { it.translate(keyPlate.normalVector, (-2).mm) }
-         }
-         .forEach { hullPoints(it) }
+      //                               layerOffset, leftRightOffset, frontOffset
+      thumbKeys(tk, KeySwitch.BOTTOM_HEIGHT - 1.mm,          1.5.mm,      1.5.mm)
+      thumbKeys(tk,                           0.mm,         20.0.mm,     20.0.mm)
+
+      for (k in tk.column + tk.backKey) {
+         switchHole(k)
+      }
    }
 }
 
@@ -109,11 +106,11 @@ private fun ScadWriter.thumbKeys(
    val rightmostLine = boundaryLines.last() .translate(rightmostPlate.rightVector(),  leftRightOffset)
 
    val columnPoints = listOf(
-         leftmostLine.translate(leftmostPlate.normalVector, 1.5.mm),
+         leftmostLine.translate(leftmostPlate.normalVector, layerOffset),
          leftmostLine,
          *boundaryLines.drop(1).dropLast(1).toTypedArray(),
          rightmostLine,
-         rightmostLine.translate(rightmostPlate.normalVector, 1.5.mm)
+         rightmostLine.translate(rightmostPlate.normalVector, layerOffset)
       )
       .flatMap {
          listOf(
@@ -126,7 +123,7 @@ private fun ScadWriter.thumbKeys(
       .flatMap { point ->
          listOf(
             point,
-            point.translate(layeredThumbKeys.backKey.normalVector, 1.5.mm),
+            point.translate(layeredThumbKeys.backKey.normalVector, layerOffset),
          )
       }
 

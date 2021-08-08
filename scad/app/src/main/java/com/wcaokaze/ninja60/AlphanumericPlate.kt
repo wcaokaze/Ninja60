@@ -4,11 +4,6 @@ import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
-val topPlateThickness = 1.5.mm
-val topPlateHeight = 5.mm - topPlateThickness
-
-val topPlateHoleSize = Size2d(14.mm, 14.mm)
-
 data class AlphanumericPlate(
    val alphanumericColumns: AlphanumericColumns
 ) {
@@ -45,18 +40,15 @@ fun ScadWriter.alphanumericPlate(alphanumericPlate: AlphanumericPlate) {
    difference {
       val ac = alphanumericPlate.alphanumericColumns
 
-      //                 layerOffset, frontBackOffset, leftRightOffset, columnOffset
-      alphanumericColumns(ac, 1.5.mm,          1.5.mm,          1.5.mm,         1.mm)
-      alphanumericColumns(ac, 0.0.mm,         20.0.mm,          3.0.mm,         0.mm)
+      //                                         layerOffset, frontBackOffset, leftRightOffset, columnOffset
+      alphanumericColumns(ac, KeySwitch.BOTTOM_HEIGHT - 1.mm,          1.5.mm,          1.5.mm,         1.mm)
+      alphanumericColumns(ac,                           0.mm,         20.0.mm,          3.0.mm,         0.mm)
 
-      alphanumericPlate.alphanumericColumns.columns
-         .flatMap { it.keyPlates }
-         .map { it.copy(size = Size2d(14.mm, 14.mm)) }
-         .map { keyPlate ->
-            keyPlate.points +
-                  keyPlate.points.map { it.translate(keyPlate.normalVector, (-2).mm) }
+      for (c in ac.columns) {
+         for (k in c.keyPlates) {
+            switchHole(k)
          }
-         .forEach { hullPoints(it) }
+      }
    }
 }
 
@@ -139,11 +131,11 @@ private fun ScadWriter.alphanumericColumns(
       val mostFrontLine = boundaryLines.last() .translate(mostFrontPlate.frontVector,  frontBackOffset)
 
       val lines = listOf(
-         mostBackLine.translate(mostBackPlate.normalVector, 20.mm),
+         mostBackLine.translate(mostBackPlate.normalVector, layerOffset),
          mostBackLine,
          *boundaryLines.drop(1).dropLast(1).toTypedArray(),
          mostFrontLine,
-         mostFrontLine.translate(mostFrontPlate.normalVector, 20.mm)
+         mostFrontLine.translate(mostFrontPlate.normalVector, layerOffset)
       )
 
       hullPoints(

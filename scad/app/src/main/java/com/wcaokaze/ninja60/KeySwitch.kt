@@ -1,5 +1,6 @@
 package com.wcaokaze.ninja60
 
+import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
 class KeySwitch {
@@ -17,5 +18,27 @@ class KeySwitch {
 
       /** スイッチの上面(ステムの先ではない)からトッププレートまでの距離 */
       val TOP_HEIGHT = HEIGHT - BOTTOM_HEIGHT
+   }
+}
+
+fun ScadWriter.switchHole(keyPlate: KeyPlate) {
+   val bottomVector = -keyPlate.normalVector
+
+   /* ボトムハウジングの突起部分にハメる穴。本来1.5mmのプレートを使うところ */
+   val mountPlateHole = keyPlate.copy(size = Size2d(14.mm, 14.mm))
+
+   /* スイッチが入る穴。 */
+   val switchHole = keyPlate.copy(size = Size2d(16.mm, 16.mm))
+
+   union {
+      hullPoints(
+         mountPlateHole.translate(bottomVector, -(0.5).mm).points +
+         mountPlateHole.translate(bottomVector,   2.0 .mm).points
+      )
+
+      hullPoints(
+         switchHole.translate(bottomVector,                  1.5.mm).points +
+         switchHole.translate(bottomVector, KeySwitch.BOTTOM_HEIGHT).points
+      )
    }
 }
