@@ -4,28 +4,72 @@ import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
+/**
+ * 人差し指から小指の4本の指で押す、アルファベットと数字のキースイッチを挿すためのプレート
+ */
 data class AlphanumericPlate(
-   val alphanumericColumns: AlphanumericColumns
+   /** 小指側から人差し指側の順 */
+   val columns: List<Column>
 ) {
    companion object {
       val KEY_PLATE_SIZE = Size2d(17.5.mm, 17.5.mm)
 
-      operator fun invoke() = AlphanumericPlate(
-         AlphanumericColumns()
-      )
+      operator fun invoke(): AlphanumericPlate {
+         fun column(
+            dx: Size, dy: Size, dz: Size,
+            radius: Size,
+            az: Angle, ax: Angle,
+            twist: Angle
+         ): Column {
+            return Column(
+                  Point3d.ORIGIN.translate(y = dy),
+                  -Vector3d.Z_UNIT_VECTOR,
+                  -Vector3d.Y_UNIT_VECTOR,
+                  radius,
+                  twist
+               )
+               .rotate(
+                  Line3d.Z_AXIS.translate(y = (-30).mm),
+                  az
+               )
+               .let { column ->
+                  column.rotate(
+                     Line3d(
+                        column.referencePoint
+                           .translate(column.bottomVector, radius),
+                        column.frontVector
+                     ),
+                     ax
+                  )
+               }
+               .translate(x = dx, z = dz)
+         }
+
+         return AlphanumericPlate(listOf(
+            //    | dx                    | dy      | dz     | radius | az      | ax        | twist   |
+            column(keyPitch.x * -2 - 19.mm, (-18).mm,  9.5.mm,   38.mm,   4 .deg,   1.5 .deg, (-8).deg),
+            column(keyPitch.x * -2        , (-16).mm, 10.0.mm,   38.mm,   4 .deg,   3.0 .deg,   0 .deg),
+            column(keyPitch.x * -1        , (- 5).mm,  5.0.mm,   42.mm,   2 .deg,   2.0 .deg,   0 .deg),
+            column(keyPitch.x *  0        ,    0 .mm,  0.0.mm,   44.mm,   0 .deg,   0.0 .deg,   0 .deg),
+            column(keyPitch.x *  1        , (- 3).mm,  4.0.mm,   41.mm, (-2).deg, (-1.0).deg,   0 .deg),
+            column(keyPitch.x *  1 + 19.mm, (- 5).mm,  4.1.mm,   41.mm, (-2).deg,   0.5 .deg,   8 .deg),
+         ))
+      }
    }
 }
 
+// =============================================================================
+
 fun AlphanumericPlate.translate(distance: Size3d) = AlphanumericPlate(
-   alphanumericColumns.translate(distance)
+   columns.map { it.translate(distance) }
 )
 
 fun AlphanumericPlate.translate(distance: Vector3d) = AlphanumericPlate(
-   alphanumericColumns.translate(distance)
+   columns.map { it.translate(distance) }
 )
 
 fun AlphanumericPlate.translate(direction: Vector3d, distance: Size) = AlphanumericPlate(
-   alphanumericColumns.translate(direction, distance)
+   columns.map { it.translate(direction, distance) }
 )
 
 fun AlphanumericPlate.translate(
@@ -35,18 +79,18 @@ fun AlphanumericPlate.translate(
 ): AlphanumericPlate = translate(Size3d(x, y, z))
 
 fun AlphanumericPlate.rotate(axis: Line3d, angle: Angle) = AlphanumericPlate(
-   alphanumericColumns.rotate(axis, angle)
+   columns.map { it.rotate(axis, angle) }
 )
+
+// =============================================================================
 
 fun ScadWriter.alphanumericPlate(alphanumericPlate: AlphanumericPlate) {
    difference {
-      val ac = alphanumericPlate.alphanumericColumns
+      //                                                      layerOffset, frontBackOffset, leftRightOffset, columnOffset
+      alphanumericPlate(alphanumericPlate, KeySwitch.BOTTOM_HEIGHT - 1.mm,          1.5.mm,          1.5.mm,         1.mm)
+      alphanumericPlate(alphanumericPlate,                           0.mm,         20.0.mm,          3.0.mm,         0.mm)
 
-      //                                         layerOffset, frontBackOffset, leftRightOffset, columnOffset
-      alphanumericColumns(ac, KeySwitch.BOTTOM_HEIGHT - 1.mm,          1.5.mm,          1.5.mm,         1.mm)
-      alphanumericColumns(ac,                           0.mm,         20.0.mm,          3.0.mm,         0.mm)
-
-      for (c in ac.columns) {
+      for (c in alphanumericPlate.columns) {
          for (k in c.keySwitches) {
             switchHole(k)
          }
@@ -64,8 +108,8 @@ fun ScadWriter.alphanumericPlate(alphanumericPlate: AlphanumericPlate) {
  * @param columnOffset
  * 各Column 左右方向に広がる
  */
-private fun ScadWriter.alphanumericColumns(
-   alphanumericColumns: AlphanumericColumns,
+private fun ScadWriter.alphanumericPlate(
+   alphanumericPlate: AlphanumericPlate,
    layerOffset: Size,
    frontBackOffset: Size,
    leftRightOffset: Size,
@@ -75,7 +119,7 @@ private fun ScadWriter.alphanumericColumns(
       return translate(normalVector, size)
    }
 
-   val switches: List<List<KeySwitch>> = alphanumericColumns.columns.map { column ->
+   val switches: List<List<KeySwitch>> = alphanumericPlate.columns.map { column ->
       column.keySwitches.map { it.translate(it.bottomVector, layerOffset) }
    }
 
@@ -85,9 +129,7 @@ private fun ScadWriter.alphanumericColumns(
       }
    }
 
-   val wallPlanes = getWallPlanes(alphanumericColumns.columns, leftRightOffset)
-
-   // --------
+   val wallPlanes = getWallPlanes(alphanumericPlate.columns, leftRightOffset)
 
    union {
       for ((wallPlane, plate) in wallPlanes.zipWithNext() zip plates) {

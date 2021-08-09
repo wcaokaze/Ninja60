@@ -4,35 +4,89 @@ import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
+/**
+ * 親指で押すキースイッチを挿すためのプレート。
+ *
+ * このプレートの[KeySwitch]を扱う場合[column]と[backKey]に分かれているので注意
+ *
+ * @param bottomVector 下向きの方向を表すベクトル。
+ * @param frontVector 手前方向を表すベクトル。
+ */
 data class ThumbPlate(
-   val thumbKeys: ThumbKeys
+   val referencePoint: Point3d,
+   val bottomVector: Vector3d,
+   val frontVector: Vector3d,
+   val radius: Size
 ) {
    companion object {
       val COLUMN_KEY_PLATE_SIZE = Size2d(17.5.mm, 22.4.mm)
       val BACK_KEY_PLATE_SIZE   = Size2d(17.5.mm, 17.5.mm)
 
       operator fun invoke() = ThumbPlate(
-         ThumbKeys(
-            referencePoint = Point3d.ORIGIN,
-            bottomVector = -Vector3d.Z_UNIT_VECTOR,
-            frontVector = -Vector3d.Y_UNIT_VECTOR,
-            radius = 16.mm
-         )
+         referencePoint = Point3d.ORIGIN,
+         bottomVector = -Vector3d.Z_UNIT_VECTOR,
+         frontVector = -Vector3d.Y_UNIT_VECTOR,
+         radius = 16.mm
       )
+   }
+
+   /**
+    * 左右方向に並ぶキーのリスト。左から右の順。
+    * 凹面を作ることは問題ないが、一周して円にすることはできないものとする。
+    *
+    * columnではなくrowでは？ というのは気にしない方針で
+    */
+   val column: List<KeySwitch> get() {
+      val alignmentAxis = Line3d(referencePoint, frontVector)
+
+      val row2 = KeySwitch(
+            center = referencePoint.translate(bottomVector, radius),
+            bottomVector, frontVector
+         )
+         .translate(bottomVector, Keycap.THICKNESS + KeySwitch.STEM_HEIGHT + KeySwitch.TOP_HEIGHT)
+
+      val row1 = row2
+         .rotate(alignmentAxis, atan(-keyPitch.x / 2, radius) * 2)
+
+      val row3 = row2
+         .rotate(alignmentAxis, atan(keyPitch.x / 2, radius) * 2)
+
+      return listOf(row1, row2, row3)
+   }
+
+   /**
+    * 親指の先、奥にあるキー。
+    */
+   val backKey: KeySwitch get() {
+      return KeySwitch(
+            center = referencePoint.translate(bottomVector, radius),
+            bottomVector, frontVector
+         )
+         .translate(bottomVector, Keycap.THICKNESS + KeySwitch.STEM_HEIGHT + KeySwitch.TOP_HEIGHT)
+         .translate(-frontVector, COLUMN_KEY_PLATE_SIZE.y / 2 + BACK_KEY_PLATE_SIZE.y / 2)
+         .rotate(
+            Line3d(referencePoint, frontVector vectorProduct bottomVector)
+               .translate(bottomVector, radius)
+               .translate(-frontVector, COLUMN_KEY_PLATE_SIZE.y / 2),
+            80.deg
+         )
    }
 }
 
+// =============================================================================
+
 fun ThumbPlate.translate(distance: Size3d) = ThumbPlate(
-   thumbKeys.translate(distance)
+   referencePoint.translate(distance),
+   bottomVector,
+   frontVector,
+   radius
 )
 
-fun ThumbPlate.translate(distance: Vector3d) = ThumbPlate(
-   thumbKeys.translate(distance)
-)
+fun ThumbPlate.translate(distance: Vector3d): ThumbPlate
+      = translate(Size3d(distance.x, distance.y, distance.z))
 
-fun ThumbPlate.translate(direction: Vector3d, distance: Size) = ThumbPlate(
-   thumbKeys.translate(direction, distance)
-)
+fun ThumbPlate.translate(direction: Vector3d, distance: Size): ThumbPlate
+      = translate(direction.toUnitVector() * distance.numberAsMilliMeter)
 
 fun ThumbPlate.translate(
    x: Size = 0.mm,
@@ -41,18 +95,21 @@ fun ThumbPlate.translate(
 ): ThumbPlate = translate(Size3d(x, y, z))
 
 fun ThumbPlate.rotate(axis: Line3d, angle: Angle) = ThumbPlate(
-   thumbKeys.rotate(axis, angle)
+   referencePoint.rotate(axis, angle),
+   bottomVector.rotate(axis.vector, angle),
+   frontVector.rotate(axis.vector, angle),
+   radius
 )
+
+// =============================================================================
 
 fun ScadWriter.thumbPlate(thumbPlate: ThumbPlate) {
    difference {
-      val tk = thumbPlate.thumbKeys
+      //                                        layerOffset, leftRightOffset, frontOffset
+      thumbPlate(thumbPlate, KeySwitch.BOTTOM_HEIGHT - 1.mm,          1.5.mm,      1.5.mm)
+      thumbPlate(thumbPlate,                           0.mm,         20.0.mm,     20.0.mm)
 
-      //                               layerOffset, leftRightOffset, frontOffset
-      thumbKeys(tk, KeySwitch.BOTTOM_HEIGHT - 1.mm,          1.5.mm,      1.5.mm)
-      thumbKeys(tk,                           0.mm,         20.0.mm,     20.0.mm)
-
-      for (k in tk.column + tk.backKey) {
+      for (k in thumbPlate.column + thumbPlate.backKey) {
          switchHole(k)
       }
    }
@@ -67,8 +124,8 @@ fun ScadWriter.thumbPlate(thumbPlate: ThumbPlate) {
  * @param frontOffset
  * 手前(親指の付け根方向)に広がる
  */
-private fun ScadWriter.thumbKeys(
-   thumbKeys: ThumbKeys,
+private fun ScadWriter.thumbPlate(
+   thumbKeys: ThumbPlate,
    layerOffset: Size,
    leftRightOffset: Size,
    frontOffset: Size
