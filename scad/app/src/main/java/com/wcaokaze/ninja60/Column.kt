@@ -6,91 +6,71 @@ import com.wcaokaze.scadwriter.foundation.*
 /**
  * [KeyPlate] をY軸方向に複数枚並べた列。
  *
- * Ninja60の実装では[keyPlates]は4枚のKeyPlateを生成する。
- *
  * @param bottomVector
- * このColumnの下向きのベクトル。全く回転していないColumnの場合Z軸の負の方向。
- * Ninja60では[referencePoint]から[bottomVector]方向に[radius]移動したところに
- * 3行目のKeyPlateが生成される。
+ * 下向きの方向を表すベクトル。全く回転していないColumnの場合Z軸の負の方向。
  *
- * @param alignmentVector
- * KeyPlateを並べる方向をあらわすベクトル。
- * [referencePoint]と[bottomVector]でZ軸にあたる向きと位置が確定するが、
- * そのふたつだけでは確定しない、Y軸にあたる向きを決めるためのベクトル。
- *
- * @param layerDistance
- * 各[KeyPlate]が[referencePoint]側に移動する。
- * 0のときキーキャップの上面の位置となるので、
- * たとえば `-9.mm` でトッププレートの位置など
+ * @param frontVector
+ * 手前方向を表すベクトル。全く回転していないColumnの場合Y軸の負の方向。
  *
  * @param twistAngle
- * [KeyPlate.frontVector]の向きの直線を軸として各KeyPlateを回転する。
- * ただし、軸とする直線の位置は回転結果が[KeyPlate.normalVector]側に上がるように選択される。
- * 具体的にはtwistAngleが正のときKeyPlateの左端、twistAngleが負のときKeyPlateの右端が
+ * [KeySwitch.frontVector]の向きの直線を軸として各KeySwitchを回転する。
+ * ただし、軸とする直線の位置は回転結果が[KeySwitch.bottomVector]の反対側に上がるように選択される。
+ * 具体的にはtwistAngleが正のときKeySwitchの左端、twistAngleが負のときKeySwitchの右端が
  * 軸となる。
  */
 data class Column(
    val referencePoint: Point3d,
    val bottomVector: Vector3d,
-   val alignmentVector: Vector3d,
+   val frontVector: Vector3d,
    val radius: Size,
-   val layerDistance: Size,
    val twistAngle: Angle
 ) {
-   /** この列に含まれる[KeyPlate]のリスト。上から順 */
-   val keyPlates: List<KeyPlate> get() {
-      fun KeyPlate.twist(): KeyPlate {
+   /** この列に含まれる[KeySwitch]のリスト。上から順 */
+   val keySwitches: List<KeySwitch> get() {
+      val keycapTop = referencePoint.translate(bottomVector, radius)
+      val rightVector = frontVector vectorProduct bottomVector
+      val alignmentAxis = Line3d(referencePoint, rightVector)
+
+      val nonTwistedRow3 = KeySwitch(keycapTop, bottomVector, frontVector)
+         .translate(bottomVector, Keycap.THICKNESS + KeySwitch.STEM_HEIGHT + KeySwitch.TOP_HEIGHT)
+
+      val nonTwistedRow2 = nonTwistedRow3.rotate(alignmentAxis, atan(keyPitch.y / 2, radius) * 2)
+      val nonTwistedRow1 = nonTwistedRow2.rotate(alignmentAxis, atan(keyPitch.y / 2, radius) * 2)
+
+      val nonTwistedRow4 = nonTwistedRow3
+         .translate(frontVector, keyPitch.y)
+         .rotate(
+            Line3d(
+               keycapTop.translate(frontVector, keyPitch.y / 2),
+               rightVector
+            ),
+            (-83).deg
+         )
+
+      fun KeySwitch.twist(): KeySwitch {
          val axis = if (twistAngle > 0.deg) {
-            Line3d(frontLeft, frontVector)
+            Line3d(center.translate(rightVector, -AlphanumericPlate.KEY_PLATE_SIZE.x), frontVector)
          } else {
-            Line3d(frontRight, frontVector)
+            Line3d(center.translate(rightVector,  AlphanumericPlate.KEY_PLATE_SIZE.x), frontVector)
          }
 
          return rotate(axis, twistAngle)
       }
 
-      val rightVector = alignmentVector vectorProduct bottomVector
-      val alignmentAxis = Line3d(referencePoint, rightVector)
-
-      val row3Center = referencePoint.translate(bottomVector, radius)
-      val row3 = KeyPlate(
-         row3Center, KeyPlate.SIZE,
-         normalVector = -bottomVector,
-         frontVector = alignmentVector
+      return listOf(
+         nonTwistedRow1.twist(),
+         nonTwistedRow2.twist(),
+         nonTwistedRow3.twist(),
+         nonTwistedRow4.twist()
       )
-      val layeredRow3 = row3
-         .translate(bottomVector, -layerDistance)
-         .twist()
-
-      val row2Angle = atan(keyPitch.y / 2, radius) * 2
-      val layeredRow2 = row3
-         .translate(bottomVector, -layerDistance)
-         .rotate(alignmentAxis, row2Angle)
-         .twist()
-
-      val row1Angle = atan(keyPitch.y / 2, radius) * 2
-      val layeredRow1 = layeredRow2
-         .rotate(alignmentAxis, row1Angle)
-         .twist()
-
-      val row4Axis = Line3d(row3Center, rightVector)
-         .translate(alignmentVector, keyPitch.y / 2)
-      val layeredRow4 = row3
-         .translate(bottomVector, -layerDistance)
-         .translate(alignmentVector, keyPitch.y)
-         .rotate(row4Axis, (-83).deg)
-         .twist()
-
-      return listOf(layeredRow1, layeredRow2, layeredRow3, layeredRow4)
    }
 }
 
 fun Column.translate(distance: Size3d) = Column(
    referencePoint.translate(distance),
    bottomVector,
-   alignmentVector,
+   frontVector,
    radius,
-   layerDistance,
    twistAngle
 )
 
@@ -109,8 +89,7 @@ fun Column.translate(
 fun Column.rotate(axis: Line3d, angle: Angle) = Column(
    referencePoint.rotate(axis, angle),
    bottomVector.rotate(axis.vector, angle),
-   alignmentVector.rotate(axis.vector, angle),
+   frontVector.rotate(axis.vector, angle),
    radius,
-   layerDistance,
    twistAngle
 )

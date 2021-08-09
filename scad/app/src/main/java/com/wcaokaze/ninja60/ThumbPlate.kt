@@ -8,14 +8,15 @@ data class ThumbPlate(
    val thumbKeys: ThumbKeys
 ) {
    companion object {
+      val COLUMN_KEY_PLATE_SIZE = Size2d(17.5.mm, 22.4.mm)
+      val BACK_KEY_PLATE_SIZE   = Size2d(17.5.mm, 17.5.mm)
+
       operator fun invoke() = ThumbPlate(
          ThumbKeys(
             referencePoint = Point3d.ORIGIN,
             bottomVector = -Vector3d.Z_UNIT_VECTOR,
-            alignmentVector = -Vector3d.Y_UNIT_VECTOR,
-            radius = 16.mm,
-            keySize = KeyPlate.SIZE.copy(y = 22.4.mm),
-            layerDistance = -Keycap.THICKNESS - KeySwitch.STEM_HEIGHT - KeySwitch.TOP_HEIGHT
+            frontVector = -Vector3d.Y_UNIT_VECTOR,
+            radius = 16.mm
          )
       )
    }
@@ -59,7 +60,7 @@ fun ScadWriter.thumbPlate(thumbPlate: ThumbPlate) {
 
 /**
  * @param layerOffset
- * [layerDistance][ThumbKeys.layerDistance]が足される
+ * 各KeyPlateの位置が[KeySwitch.bottomVector]方向へ移動する
  * @param leftRightOffset
  * 一番左のキーと一番右のキーがさらに左右に広がるが、Ninja60の場合左と右のKeyPlateは
  * 上を向いているので上に広がる
@@ -76,30 +77,25 @@ private fun ScadWriter.thumbKeys(
       return translate(normalVector, size)
    }
 
-   val layeredThumbKeys = thumbKeys.copy(layerDistance = thumbKeys.layerDistance - layerOffset)
+   val columnSwitches = thumbKeys.column.map { it.translate(it.bottomVector, layerOffset) }
+   val columnPlates = columnSwitches
+      .map { KeyPlate(it.center, ThumbPlate.COLUMN_KEY_PLATE_SIZE, -it.bottomVector, it.frontVector) }
+   val backKeySwitch = thumbKeys.backKey.translate(thumbKeys.backKey.bottomVector, layerOffset)
+   val backKeyPlate = KeyPlate(backKeySwitch.center, ThumbPlate.BACK_KEY_PLATE_SIZE,
+      -backKeySwitch.bottomVector, backKeySwitch.frontVector)
 
    val frontWallPlane = Plane3d(
-         layeredThumbKeys.column
-            .flatMap { listOf(it.frontLeft, it.frontRight) }
-            .minByOrNull {
-               it.rotate(
-                  Line3d.Z_AXIS,
-                  layeredThumbKeys.alignmentVector.copy(z = 0.mm) angleWith Vector3d.Y_UNIT_VECTOR
-               ).y
-            } !!,
-         layeredThumbKeys.alignmentVector
+         thumbKeys.referencePoint.translate(thumbKeys.frontVector, ThumbPlate.COLUMN_KEY_PLATE_SIZE.y / 2),
+         thumbKeys.frontVector
       )
       .translateByNormalVector(frontOffset)
 
-   val backWallPlane = Plane3d(
-      layeredThumbKeys.backKey.center,
-      layeredThumbKeys.backKey.normalVector
-   )
+   val backWallPlane = Plane3d(backKeySwitch.center, -backKeySwitch.bottomVector)
 
-   val leftmostPlate  = layeredThumbKeys.column.first()
-   val rightmostPlate = layeredThumbKeys.column.last()
+   val leftmostPlate  = columnPlates.first()
+   val rightmostPlate = columnPlates.last()
 
-   val boundaryLines = layeredThumbKeys.columnBoundaryLines()
+   val boundaryLines = columnBoundaryLines(columnPlates)
 
    fun KeyPlate.rightVector() = normalVector vectorProduct frontVector
    val leftmostLine  = boundaryLines.first().translate(leftmostPlate .rightVector(), -leftRightOffset)
@@ -119,11 +115,11 @@ private fun ScadWriter.thumbKeys(
          )
       }
 
-   val backPlatePoints = layeredThumbKeys.backKey.points
+   val backPlatePoints = backKeyPlate.points
       .flatMap { point ->
          listOf(
             point,
-            point.translate(layeredThumbKeys.backKey.normalVector, layerOffset),
+            point.translate(backKeyPlate.normalVector, layerOffset),
          )
       }
 
@@ -133,22 +129,19 @@ private fun ScadWriter.thumbKeys(
    )
 }
 
-/**
- * このThumbKeysの[column][ThumbKeys.column]の各KeyPlate
- */
-fun ThumbKeys.columnBoundaryLines(): List<Line3d> {
+private fun columnBoundaryLines(columnPlates: List<KeyPlate>): List<Line3d> {
    val lines = ArrayList<Line3d>()
 
-   val leftmostPlate = column.first()
+   val leftmostPlate = columnPlates.first()
    lines += Line3d(leftmostPlate.backLeft, leftmostPlate.frontLeft)
 
-   for ((left, right) in column.zipWithNext()) {
+   for ((left, right) in columnPlates.zipWithNext()) {
       val leftPlane  = Plane3d(left .center, left .normalVector)
       val rightPlane = Plane3d(right.center, right.normalVector)
       lines += leftPlane intersection rightPlane
    }
 
-   val rightmostPlate = column.last()
+   val rightmostPlate = columnPlates.last()
    lines += Line3d(rightmostPlate.backRight, rightmostPlate.frontRight)
 
    return lines

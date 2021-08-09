@@ -8,20 +8,14 @@ import com.wcaokaze.scadwriter.foundation.*
  *
  * [column]と[backKey]に分かれているので注意
  *
- * @param bottomVector 下向きベクトル。
- * @param alignmentVector 手前向きベクトル。
- * @param keySize
- * [column]の各KeyPlateのサイズ。[backKey]には影響しない。
- * また、各KeyPlateの間隔は[keyPitch]で決まっていて、
- * このkeySizeを大きくとったからといってうまく間隔が広がるわけではないことに注意
+ * @param bottomVector 下向きの方向を表すベクトル。
+ * @param frontVector 手前方向を表すベクトル。
  */
 data class ThumbKeys(
    val referencePoint: Point3d,
    val bottomVector: Vector3d,
-   val alignmentVector: Vector3d,
-   val radius: Size,
-   val keySize: Size2d,
-   val layerDistance: Size
+   val frontVector: Vector3d,
+   val radius: Size
 ) {
    /**
     * 左右方向に並ぶキーのリスト。左から右の順。
@@ -29,48 +23,38 @@ data class ThumbKeys(
     *
     * columnではなくrowでは？ というのは気にしない方針で
     */
-   val column: List<KeyPlate> get() {
-      val alignmentAxis = Line3d(referencePoint, alignmentVector)
+   val column: List<KeySwitch> get() {
+      val alignmentAxis = Line3d(referencePoint, frontVector)
 
-      val row2Center = referencePoint.translate(bottomVector, radius)
-      val row2 = KeyPlate(
-         row2Center, keySize,
-         normalVector = -bottomVector,
-         frontVector = alignmentVector
-      )
-      val layeredRow2 = row2.translate(bottomVector, -layerDistance)
+      val row2 = KeySwitch(
+            center = referencePoint.translate(bottomVector, radius),
+            bottomVector, frontVector
+         )
+         .translate(bottomVector, Keycap.THICKNESS + KeySwitch.STEM_HEIGHT + KeySwitch.TOP_HEIGHT)
 
-      val row1Angle = atan(-keyPitch.x / 2, radius) * 2
-      val layeredRow1 = row2
-         .translate(bottomVector, -layerDistance)
-         .rotate(alignmentAxis, row1Angle)
+      val row1 = row2
+         .rotate(alignmentAxis, atan(-keyPitch.x / 2, radius) * 2)
 
-      val row3Angle = atan(keyPitch.x / 2, radius) * 2
-      val layeredRow3 = row2
-         .translate(bottomVector, -layerDistance)
-         .rotate(alignmentAxis, row3Angle)
+      val row3 = row2
+         .rotate(alignmentAxis, atan(keyPitch.x / 2, radius) * 2)
 
-      return listOf(layeredRow1, layeredRow2, layeredRow3)
+      return listOf(row1, row2, row3)
    }
 
    /**
     * 親指の先、奥にあるキー。
     */
-   val backKey: KeyPlate get() {
-      val dy = column.maxOf { it.size.y }
-
-      return KeyPlate(
-            referencePoint.translate(bottomVector, radius),
-            KeyPlate.SIZE,
-            normalVector = -bottomVector,
-            frontVector = alignmentVector
+   val backKey: KeySwitch get() {
+      return KeySwitch(
+            center = referencePoint.translate(bottomVector, radius),
+            bottomVector, frontVector
          )
-         .translate(bottomVector, -layerDistance)
-         .translate(-alignmentVector, dy / 2 + KeyPlate.SIZE.y / 2)
+         .translate(bottomVector, Keycap.THICKNESS + KeySwitch.STEM_HEIGHT + KeySwitch.TOP_HEIGHT)
+         .translate(-frontVector, ThumbPlate.COLUMN_KEY_PLATE_SIZE.y / 2 + ThumbPlate.BACK_KEY_PLATE_SIZE.y / 2)
          .rotate(
-            Line3d(referencePoint, alignmentVector vectorProduct bottomVector)
+            Line3d(referencePoint, frontVector vectorProduct bottomVector)
                .translate(bottomVector, radius)
-               .translate(-alignmentVector, dy / 2),
+               .translate(-frontVector, ThumbPlate.COLUMN_KEY_PLATE_SIZE.y / 2),
             80.deg
          )
    }
@@ -79,10 +63,8 @@ data class ThumbKeys(
 fun ThumbKeys.translate(distance: Size3d) = ThumbKeys(
    referencePoint.translate(distance),
    bottomVector,
-   alignmentVector,
-   radius,
-   keySize,
-   layerDistance
+   frontVector,
+   radius
 )
 
 fun ThumbKeys.translate(distance: Vector3d): ThumbKeys
@@ -100,8 +82,6 @@ fun ThumbKeys.translate(
 fun ThumbKeys.rotate(axis: Line3d, angle: Angle) = ThumbKeys(
    referencePoint.rotate(axis, angle),
    bottomVector.rotate(axis.vector, angle),
-   alignmentVector.rotate(axis.vector, angle),
-   radius,
-   keySize,
-   layerDistance
+   frontVector.rotate(axis.vector, angle),
+   radius
 )

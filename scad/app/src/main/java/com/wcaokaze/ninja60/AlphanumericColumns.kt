@@ -9,9 +9,7 @@ data class AlphanumericColumns(
    val columns: List<Column>
 ) {
    companion object {
-      operator fun invoke(
-         layerDistance: Size
-      ): AlphanumericColumns {
+      operator fun invoke(): AlphanumericColumns {
          fun column(
             dx: Size, dy: Size, dz: Size,
             radius: Size,
@@ -23,7 +21,6 @@ data class AlphanumericColumns(
                   -Vector3d.Z_UNIT_VECTOR,
                   -Vector3d.Y_UNIT_VECTOR,
                   radius,
-                  layerDistance,
                   twist
                )
                .rotate(
@@ -35,7 +32,7 @@ data class AlphanumericColumns(
                      Line3d(
                         column.referencePoint
                            .translate(column.bottomVector, radius),
-                        column.alignmentVector
+                        column.frontVector
                      ),
                      ax
                   )
@@ -45,12 +42,12 @@ data class AlphanumericColumns(
 
          return AlphanumericColumns(listOf(
             //    | dx                    | dy      | dz     | radius | az      | ax        | twist   |
-            column(keyPitch.x * -2 - 18.mm, (-18).mm,  9.5.mm,   38.mm,   4 .deg,   1.5 .deg, (-2).deg),
+            column(keyPitch.x * -2 - 19.mm, (-18).mm,  9.5.mm,   38.mm,   4 .deg,   1.5 .deg, (-8).deg),
             column(keyPitch.x * -2        , (-16).mm, 10.0.mm,   38.mm,   4 .deg,   3.0 .deg,   0 .deg),
             column(keyPitch.x * -1        , (- 5).mm,  5.0.mm,   42.mm,   2 .deg,   2.0 .deg,   0 .deg),
             column(keyPitch.x *  0        ,    0 .mm,  0.0.mm,   44.mm,   0 .deg,   0.0 .deg,   0 .deg),
             column(keyPitch.x *  1        , (- 3).mm,  4.0.mm,   41.mm, (-2).deg, (-1.0).deg,   0 .deg),
-            column(keyPitch.x *  1 + 18.mm, (- 5).mm,  4.1.mm,   41.mm, (-2).deg,   0.5 .deg,   2 .deg),
+            column(keyPitch.x *  1 + 19.mm, (- 5).mm,  4.1.mm,   41.mm, (-2).deg,   0.5 .deg,   8 .deg),
          ))
       }
    }

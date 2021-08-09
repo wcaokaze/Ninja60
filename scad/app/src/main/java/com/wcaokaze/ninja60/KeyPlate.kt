@@ -27,11 +27,6 @@ data class KeyPlate(
     */
    val frontVector: Vector3d
 ) {
-   companion object {
-      /** 1UのキーでのKeyPlateのサイズ */
-      val SIZE = Size2d(17.5.mm, 17.5.mm)
-   }
-
    init {
       val angle = normalVector angleWith frontVector
 
