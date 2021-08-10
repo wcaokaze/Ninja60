@@ -104,13 +104,19 @@ fun ThumbPlate.rotate(axis: Line3d, angle: Angle) = ThumbPlate(
 // =============================================================================
 
 fun ScadWriter.thumbPlate(thumbPlate: ThumbPlate) {
-   difference {
-      //                                        layerOffset, leftRightOffset, frontOffset
-      thumbPlate(thumbPlate, KeySwitch.BOTTOM_HEIGHT - 1.mm,          1.5.mm,      1.5.mm)
-      thumbPlate(thumbPlate,                           0.mm,         20.0.mm,     20.0.mm)
+   union {
+      difference {
+         //                                 layerOffset, leftRightOffset, frontOffset
+         thumbPlate(thumbPlate, KeySwitch.BOTTOM_HEIGHT,          1.5.mm,      1.5.mm)
+         thumbPlate(thumbPlate,                    0.mm,         20.0.mm,     20.0.mm)
+
+         for (k in thumbPlate.column + thumbPlate.backKey) {
+            switchHole(k)
+         }
+      }
 
       for (k in thumbPlate.column + thumbPlate.backKey) {
-         switchHole(k)
+         switchSideHolder(k)
       }
    }
 }

@@ -85,14 +85,22 @@ fun AlphanumericPlate.rotate(axis: Line3d, angle: Angle) = AlphanumericPlate(
 // =============================================================================
 
 fun ScadWriter.alphanumericPlate(alphanumericPlate: AlphanumericPlate) {
-   difference {
-      //                                                      layerOffset, frontBackOffset, leftRightOffset, columnOffset
-      alphanumericPlate(alphanumericPlate, KeySwitch.BOTTOM_HEIGHT - 1.mm,          1.5.mm,          1.5.mm,         1.mm)
-      alphanumericPlate(alphanumericPlate,                           0.mm,         20.0.mm,          3.0.mm,         0.mm)
+   union {
+      difference {
+         //                                               layerOffset, frontBackOffset, leftRightOffset, columnOffset
+         alphanumericPlate(alphanumericPlate, KeySwitch.BOTTOM_HEIGHT,          1.5.mm,          1.5.mm,         1.mm)
+         alphanumericPlate(alphanumericPlate,                    0.mm,         20.0.mm,          3.0.mm,         0.mm)
+
+         for (c in alphanumericPlate.columns) {
+            for (k in c.keySwitches) {
+               switchHole(k)
+            }
+         }
+      }
 
       for (c in alphanumericPlate.columns) {
          for (k in c.keySwitches) {
-            switchHole(k)
+            switchSideHolder(k)
          }
       }
    }
