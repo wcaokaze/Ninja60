@@ -9,7 +9,7 @@ import com.wcaokaze.scadwriter.foundation.*
  */
 data class AlphanumericPlate(
    /** 小指側から人差し指側の順 */
-   val columns: List<Column>
+   val columns: List<AlphanumericColumn>
 ) {
    companion object {
       val KEY_PLATE_SIZE = Size2d(17.5.mm, 17.5.mm)
@@ -20,8 +20,8 @@ data class AlphanumericPlate(
             radius: Size,
             az: Angle, ax: Angle,
             twist: Angle
-         ): Column {
-            return Column(
+         ): AlphanumericColumn {
+            return AlphanumericColumn(
                   Point3d.ORIGIN.translate(y = dy),
                   -Vector3d.Z_UNIT_VECTOR,
                   -Vector3d.Y_UNIT_VECTOR,
@@ -195,8 +195,8 @@ private fun columnBoundaryLines(columnPlates: List<KeyPlate>): List<Line3d> {
    return lines
 }
 
-private fun getWallPlanes(columns: List<Column>, leftRightOffset: Size): List<Plane3d> {
-   fun Column.rightVector() = frontVector vectorProduct bottomVector
+private fun getWallPlanes(columns: List<AlphanumericColumn>, leftRightOffset: Size): List<Plane3d> {
+   fun AlphanumericColumn.rightVector() = frontVector vectorProduct bottomVector
 
    val planes = ArrayList<Plane3d>()
 
@@ -232,7 +232,7 @@ private fun getWallPlanes(columns: List<Column>, leftRightOffset: Size): List<Pl
    return planes
 }
 
-private fun getWallPlane(leftColumn: Column, rightColumn: Column): Plane3d {
+private fun getWallPlane(leftColumn: AlphanumericColumn, rightColumn: AlphanumericColumn): Plane3d {
    val alignmentVector = run {
       val (lx, ly, lz) = leftColumn .frontVector
       val (rx, ry, rz) = rightColumn.frontVector

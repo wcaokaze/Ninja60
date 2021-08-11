@@ -18,7 +18,7 @@ import com.wcaokaze.scadwriter.foundation.*
  * 具体的にはtwistAngleが正のときKeySwitchの左端、twistAngleが負のときKeySwitchの右端が
  * 軸となる。
  */
-data class Column(
+data class AlphanumericColumn(
    val referencePoint: Point3d,
    val bottomVector: Vector3d,
    val frontVector: Vector3d,
@@ -66,7 +66,7 @@ data class Column(
    }
 }
 
-fun Column.translate(distance: Size3d) = Column(
+fun AlphanumericColumn.translate(distance: Size3d) = AlphanumericColumn(
    referencePoint.translate(distance),
    bottomVector,
    frontVector,
@@ -74,19 +74,19 @@ fun Column.translate(distance: Size3d) = Column(
    twistAngle
 )
 
-fun Column.translate(distance: Vector3d): Column
+fun AlphanumericColumn.translate(distance: Vector3d): AlphanumericColumn
       = translate(Size3d(distance.x, distance.y, distance.z))
 
-fun Column.translate(direction: Vector3d, distance: Size): Column
+fun AlphanumericColumn.translate(direction: Vector3d, distance: Size): AlphanumericColumn
       = translate(direction.toUnitVector() * distance.numberAsMilliMeter)
 
-fun Column.translate(
+fun AlphanumericColumn.translate(
    x: Size = 0.mm,
    y: Size = 0.mm,
    z: Size = 0.mm
-): Column = translate(Size3d(x, y, z))
+): AlphanumericColumn = translate(Size3d(x, y, z))
 
-fun Column.rotate(axis: Line3d, angle: Angle) = Column(
+fun AlphanumericColumn.rotate(axis: Line3d, angle: Angle) = AlphanumericColumn(
    referencePoint.rotate(axis, angle),
    bottomVector.rotate(axis.vector, angle),
    frontVector.rotate(axis.vector, angle),
