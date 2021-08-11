@@ -87,9 +87,9 @@ fun AlphanumericPlate.rotate(axis: Line3d, angle: Angle) = AlphanumericPlate(
 fun ScadWriter.alphanumericPlate(alphanumericPlate: AlphanumericPlate) {
    union {
       difference {
-         //                                               layerOffset, frontBackOffset, leftRightOffset, columnOffset
-         alphanumericPlate(alphanumericPlate, KeySwitch.BOTTOM_HEIGHT,          1.5.mm,          1.5.mm,         1.mm)
-         alphanumericPlate(alphanumericPlate,                    0.mm,         20.0.mm,          3.0.mm,         0.mm)
+         //                                                   layerOffset, frontBackOffset, leftRightOffset, columnOffset
+         hullAlphanumericPlate(alphanumericPlate, KeySwitch.BOTTOM_HEIGHT,          1.5.mm,          1.5.mm,         1.mm)
+         hullAlphanumericPlate(alphanumericPlate,                    0.mm,         20.0.mm,          3.0.mm,         0.mm)
 
          for (c in alphanumericPlate.columns) {
             for (k in c.keySwitches) {
@@ -116,7 +116,7 @@ fun ScadWriter.alphanumericPlate(alphanumericPlate: AlphanumericPlate) {
  * @param columnOffset
  * 各Column 左右方向に広がる
  */
-private fun ScadWriter.alphanumericPlate(
+private fun ScadWriter.hullAlphanumericPlate(
    alphanumericPlate: AlphanumericPlate,
    layerOffset: Size,
    frontBackOffset: Size,
@@ -141,7 +141,7 @@ private fun ScadWriter.alphanumericPlate(
 
    union {
       for ((wallPlane, plate) in wallPlanes.zipWithNext() zip plates) {
-         column(plate,
+         hullColumn(plate,
             wallPlane.first .translateByNormalVector(-columnOffset),
             wallPlane.second.translateByNormalVector( columnOffset),
             frontBackOffset)
@@ -149,7 +149,7 @@ private fun ScadWriter.alphanumericPlate(
    }
 }
 
-private fun ScadWriter.column(
+private fun ScadWriter.hullColumn(
    columnPlates: List<KeyPlate>,
    leftWallPlane: Plane3d,
    rightWallPlane: Plane3d,
