@@ -84,7 +84,7 @@ fun ScadWriter.switchSideHolder(keySwitch: KeySwitch) {
    fun Point3d.dz(dz: Size) = translate(keySwitch.bottomVector, dz)
 
    val ySize = 3.6.mm
-   val zSize = 4.6.mm
+   val zSize = 3.7.mm
    val cylinderRadius = 1.mm
 
    fun ScadWriter.pillar(dx: Size) {

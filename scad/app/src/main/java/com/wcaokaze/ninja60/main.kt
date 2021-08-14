@@ -28,17 +28,30 @@ fun main(vararg args: String) {
       leftKeys()
       */
 
+      translate((-91).mm, 56.mm, (-30).mm) {
+         encoderKnob(30.mm)
+      }
+
+      translate(7.mm, 29.mm, 15.mm) {
+         rotate(y = (-14).deg) { encoderKnob(18.mm) }
+      }
+
+      translate((-5).mm, 106.mm, 20.mm) {
+         rotate(y = 75.deg) { encoderKnob(12.mm) }
+      }
+
       alphanumericPlate(
          AlphanumericPlate()
             .rotate(Line3d.Y_AXIS, (-15).deg)
-            .translate(x = 75.mm, y = 80.mm, z = 85.mm)
+            .translate(x = 0.mm, y = 69.mm, z = 32.mm)
       )
 
       thumbPlate(
          ThumbPlate()
-            .rotate(Line3d.Y_AXIS, 70.deg)
-            .rotate(Line3d.Z_AXIS, (-12).deg)
-            .translate(x = 141.mm, y = 20.mm, z = 40.mm)
+            .rotate(Line3d.Y_AXIS, 69.deg)
+            .rotate(Line3d.X_AXIS, (-7).deg)
+            .rotate(Line3d.Z_AXIS, (-8).deg)
+            .translate(x = 66.mm, y = 0.mm, z = 0.mm)
       )
    }
 }

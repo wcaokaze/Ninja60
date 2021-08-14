@@ -116,12 +116,12 @@ fun ScadWriter.alphanumericPlate(alphanumericPlate: AlphanumericPlate) {
  * @param columnOffset
  * 各Column 左右方向に広がる
  */
-private fun ScadWriter.hullAlphanumericPlate(
+fun ScadWriter.hullAlphanumericPlate(
    alphanumericPlate: AlphanumericPlate,
-   layerOffset: Size,
-   frontBackOffset: Size,
-   leftRightOffset: Size,
-   columnOffset: Size
+   layerOffset: Size = 0.mm,
+   frontBackOffset: Size = 0.mm,
+   leftRightOffset: Size = 0.mm,
+   columnOffset: Size = 0.mm
 ) {
    fun Plane3d.translateByNormalVector(size: Size): Plane3d {
       return translate(normalVector, size)
