@@ -28,6 +28,8 @@ fun main(vararg args: String) {
       leftKeys()
       */
 
+      case(Case)
+
       translate((-91).mm, 56.mm, (-30).mm) {
          encoderKnob(30.mm)
       }
@@ -39,12 +41,6 @@ fun main(vararg args: String) {
       translate((-5).mm, 106.mm, 20.mm) {
          rotate(y = 75.deg) { encoderKnob(12.mm) }
       }
-
-      alphanumericPlate(
-         AlphanumericPlate()
-            .rotate(Line3d.Y_AXIS, (-15).deg)
-            .translate(x = 0.mm, y = 69.mm, z = 32.mm)
-      )
 
       thumbPlate(
          ThumbPlate()

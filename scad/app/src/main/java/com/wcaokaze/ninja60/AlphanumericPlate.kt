@@ -144,6 +144,7 @@ fun ScadWriter.hullAlphanumericPlate(
          hullColumn(plate,
             wallPlane.first .translateByNormalVector(-columnOffset),
             wallPlane.second.translateByNormalVector( columnOffset),
+            layerOffset,
             frontBackOffset)
       }
    }
@@ -153,6 +154,7 @@ private fun ScadWriter.hullColumn(
    columnPlates: List<KeyPlate>,
    leftWallPlane: Plane3d,
    rightWallPlane: Plane3d,
+   layerOffset: Size,
    frontBackOffset: Size
 ) {
    val mostBackPlate  = columnPlates.first()
@@ -164,11 +166,11 @@ private fun ScadWriter.hullColumn(
    val mostFrontLine = boundaryLines.last() .translate(mostFrontPlate.frontVector,  frontBackOffset)
 
    val lines = listOf(
-      mostBackLine.translate(mostBackPlate.normalVector, 20.mm),
+      mostBackLine.translate(mostBackPlate.normalVector, layerOffset.coerceAtLeast(20.mm)),
       mostBackLine,
       *boundaryLines.drop(1).dropLast(1).toTypedArray(),
       mostFrontLine,
-      mostFrontLine.translate(mostFrontPlate.normalVector, 20.mm)
+      mostFrontLine.translate(mostFrontPlate.normalVector, layerOffset.coerceAtLeast(20.mm))
    )
 
    hullPoints(
