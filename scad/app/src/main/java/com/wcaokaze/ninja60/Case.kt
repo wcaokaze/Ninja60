@@ -22,5 +22,9 @@ fun ScadWriter.case(case: Case) {
       hullAlphanumericPlate(alphanumericPlate, layerOffset = 40.mm)
    }
 
+   translate((-62).mm, (-108).mm, (-53).mm) {
+      cube(102.mm, 70.mm, 80.mm)
+   }
+
    alphanumericPlate(alphanumericPlate)
 }
