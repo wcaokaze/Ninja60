@@ -41,14 +41,6 @@ fun main(vararg args: String) {
       translate((-5).mm, 106.mm, 20.mm) {
          rotate(y = 75.deg) { encoderKnob(12.mm) }
       }
-
-      thumbPlate(
-         ThumbPlate()
-            .rotate(Line3d.Y_AXIS, 69.deg)
-            .rotate(Line3d.X_AXIS, (-7).deg)
-            .rotate(Line3d.Z_AXIS, (-8).deg)
-            .translate(x = 66.mm, y = 0.mm, z = 0.mm)
-      )
    }
 }
 

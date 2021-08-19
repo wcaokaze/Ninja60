@@ -130,26 +130,26 @@ fun ScadWriter.thumbPlate(thumbPlate: ThumbPlate) {
  * @param frontOffset
  * 手前(親指の付け根方向)に広がる
  */
-private fun ScadWriter.hullThumbPlate(
-   thumbKeys: ThumbPlate,
-   layerOffset: Size,
-   leftRightOffset: Size,
-   frontOffset: Size
+fun ScadWriter.hullThumbPlate(
+   thumbPlate: ThumbPlate,
+   layerOffset: Size = 0.mm,
+   leftRightOffset: Size = 0.mm,
+   frontOffset: Size = 0.mm
 ) {
    fun Plane3d.translateByNormalVector(size: Size): Plane3d {
       return translate(normalVector, size)
    }
 
-   val columnSwitches = thumbKeys.column.map { it.translate(it.bottomVector, layerOffset) }
+   val columnSwitches = thumbPlate.column.map { it.translate(it.bottomVector, layerOffset) }
    val columnPlates = columnSwitches
       .map { KeyPlate(it.center, ThumbPlate.COLUMN_KEY_PLATE_SIZE, -it.bottomVector, it.frontVector) }
-   val backKeySwitch = thumbKeys.backKey.translate(thumbKeys.backKey.bottomVector, layerOffset)
+   val backKeySwitch = thumbPlate.backKey.translate(thumbPlate.backKey.bottomVector, layerOffset)
    val backKeyPlate = KeyPlate(backKeySwitch.center, ThumbPlate.BACK_KEY_PLATE_SIZE,
       -backKeySwitch.bottomVector, backKeySwitch.frontVector)
 
    val frontWallPlane = Plane3d(
-         thumbKeys.referencePoint.translate(thumbKeys.frontVector, ThumbPlate.COLUMN_KEY_PLATE_SIZE.y / 2),
-         thumbKeys.frontVector
+         thumbPlate.referencePoint.translate(thumbPlate.frontVector, ThumbPlate.COLUMN_KEY_PLATE_SIZE.y / 2),
+         thumbPlate.frontVector
       )
       .translateByNormalVector(frontOffset)
 
