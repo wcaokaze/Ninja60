@@ -132,9 +132,7 @@ fun ScadWriter.hullAlphanumericPlate(
    }
 
    val plates: List<List<KeyPlate>> = switches.map { columnSwitches ->
-      columnSwitches.map {
-         KeyPlate(it.center, AlphanumericPlate.KEY_PLATE_SIZE, -it.bottomVector, it.frontVector)
-      }
+      columnSwitches.map { it.plate(AlphanumericPlate.KEY_PLATE_SIZE) }
    }
 
    val wallPlanes = getWallPlanes(alphanumericPlate.columns, leftRightOffset)
@@ -209,7 +207,7 @@ private fun getWallPlanes(columns: List<AlphanumericColumn>, leftRightOffset: Si
             leftmostColumn.referencePoint
                .translate(
                   leftmostColumn.rightVector(),
-                  -AlphanumericPlate.KEY_PLATE_SIZE.x / 2
+                  -AlphanumericPlate.KEY_PLATE_SIZE.x * leftmostColumn.keySwitches.maxOf { it.layoutSize.x } / 2
                ),
             leftmostColumn.rightVector()
          )
@@ -225,7 +223,10 @@ private fun getWallPlanes(columns: List<AlphanumericColumn>, leftRightOffset: Si
 
       Plane3d(
             rightmostColumn.referencePoint
-               .translate(rightmostColumn.rightVector(), AlphanumericPlate.KEY_PLATE_SIZE.x / 2),
+               .translate(
+                  rightmostColumn.rightVector(),
+                  AlphanumericPlate.KEY_PLATE_SIZE.x * rightmostColumn.keySwitches.maxOf { it.layoutSize.x } / 2
+               ),
             rightmostColumn.rightVector()
          )
          .translate(rightmostColumn.rightVector(), leftRightOffset)

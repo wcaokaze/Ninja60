@@ -34,7 +34,7 @@ fun main(vararg args: String) {
          encoderKnob(30.mm)
       }
 
-      translate(7.mm, 29.mm, 15.mm) {
+      translate(4.mm, 29.mm, 20.mm) {
          rotate(y = (-14).deg) { encoderKnob(18.mm) }
       }
 

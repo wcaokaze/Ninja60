@@ -38,14 +38,22 @@ data class AlphanumericColumn(
       val nonTwistedRow1 = nonTwistedRow2.rotate(alignmentAxis, atan(keyPitch.y / 2, radius) * 2)
 
       val nonTwistedRow4 = nonTwistedRow3
-         .translate(frontVector, keyPitch.y)
+         .copy(layoutSize = KeySwitch.LayoutSize(1.0, 1.5))
+         .let { row4 ->
+            row4.translate(
+               frontVector,
+               distance = keyPitch.y * nonTwistedRow3.layoutSize.y / 2
+                        + keyPitch.y * row4          .layoutSize.y / 2
+            )
+         }
          .rotate(
             Line3d(
-               keycapTop.translate(frontVector, keyPitch.y / 2),
+               keycapTop.translate(frontVector, keyPitch.y * nonTwistedRow3.layoutSize.y / 2),
                rightVector
             ),
             (-83).deg
          )
+         .let { it.translate(-it.frontVector, KeySwitch.TRAVEL / 2) }
 
       fun KeySwitch.twist(): KeySwitch {
          val axis = if (twistAngle > 0.deg) {

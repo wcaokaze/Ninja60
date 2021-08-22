@@ -6,6 +6,7 @@ import com.wcaokaze.scadwriter.foundation.*
 
 data class KeySwitch(
    val center: Point3d,
+   val layoutSize: LayoutSize,
 
    /** このスイッチの下向きの方向を表すベクトル。 */
    val bottomVector: Vector3d,
@@ -27,16 +28,43 @@ data class KeySwitch(
       /** スイッチの上面(ステムの先ではない)からトッププレートまでの距離 */
       val TOP_HEIGHT = HEIGHT - BOTTOM_HEIGHT
    }
+
+   /** [大きさ][layoutSize]が1Uの[KeySwitch] */
+   constructor(center: Point3d, bottomVector: Vector3d, frontVector: Vector3d)
+         : this(center, LayoutSize(1.0, 1.0), bottomVector, frontVector)
+
+   /**
+    * キーの大きさ。厳密に言うとキースイッチの大きさは変わらないので
+    * 配置される際の配列としてのキーの大きさ。
+    * アルファベット1キーのサイズを1.0とした割合で表す、いわゆる「U」を単位とするもの。
+    */
+   data class LayoutSize(val x: Double, val y: Double)
 }
 
+operator fun Size2d.times(layoutSize: KeySwitch.LayoutSize) = Size2d(
+   x * layoutSize.x,
+   y * layoutSize.y
+)
+
+/**
+ * このKeySwitchの位置に配置された[KeyPlate]を返す
+ * @param size 1Uでのプレートのサイズ
+ */
+fun KeySwitch.plate(size: Size2d) = KeyPlate(
+   center,
+   size * layoutSize,
+   -bottomVector,
+   frontVector
+)
+
 fun KeySwitch.translate(distance: Size3d)
-      = KeySwitch(center.translate(distance), bottomVector, frontVector)
+      = KeySwitch(center.translate(distance), layoutSize, bottomVector, frontVector)
 
 fun KeySwitch.translate(distance: Vector3d)
-      = KeySwitch(center.translate(distance), bottomVector, frontVector)
+      = KeySwitch(center.translate(distance), layoutSize, bottomVector, frontVector)
 
 fun KeySwitch.translate(direction: Vector3d, distance: Size)
-      = KeySwitch(center.translate(direction, distance), bottomVector, frontVector)
+      = KeySwitch(center.translate(direction, distance), layoutSize, bottomVector, frontVector)
 
 fun KeySwitch.translate(
    x: Size = 0.mm,
@@ -46,14 +74,15 @@ fun KeySwitch.translate(
 
 fun KeySwitch.rotate(axis: Line3d, angle: Angle) = KeySwitch(
    center.rotate(axis, angle),
+   layoutSize,
    bottomVector.rotate(axis.vector, angle),
    frontVector.rotate(axis.vector, angle)
 )
 
-private fun KeySwitch.keyPlate(size: Size2d)
-      = KeyPlate(center, size, -bottomVector, frontVector)
-
 fun ScadWriter.switchHole(keySwitch: KeySwitch) {
+   fun KeySwitch.keyPlate(size: Size2d)
+         = KeyPlate(center, size, -bottomVector, frontVector)
+
    /* ボトムハウジングの突起部分にハメる穴。本来1.5mmのプレートを使うところ */
    val mountPlateHole = keySwitch.keyPlate(Size2d(14.5.mm, 14.5.mm))
 
