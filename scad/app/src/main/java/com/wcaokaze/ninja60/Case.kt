@@ -9,13 +9,13 @@ object Case
 fun ScadWriter.case(case: Case) {
    val alphanumericPlate = AlphanumericPlate()
       .rotate(Line3d.Y_AXIS, (-15).deg)
-      .translate(x = 0.mm, y = 69.mm, z = 32.mm)
+      .translate(x = 0.mm, y = 69.mm, z = 85.mm)
 
    val thumbPlate = ThumbPlate()
       .rotate(Line3d.Y_AXIS, 69.deg)
       .rotate(Line3d.X_AXIS, (-7).deg)
       .rotate(Line3d.Z_AXIS, (-8).deg)
-      .translate(x = 66.mm, y = 0.mm, z = 0.mm)
+      .translate(x = 66.mm, y = 0.mm, z = 53.mm)
 
    difference {
       union {
@@ -29,7 +29,7 @@ fun ScadWriter.case(case: Case) {
       }
    }
 
-   translate((-62).mm, (-108).mm, (-53).mm) {
+   translate((-62).mm, (-108).mm, 0.mm) {
       cube(102.mm, 70.mm, 80.mm)
    }
 
@@ -38,7 +38,7 @@ fun ScadWriter.case(case: Case) {
 }
 
 private fun ScadWriter.alphanumericFrontCase() {
-   translate((-47).mm, (14).mm, (-53).mm) {
+   translate((-47).mm, (14).mm, 0.mm) {
       rotate(y = (-15).deg, z = 7.deg) {
          cube(122.mm, 30.mm, 60.mm)
       }
@@ -58,7 +58,7 @@ private fun ScadWriter.thumbCase(plate: ThumbPlate) {
       rotate(z = (-8).deg) {
          rotate(x = (-7).deg) {
             rotate(y = 69.deg) {
-               translate(y = 14.mm, z = (-21).mm) {
+               translate(y = 14.mm, z = 32.mm) {
                   cube(68.mm, 54.mm, 42.mm, center = true)
                }
             }
