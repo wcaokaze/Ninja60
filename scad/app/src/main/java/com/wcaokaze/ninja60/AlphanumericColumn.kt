@@ -34,8 +34,23 @@ data class AlphanumericColumn(
       val nonTwistedRow3 = KeySwitch(keycapTop, bottomVector, frontVector)
          .translate(bottomVector, Keycap.THICKNESS + KeySwitch.STEM_HEIGHT + KeySwitch.TOP_HEIGHT)
 
-      val nonTwistedRow2 = nonTwistedRow3.rotate(alignmentAxis, atan(keyPitch.y / 2, radius) * 2)
-      val nonTwistedRow1 = nonTwistedRow2.rotate(alignmentAxis, atan(keyPitch.y / 2, radius) * 2)
+      val nonTwistedRow2 = nonTwistedRow3
+         .let { row2 ->
+            row2.rotate(
+               alignmentAxis,
+               angle = atan(keyPitch.y * nonTwistedRow3.layoutSize.y / 2, radius)
+                     + atan(keyPitch.y * row2          .layoutSize.y / 2, radius)
+            )
+         }
+
+      val nonTwistedRow1 = nonTwistedRow2
+         .let { row1 ->
+            row1.rotate(
+               alignmentAxis,
+               angle = atan(keyPitch.y * nonTwistedRow2.layoutSize.y / 2, radius)
+                     + atan(keyPitch.y * row1          .layoutSize.y / 2, radius)
+            )
+         }
 
       val nonTwistedRow4 = nonTwistedRow3
          .copy(layoutSize = KeySwitch.LayoutSize(1.0, 1.5))
