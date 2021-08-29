@@ -5,14 +5,12 @@ import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
 data class KeySwitch(
-   val center: Point3d,
+   override val referencePoint: Point3d,
    val layoutSize: LayoutSize,
 
-   /** このスイッチの下向きの方向を表すベクトル。 */
-   val bottomVector: Vector3d,
-   /** このスイッチの手前方向を表すベクトル。 */
-   val frontVector: Vector3d
-) {
+   override val bottomVector: Vector3d,
+   override val frontVector: Vector3d,
+) : Transformable<KeySwitch> {
    companion object {
       val TRAVEL = 4.mm
 
@@ -39,6 +37,9 @@ data class KeySwitch(
     * アルファベット1キーのサイズを1.0とした割合で表す、いわゆる「U」を単位とするもの。
     */
    data class LayoutSize(val x: Double, val y: Double)
+
+   override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
+         = KeySwitch(referencePoint, layoutSize, bottomVector, frontVector)
 }
 
 operator fun Size2d.times(layoutSize: KeySwitch.LayoutSize) = Size2d(
@@ -51,37 +52,15 @@ operator fun Size2d.times(layoutSize: KeySwitch.LayoutSize) = Size2d(
  * @param size 1Uでのプレートのサイズ
  */
 fun KeySwitch.plate(size: Size2d) = KeyPlate(
-   center,
+   referencePoint,
    size * layoutSize,
-   -bottomVector,
+   bottomVector,
    frontVector
-)
-
-fun KeySwitch.translate(distance: Size3d)
-      = KeySwitch(center.translate(distance), layoutSize, bottomVector, frontVector)
-
-fun KeySwitch.translate(distance: Vector3d)
-      = KeySwitch(center.translate(distance), layoutSize, bottomVector, frontVector)
-
-fun KeySwitch.translate(direction: Vector3d, distance: Size)
-      = KeySwitch(center.translate(direction, distance), layoutSize, bottomVector, frontVector)
-
-fun KeySwitch.translate(
-   x: Size = 0.mm,
-   y: Size = 0.mm,
-   z: Size = 0.mm
-): KeySwitch = translate(Size3d(x, y, z))
-
-fun KeySwitch.rotate(axis: Line3d, angle: Angle) = KeySwitch(
-   center.rotate(axis, angle),
-   layoutSize,
-   bottomVector.rotate(axis.vector, angle),
-   frontVector.rotate(axis.vector, angle)
 )
 
 fun ScadWriter.switchHole(keySwitch: KeySwitch) {
    fun KeySwitch.keyPlate(size: Size2d)
-         = KeyPlate(center, size, -bottomVector, frontVector)
+         = KeyPlate(referencePoint, size, bottomVector, frontVector)
 
    /* ボトムハウジングの突起部分にハメる穴。本来1.5mmのプレートを使うところ */
    val mountPlateHole = keySwitch.keyPlate(Size2d(14.5.mm, 14.5.mm))
@@ -117,7 +96,7 @@ fun ScadWriter.switchSideHolder(keySwitch: KeySwitch) {
    val cylinderRadius = 1.mm
 
    fun ScadWriter.pillar(dx: Size) {
-      val pillarCenter = keySwitch.center.dx(dx)
+      val pillarCenter = keySwitch.referencePoint.dx(dx)
 
       val points = ArrayList<Point3d>()
 
@@ -133,7 +112,7 @@ fun ScadWriter.switchSideHolder(keySwitch: KeySwitch) {
    }
 
    fun ScadWriter.point(dx: Size, dy: Size, dz: Size) {
-      translate(keySwitch.center.dx(dx).dy(dy).dz(dz) - Point3d.ORIGIN) {
+      translate(keySwitch.referencePoint.dx(dx).dy(dy).dz(dz) - Point3d.ORIGIN) {
          cube(0.01.mm, 0.01.mm, 0.01.mm, center = true)
       }
    }
@@ -147,7 +126,7 @@ fun ScadWriter.switchSideHolder(keySwitch: KeySwitch) {
             point(dx,  ySize / 2, 1.5.mm)
             point(dx, -ySize / 2, 1.5.mm)
 
-            translate(keySwitch.center.dx(dx).dz(zSize - cylinderRadius) - Point3d.ORIGIN) {
+            translate(keySwitch.referencePoint.dx(dx).dz(zSize - cylinderRadius) - Point3d.ORIGIN) {
                rotate(
                   Vector3d.Z_UNIT_VECTOR angleWith keySwitch.frontVector,
                   Vector3d.Z_UNIT_VECTOR vectorProduct keySwitch.frontVector

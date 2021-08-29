@@ -164,11 +164,11 @@ private fun ScadWriter.hullColumn(
    val mostFrontLine = boundaryLines.last() .translate(mostFrontPlate.frontVector,  frontBackOffset)
 
    val lines = listOf(
-      mostBackLine.translate(mostBackPlate.normalVector, layerOffset.coerceAtLeast(20.mm)),
+      mostBackLine.translate(mostBackPlate.bottomVector, -layerOffset.coerceAtLeast(20.mm)),
       mostBackLine,
       *boundaryLines.drop(1).dropLast(1).toTypedArray(),
       mostFrontLine,
-      mostFrontLine.translate(mostFrontPlate.normalVector, layerOffset.coerceAtLeast(20.mm))
+      mostFrontLine.translate(mostFrontPlate.bottomVector, -layerOffset.coerceAtLeast(20.mm))
    )
 
    hullPoints(
@@ -184,8 +184,8 @@ private fun columnBoundaryLines(columnPlates: List<KeyPlate>): List<Line3d> {
    lines += Line3d(mostBackPlate.backLeft, mostBackPlate.backRight)
 
    for ((back, front) in columnPlates.zipWithNext()) {
-      val backPlane  = Plane3d(back .center, back .normalVector)
-      val frontPlane = Plane3d(front.center, front.normalVector)
+      val backPlane  = Plane3d(back .referencePoint, back .bottomVector)
+      val frontPlane = Plane3d(front.referencePoint, front.bottomVector)
       lines += backPlane intersection frontPlane
    }
 

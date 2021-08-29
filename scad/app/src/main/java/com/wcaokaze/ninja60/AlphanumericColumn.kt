@@ -6,12 +6,6 @@ import com.wcaokaze.scadwriter.foundation.*
 /**
  * [KeyPlate] をY軸方向に複数枚並べた列。
  *
- * @param bottomVector
- * 下向きの方向を表すベクトル。全く回転していないColumnの場合Z軸の負の方向。
- *
- * @param frontVector
- * 手前方向を表すベクトル。全く回転していないColumnの場合Y軸の負の方向。
- *
  * @param twistAngle
  * [KeySwitch.frontVector]の向きの直線を軸として各KeySwitchを回転する。
  * ただし、軸とする直線の位置は回転結果が[KeySwitch.bottomVector]の反対側に上がるように選択される。
@@ -19,12 +13,12 @@ import com.wcaokaze.scadwriter.foundation.*
  * 軸となる。
  */
 data class AlphanumericColumn(
-   val referencePoint: Point3d,
-   val bottomVector: Vector3d,
-   val frontVector: Vector3d,
+   override val referencePoint: Point3d,
+   override val bottomVector: Vector3d,
+   override val frontVector: Vector3d,
    val radius: Size,
    val twistAngle: Angle
-) {
+) : Transformable<AlphanumericColumn> {
    /** この列に含まれる[KeySwitch]のリスト。上から順 */
    val keySwitches: List<KeySwitch> get() {
       val keycapTop = referencePoint.translate(bottomVector, radius)
@@ -72,9 +66,9 @@ data class AlphanumericColumn(
 
       fun KeySwitch.twist(): KeySwitch {
          val axis = if (twistAngle > 0.deg) {
-            Line3d(center.translate(rightVector, -AlphanumericPlate.KEY_PLATE_SIZE.x), frontVector)
+            Line3d(referencePoint.translate(rightVector, -AlphanumericPlate.KEY_PLATE_SIZE.x), frontVector)
          } else {
-            Line3d(center.translate(rightVector,  AlphanumericPlate.KEY_PLATE_SIZE.x), frontVector)
+            Line3d(referencePoint.translate(rightVector,  AlphanumericPlate.KEY_PLATE_SIZE.x), frontVector)
          }
 
          return rotate(axis, twistAngle)
@@ -87,32 +81,7 @@ data class AlphanumericColumn(
          nonTwistedRow4.twist()
       )
    }
+
+   override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
+         = AlphanumericColumn(referencePoint, bottomVector, frontVector, radius, twistAngle)
 }
-
-fun AlphanumericColumn.translate(distance: Size3d) = AlphanumericColumn(
-   referencePoint.translate(distance),
-   bottomVector,
-   frontVector,
-   radius,
-   twistAngle
-)
-
-fun AlphanumericColumn.translate(distance: Vector3d): AlphanumericColumn
-      = translate(Size3d(distance.x, distance.y, distance.z))
-
-fun AlphanumericColumn.translate(direction: Vector3d, distance: Size): AlphanumericColumn
-      = translate(direction.toUnitVector() * distance.numberAsMilliMeter)
-
-fun AlphanumericColumn.translate(
-   x: Size = 0.mm,
-   y: Size = 0.mm,
-   z: Size = 0.mm
-): AlphanumericColumn = translate(Size3d(x, y, z))
-
-fun AlphanumericColumn.rotate(axis: Line3d, angle: Angle) = AlphanumericColumn(
-   referencePoint.rotate(axis, angle),
-   bottomVector.rotate(axis.vector, angle),
-   frontVector.rotate(axis.vector, angle),
-   radius,
-   twistAngle
-)

@@ -39,7 +39,7 @@ data class ThumbPlate(
       val alignmentAxis = Line3d(referencePoint, frontVector)
 
       val row2 = KeySwitch(
-            center = referencePoint.translate(bottomVector, radius),
+            referencePoint.translate(bottomVector, radius),
             KeySwitch.LayoutSize(1.0, 1.3),
             bottomVector, frontVector
          )
@@ -173,23 +173,23 @@ fun ScadWriter.hullThumbPlate(
       )
       .translateByNormalVector(frontOffset)
 
-   val backWallPlane = Plane3d(backKeySwitch.center, -backKeySwitch.bottomVector)
+   val backWallPlane = Plane3d(backKeySwitch.referencePoint, -backKeySwitch.bottomVector)
 
    val leftmostPlate  = columnPlates.first()
    val rightmostPlate = columnPlates.last()
 
    val boundaryLines = columnBoundaryLines(columnPlates)
 
-   fun KeyPlate.rightVector() = normalVector vectorProduct frontVector
+   fun KeyPlate.rightVector() = frontVector vectorProduct bottomVector
    val leftmostLine  = boundaryLines.first().translate(leftmostPlate .rightVector(), -leftRightOffset)
    val rightmostLine = boundaryLines.last() .translate(rightmostPlate.rightVector(),  leftRightOffset)
 
    val columnPoints = listOf(
-         leftmostLine.translate(leftmostPlate.normalVector, layerOffset),
+         leftmostLine.translate(leftmostPlate.bottomVector, -layerOffset),
          leftmostLine,
          *boundaryLines.drop(1).dropLast(1).toTypedArray(),
          rightmostLine,
-         rightmostLine.translate(rightmostPlate.normalVector, layerOffset)
+         rightmostLine.translate(rightmostPlate.bottomVector, -layerOffset)
       )
       .flatMap {
          listOf(
@@ -202,7 +202,7 @@ fun ScadWriter.hullThumbPlate(
       .flatMap { point ->
          listOf(
             point,
-            point.translate(backKeyPlate.normalVector, layerOffset),
+            point.translate(backKeyPlate.bottomVector, -layerOffset),
          )
       }
 
@@ -219,8 +219,8 @@ private fun columnBoundaryLines(columnPlates: List<KeyPlate>): List<Line3d> {
    lines += Line3d(leftmostPlate.backLeft, leftmostPlate.frontLeft)
 
    for ((left, right) in columnPlates.zipWithNext()) {
-      val leftPlane  = Plane3d(left .center, left .normalVector)
-      val rightPlane = Plane3d(right.center, right.normalVector)
+      val leftPlane  = Plane3d(left .referencePoint, left .bottomVector)
+      val rightPlane = Plane3d(right.referencePoint, right.bottomVector)
       lines += leftPlane intersection rightPlane
    }
 
