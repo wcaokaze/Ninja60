@@ -87,7 +87,7 @@ fun ScadWriter.switchHole(keySwitch: KeySwitch) {
  * まずプレートから[switchHole]を[difference]して穴を開けたあとコイツをつけるといい
  */
 fun ScadWriter.switchSideHolder(keySwitch: KeySwitch) {
-   fun Point3d.dx(dx: Size) = translate(keySwitch.frontVector vectorProduct keySwitch.bottomVector, dx)
+   fun Point3d.dx(dx: Size) = translate(keySwitch.rightVector, dx)
    fun Point3d.dy(dy: Size) = translate(keySwitch.frontVector, dy)
    fun Point3d.dz(dz: Size) = translate(keySwitch.bottomVector, dz)
 

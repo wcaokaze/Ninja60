@@ -22,7 +22,6 @@ data class AlphanumericColumn(
    /** この列に含まれる[KeySwitch]のリスト。上から順 */
    val keySwitches: List<KeySwitch> get() {
       val keycapTop = referencePoint.translate(bottomVector, radius)
-      val rightVector = frontVector vectorProduct bottomVector
       val alignmentAxis = Line3d(referencePoint, rightVector)
 
       val nonTwistedRow3 = KeySwitch(keycapTop, bottomVector, frontVector)
@@ -62,13 +61,13 @@ data class AlphanumericColumn(
             ),
             (-83).deg
          )
-         .let { it.translate(-it.frontVector, KeySwitch.TRAVEL / 2) }
+         .let { it.translate(it.backVector, KeySwitch.TRAVEL / 2) }
 
       fun KeySwitch.twist(): KeySwitch {
          val axis = if (twistAngle > 0.deg) {
-            Line3d(referencePoint.translate(rightVector, -AlphanumericPlate.KEY_PLATE_SIZE.x), frontVector)
+            Line3d(referencePoint.translate(leftVector,  AlphanumericPlate.KEY_PLATE_SIZE.x), frontVector)
          } else {
-            Line3d(referencePoint.translate(rightVector,  AlphanumericPlate.KEY_PLATE_SIZE.x), frontVector)
+            Line3d(referencePoint.translate(rightVector, AlphanumericPlate.KEY_PLATE_SIZE.x), frontVector)
          }
 
          return rotate(axis, twistAngle)

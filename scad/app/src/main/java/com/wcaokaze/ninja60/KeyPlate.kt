@@ -19,8 +19,6 @@ data class KeyPlate(
    }
 
    private fun point(x: Double, y: Double): Point3d {
-      val rightVector = frontVector vectorProduct bottomVector
-
       return referencePoint
          .translate(rightVector, size.x * x)
          .translate(frontVector, size.y * y)

@@ -129,10 +129,6 @@ fun ScadWriter.hullThumbPlate(
    leftRightOffset: Size = 0.mm,
    frontOffset: Size = 0.mm
 ) {
-   fun Plane3d.translateByNormalVector(size: Size): Plane3d {
-      return translate(normalVector, size)
-   }
-
    val columnSwitches = thumbPlate.column.map { it.translate(it.bottomVector, layerOffset) }
    val columnPlates = columnSwitches.map { it.plate(ThumbPlate.KEY_PLATE_SIZE) }
    val backKeySwitch = thumbPlate.backKey.translate(thumbPlate.backKey.bottomVector, layerOffset)
@@ -146,25 +142,24 @@ fun ScadWriter.hullThumbPlate(
             ),
          thumbPlate.frontVector
       )
-      .translateByNormalVector(frontOffset)
+      .let { it.translate(it.normalVector, frontOffset) }
 
-   val backWallPlane = Plane3d(backKeySwitch.referencePoint, -backKeySwitch.bottomVector)
+   val backWallPlane = Plane3d(backKeySwitch.referencePoint, backKeySwitch.topVector)
 
    val leftmostPlate  = columnPlates.first()
    val rightmostPlate = columnPlates.last()
 
    val boundaryLines = columnBoundaryLines(columnPlates)
 
-   fun KeyPlate.rightVector() = frontVector vectorProduct bottomVector
-   val leftmostLine  = boundaryLines.first().translate(leftmostPlate .rightVector(), -leftRightOffset)
-   val rightmostLine = boundaryLines.last() .translate(rightmostPlate.rightVector(),  leftRightOffset)
+   val leftmostLine  = boundaryLines.first().translate(leftmostPlate .leftVector,  leftRightOffset)
+   val rightmostLine = boundaryLines.last() .translate(rightmostPlate.rightVector, leftRightOffset)
 
    val columnPoints = listOf(
-         leftmostLine.translate(leftmostPlate.bottomVector, -layerOffset),
+         leftmostLine.translate(leftmostPlate.topVector, layerOffset),
          leftmostLine,
          *boundaryLines.drop(1).dropLast(1).toTypedArray(),
          rightmostLine,
-         rightmostLine.translate(rightmostPlate.bottomVector, -layerOffset)
+         rightmostLine.translate(rightmostPlate.topVector, layerOffset)
       )
       .flatMap {
          listOf(
@@ -177,7 +172,7 @@ fun ScadWriter.hullThumbPlate(
       .flatMap { point ->
          listOf(
             point,
-            point.translate(backKeyPlate.bottomVector, -layerOffset),
+            point.translate(backKeyPlate.topVector, layerOffset),
          )
       }
 

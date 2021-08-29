@@ -33,17 +33,17 @@ data class RotaryEncoderMountHole(
  *
  * @param zRange
  * 厚み。[RotaryEncoderMountHole.referencePoint]を0、
- * [RotaryEncoderMountHole.bottomVector]向きを負として、
+ * [RotaryEncoderMountHole.topVector]向きを正として、
  * どこからどこまで生成するか。
  */
 fun ScadWriter.rotaryEncoderMountHole(
    rotaryEncoderMountHole: RotaryEncoderMountHole,
    zRange: SizeRange
 ) {
-   val rightVector = rotaryEncoderMountHole.frontVector vectorProduct rotaryEncoderMountHole.bottomVector
-
-   fun Point3d.translate(x: Size, y: Size): Point3d
-      = translate(rightVector, x).translate(rotaryEncoderMountHole.frontVector, y)
+   fun Point3d.translate(x: Size, y: Size): Point3d {
+      return translate(rotaryEncoderMountHole.rightVector, x)
+            .translate(rotaryEncoderMountHole.frontVector, y)
+   }
 
    fun ScadWriter.hole(positionX: Size, positionY: Size, sizeX: Size, sizeY: Size) {
       val holeCenter = rotaryEncoderMountHole.referencePoint.translate(positionX, positionY)
@@ -56,8 +56,8 @@ fun ScadWriter.rotaryEncoderMountHole(
       )
 
       hullPoints(
-         holePoints.map { it.translate(rotaryEncoderMountHole.bottomVector, -zRange.start) } +
-         holePoints.map { it.translate(rotaryEncoderMountHole.bottomVector, -zRange.endInclusive) }
+         holePoints.map { it.translate(rotaryEncoderMountHole.topVector, zRange.start) } +
+         holePoints.map { it.translate(rotaryEncoderMountHole.topVector, zRange.endInclusive) }
       )
    }
 

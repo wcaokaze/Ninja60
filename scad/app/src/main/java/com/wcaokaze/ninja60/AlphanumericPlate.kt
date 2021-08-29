@@ -123,10 +123,6 @@ fun ScadWriter.hullAlphanumericPlate(
    leftRightOffset: Size = 0.mm,
    columnOffset: Size = 0.mm
 ) {
-   fun Plane3d.translateByNormalVector(size: Size): Plane3d {
-      return translate(normalVector, size)
-   }
-
    val switches: List<List<KeySwitch>> = alphanumericPlate.columns.map { column ->
       column.keySwitches.map { it.translate(it.bottomVector, layerOffset) }
    }
@@ -140,8 +136,8 @@ fun ScadWriter.hullAlphanumericPlate(
    union {
       for ((wallPlane, plate) in wallPlanes.zipWithNext() zip plates) {
          hullColumn(plate,
-            wallPlane.first .translateByNormalVector(-columnOffset),
-            wallPlane.second.translateByNormalVector( columnOffset),
+            wallPlane.first .let { it.translate(it.normalVector, -columnOffset) },
+            wallPlane.second.let { it.translate(it.normalVector,  columnOffset) },
             layerOffset,
             frontBackOffset)
       }
@@ -164,11 +160,11 @@ private fun ScadWriter.hullColumn(
    val mostFrontLine = boundaryLines.last() .translate(mostFrontPlate.frontVector,  frontBackOffset)
 
    val lines = listOf(
-      mostBackLine.translate(mostBackPlate.bottomVector, -layerOffset.coerceAtLeast(20.mm)),
+      mostBackLine.translate(mostBackPlate.topVector, layerOffset.coerceAtLeast(20.mm)),
       mostBackLine,
       *boundaryLines.drop(1).dropLast(1).toTypedArray(),
       mostFrontLine,
-      mostFrontLine.translate(mostFrontPlate.bottomVector, -layerOffset.coerceAtLeast(20.mm))
+      mostFrontLine.translate(mostFrontPlate.topVector, layerOffset.coerceAtLeast(20.mm))
    )
 
    hullPoints(
@@ -196,8 +192,6 @@ private fun columnBoundaryLines(columnPlates: List<KeyPlate>): List<Line3d> {
 }
 
 private fun getWallPlanes(columns: List<AlphanumericColumn>, leftRightOffset: Size): List<Plane3d> {
-   fun AlphanumericColumn.rightVector() = frontVector vectorProduct bottomVector
-
    val planes = ArrayList<Plane3d>()
 
    planes += run {
@@ -206,12 +200,12 @@ private fun getWallPlanes(columns: List<AlphanumericColumn>, leftRightOffset: Si
       Plane3d(
             leftmostColumn.referencePoint
                .translate(
-                  leftmostColumn.rightVector(),
+                  leftmostColumn.rightVector,
                   -AlphanumericPlate.KEY_PLATE_SIZE.x * leftmostColumn.keySwitches.maxOf { it.layoutSize.x } / 2
                ),
-            leftmostColumn.rightVector()
+            leftmostColumn.rightVector
          )
-         .translate(leftmostColumn.rightVector(), -leftRightOffset)
+         .translate(leftmostColumn.rightVector, -leftRightOffset)
    }
 
    for ((left, right) in columns.zipWithNext()) {
@@ -224,12 +218,12 @@ private fun getWallPlanes(columns: List<AlphanumericColumn>, leftRightOffset: Si
       Plane3d(
             rightmostColumn.referencePoint
                .translate(
-                  rightmostColumn.rightVector(),
+                  rightmostColumn.rightVector,
                   AlphanumericPlate.KEY_PLATE_SIZE.x * rightmostColumn.keySwitches.maxOf { it.layoutSize.x } / 2
                ),
-            rightmostColumn.rightVector()
+            rightmostColumn.rightVector
          )
-         .translate(rightmostColumn.rightVector(), leftRightOffset)
+         .translate(rightmostColumn.rightVector, leftRightOffset)
    }
 
    return planes

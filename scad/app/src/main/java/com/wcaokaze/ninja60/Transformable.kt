@@ -39,3 +39,8 @@ interface Transformable<T : Transformable<T>> {
       bottomVector.rotate(axis.vector, angle)
    )
 }
+
+val Transformable<*>.topVector:   Vector3d get() = -bottomVector
+val Transformable<*>.backVector:  Vector3d get() = -frontVector
+val Transformable<*>.rightVector: Vector3d get() = frontVector vectorProduct bottomVector
+val Transformable<*>.leftVector:  Vector3d get() = -rightVector
