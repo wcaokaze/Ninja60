@@ -13,11 +13,11 @@ import com.wcaokaze.scadwriter.foundation.*
  * @param frontVector 手前方向を表すベクトル。
  */
 data class ThumbPlate(
-   val referencePoint: Point3d,
-   val bottomVector: Vector3d,
-   val frontVector: Vector3d,
+   override val referencePoint: Point3d,
+   override val bottomVector: Vector3d,
+   override val frontVector: Vector3d,
    val radius: Size
-) {
+) : Transformable<ThumbPlate> {
    companion object {
       val KEY_PLATE_SIZE = Size2d(17.5.mm, 17.5.mm)
 
@@ -89,35 +89,10 @@ data class ThumbPlate(
             80.deg
          )
    }
+
+   override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
+         = ThumbPlate(referencePoint, bottomVector, frontVector, radius)
 }
-
-// =============================================================================
-
-fun ThumbPlate.translate(distance: Size3d) = ThumbPlate(
-   referencePoint.translate(distance),
-   bottomVector,
-   frontVector,
-   radius
-)
-
-fun ThumbPlate.translate(distance: Vector3d): ThumbPlate
-      = translate(Size3d(distance.x, distance.y, distance.z))
-
-fun ThumbPlate.translate(direction: Vector3d, distance: Size): ThumbPlate
-      = translate(direction.toUnitVector() * distance.numberAsMilliMeter)
-
-fun ThumbPlate.translate(
-   x: Size = 0.mm,
-   y: Size = 0.mm,
-   z: Size = 0.mm
-): ThumbPlate = translate(Size3d(x, y, z))
-
-fun ThumbPlate.rotate(axis: Line3d, angle: Angle) = ThumbPlate(
-   referencePoint.rotate(axis, angle),
-   bottomVector.rotate(axis.vector, angle),
-   frontVector.rotate(axis.vector, angle),
-   radius
-)
 
 // =============================================================================
 
