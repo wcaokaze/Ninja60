@@ -74,18 +74,17 @@ data class ThumbPlate(
 
       return columnCenterKey
          .copy(layoutSize = KeySwitch.LayoutSize(1.0, 1.0))
-         .translate(bottomVector, Keycap.THICKNESS + KeySwitch.STEM_HEIGHT + KeySwitch.TOP_HEIGHT)
          .let { backKey ->
             backKey.translate(
-               -frontVector,
-               distance = keyPitch.y * columnCenterKey.layoutSize.y / 2
-                        + keyPitch.y * backKey        .layoutSize.y / 2
+               backVector,
+               distance = KEY_PLATE_SIZE.y * columnCenterKey.layoutSize.y / 2
+                        + KEY_PLATE_SIZE.y * backKey        .layoutSize.y / 2
             )
          }
          .rotate(
-            Line3d(referencePoint, frontVector vectorProduct bottomVector)
+            Line3d(referencePoint, rightVector)
                .translate(bottomVector, radius)
-               .translate(-frontVector, keyPitch.y * columnCenterKey.layoutSize.y / 2),
+               .translate(backVector, KEY_PLATE_SIZE.y * columnCenterKey.layoutSize.y / 2),
             80.deg
          )
    }
