@@ -10,39 +10,21 @@ import com.wcaokaze.scadwriter.foundation.*
  * EC12Eシリーズ用。固定用の穴、ロータリーエンコーダの端子3つ、押し込みスイッチ用の端子2つ
  */
 data class RotaryEncoderMountHole(
-   val center: Point3d,
-   val normalVector: Vector3d,
-   val frontVector: Vector3d
-) {
+   override val frontVector: Vector3d,
+   override val bottomVector: Vector3d,
+   override val referencePoint: Point3d
+) : Transformable<RotaryEncoderMountHole> {
    init {
-      val angle = normalVector angleWith frontVector
+      val angle = bottomVector angleWith frontVector
 
       require(angle >= (90 - 0.01).deg && angle <= (90 + 0.01).deg) {
          "The angle formed by normalVector and frontVector must be 90 degrees"
       }
    }
+
+   override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
+         = RotaryEncoderMountHole(frontVector, bottomVector, referencePoint)
 }
-
-fun RotaryEncoderMountHole.translate(distance: Size3d)
-      = RotaryEncoderMountHole(center.translate(distance), normalVector, frontVector)
-
-fun RotaryEncoderMountHole.translate(distance: Vector3d)
-      = RotaryEncoderMountHole(center.translate(distance), normalVector, frontVector)
-
-fun RotaryEncoderMountHole.translate(direction: Vector3d, distance: Size)
-      = RotaryEncoderMountHole(center.translate(direction, distance), normalVector, frontVector)
-
-fun RotaryEncoderMountHole.translate(
-   x: Size = 0.mm,
-   y: Size = 0.mm,
-   z: Size = 0.mm
-): RotaryEncoderMountHole = translate(Size3d(x, y, z))
-
-fun RotaryEncoderMountHole.rotate(axis: Line3d, angle: Angle) = RotaryEncoderMountHole(
-   center.rotate(axis, angle),
-   normalVector.rotate(axis.vector, angle),
-   frontVector.rotate(axis.vector, angle)
-)
 
 /**
  * [RotaryEncoderMountHole]を出力する。
@@ -50,21 +32,21 @@ fun RotaryEncoderMountHole.rotate(axis: Line3d, angle: Angle) = RotaryEncoderMou
  * 性質上必ず他のモデルとの[difference]をとることになる。
  *
  * @param zRange
- * 厚み。[RotaryEncoderMountHole.center]を0、
- * [RotaryEncoderMountHole.normalVector]向きを正として、
+ * 厚み。[RotaryEncoderMountHole.referencePoint]を0、
+ * [RotaryEncoderMountHole.bottomVector]向きを負として、
  * どこからどこまで生成するか。
  */
 fun ScadWriter.rotaryEncoderMountHole(
    rotaryEncoderMountHole: RotaryEncoderMountHole,
    zRange: SizeRange
 ) {
-   val rightVector = rotaryEncoderMountHole.normalVector vectorProduct rotaryEncoderMountHole.frontVector
+   val rightVector = rotaryEncoderMountHole.frontVector vectorProduct rotaryEncoderMountHole.bottomVector
 
    fun Point3d.translate(x: Size, y: Size): Point3d
       = translate(rightVector, x).translate(rotaryEncoderMountHole.frontVector, y)
 
    fun ScadWriter.hole(positionX: Size, positionY: Size, sizeX: Size, sizeY: Size) {
-      val holeCenter = rotaryEncoderMountHole.center.translate(positionX, positionY)
+      val holeCenter = rotaryEncoderMountHole.referencePoint.translate(positionX, positionY)
 
       val holePoints = listOf(
          holeCenter.translate(-sizeX / 2.0,  sizeY / 2.0),
@@ -74,8 +56,8 @@ fun ScadWriter.rotaryEncoderMountHole(
       )
 
       hullPoints(
-         holePoints.map { it.translate(rotaryEncoderMountHole.normalVector, zRange.start) } +
-         holePoints.map { it.translate(rotaryEncoderMountHole.normalVector, zRange.endInclusive) }
+         holePoints.map { it.translate(rotaryEncoderMountHole.bottomVector, -zRange.start) } +
+         holePoints.map { it.translate(rotaryEncoderMountHole.bottomVector, -zRange.endInclusive) }
       )
    }
 
