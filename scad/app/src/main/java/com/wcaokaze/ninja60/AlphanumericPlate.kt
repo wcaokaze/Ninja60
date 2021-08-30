@@ -191,21 +191,41 @@ private fun columnBoundaryLines(columnPlates: List<KeyPlate>): List<Line3d> {
    return lines
 }
 
+private fun getLeftPlane(column: AlphanumericColumn): Plane3d {
+   return Plane3d(
+      column.referencePoint
+         .translate(
+            column.leftVector,
+            AlphanumericPlate.KEY_PLATE_SIZE.x * column.keySwitches.maxOf { it.layoutSize.x } / 2
+         ),
+      column.rightVector
+   )
+}
+
+private fun getRightPlane(column: AlphanumericColumn): Plane3d {
+   return Plane3d(
+      column.referencePoint
+         .translate(
+            column.rightVector,
+            AlphanumericPlate.KEY_PLATE_SIZE.x * column.keySwitches.maxOf { it.layoutSize.x } / 2
+         ),
+      column.rightVector
+   )
+}
+
+val AlphanumericPlate.leftmostPlane: Plane3d
+   get() = getLeftPlane(columns.first())
+
+val AlphanumericPlate.rightmostPlane: Plane3d
+   get() = getRightPlane(columns.last())
+
 private fun getWallPlanes(columns: List<AlphanumericColumn>, leftRightOffset: Size): List<Plane3d> {
    val planes = ArrayList<Plane3d>()
 
    planes += run {
       val leftmostColumn = columns.first()
-
-      Plane3d(
-            leftmostColumn.referencePoint
-               .translate(
-                  leftmostColumn.rightVector,
-                  -AlphanumericPlate.KEY_PLATE_SIZE.x * leftmostColumn.keySwitches.maxOf { it.layoutSize.x } / 2
-               ),
-            leftmostColumn.rightVector
-         )
-         .translate(leftmostColumn.rightVector, -leftRightOffset)
+      getLeftPlane(leftmostColumn)
+         .translate(leftmostColumn.leftVector, leftRightOffset)
    }
 
    for ((left, right) in columns.zipWithNext()) {
@@ -214,15 +234,7 @@ private fun getWallPlanes(columns: List<AlphanumericColumn>, leftRightOffset: Si
 
    planes += run {
       val rightmostColumn = columns.last()
-
-      Plane3d(
-            rightmostColumn.referencePoint
-               .translate(
-                  rightmostColumn.rightVector,
-                  AlphanumericPlate.KEY_PLATE_SIZE.x * rightmostColumn.keySwitches.maxOf { it.layoutSize.x } / 2
-               ),
-            rightmostColumn.rightVector
-         )
+      getRightPlane(rightmostColumn)
          .translate(rightmostColumn.rightVector, leftRightOffset)
    }
 

@@ -19,7 +19,7 @@ fun ScadWriter.case(case: Case) {
 
    difference {
       union {
-         alphanumericFrontCase()
+         alphanumericFrontCase(alphanumericPlate)
          thumbCase(thumbPlate)
       }
 
@@ -37,18 +37,103 @@ fun ScadWriter.case(case: Case) {
    thumbPlate(thumbPlate)
 }
 
-private fun ScadWriter.alphanumericFrontCase() {
-   translate((-47).mm, (14).mm, 0.mm) {
-      rotate(y = (-15).deg, z = 7.deg) {
-         cube(122.mm, 30.mm, 60.mm)
+private fun ScadWriter.alphanumericFrontCase(alphanumericPlate: AlphanumericPlate) {
+   val topPlane = run {
+      // 上面の平面を算出する。
+      // 各Columnの一番手前の点から2点を選び、
+      // その2点を通る平面が他のすべての点より上にあるとき使える
+
+      val frontVector = alphanumericPlate.columns.map { it.frontVector } .sum()
+
+      val points = alphanumericPlate.columns
+         .flatMap { column ->
+            val plate = column.keySwitches.last().plate(AlphanumericPlate.KEY_PLATE_SIZE)
+            listOf(plate.frontLeft, plate.frontRight)
+         }
+
+      points.flatMap { left ->
+            (points - left).map { right ->
+               val otherPoints = points - left - right
+               Triple(left, right, otherPoints)
+            }
+         }
+         .asSequence()
+         .filter { (left, right) ->
+            // 総当りなので右から左のベクトルが混入してます
+            // filterします
+            // もうちょっといいやり方があるといいですね
+            Vector3d(
+               alphanumericPlate.columns.first().referencePoint,
+               alphanumericPlate.columns.last() .referencePoint
+            ) angleWith Vector3d(left, right) in (-90).deg..90.deg
+         }
+         .map { (left, right, otherPoints) ->
+            object {
+               val left = left
+               val right = right
+               val otherPoints = otherPoints
+
+               /** 2点を通りfrontVectorと平行な平面 */
+               val plane = Plane3d(left, frontVector vectorProduct Vector3d(left, right))
+            }
+         }
+         .filter {
+            it.otherPoints.all { p ->
+               /** pからplaneへの垂線 */
+               val perpendicular = Line3d(p, it.plane.normalVector)
+               /** 垂線とplaneの交点 */
+               val intersectionPoint = it.plane intersection perpendicular
+
+               // pから交点へのベクトルを改めて算出し、planeの法線ベクトルと比較
+               // 0°もしくは180°となるはずで、0°の場合planeより下にpが存在する
+               Vector3d(p, intersectionPoint) angleWith it.plane.normalVector in (-90).deg..90.deg
+            }
+         }
+         .minByOrNull {
+            Vector3d(
+               alphanumericPlate.columns.first().referencePoint,
+               alphanumericPlate.columns.last() .referencePoint
+            ) angleWith Vector3d(it.left, it.right)
+         } !!
+         .plane
+   }
+
+   val bottomPlane = Plane3d.XY_PLANE
+   val leftPlane = alphanumericPlate.leftmostPlane
+   val rightPlane = alphanumericPlate.rightmostPlane
+   val backPlane = Plane3d.ZX_PLANE.translate(Vector3d.Y_UNIT_VECTOR, 58.mm)
+   val frontPlane = Plane3d.ZX_PLANE.translate(Vector3d.Y_UNIT_VECTOR, 18.mm)
+
+   val xPlanes = listOf(
+      leftPlane .translate(-leftPlane.normalVector, 3.mm),
+      rightPlane.translate(rightPlane.normalVector, 3.mm)
+   )
+
+   val yPlanes = listOf(
+      frontPlane,
+      backPlane
+   )
+
+   val zPlanes = listOf(
+      bottomPlane,
+      topPlane.translate(topPlane.normalVector, 3.mm)
+   )
+
+   val points = xPlanes.flatMap { x ->
+      yPlanes.flatMap { y ->
+         zPlanes.map { z ->
+            x intersection y intersection z
+         }
       }
    }
+
+   hullPoints(points)
 }
 
 private fun ScadWriter.alphanumericCave(plate: AlphanumericPlate) {
    union {
-      hullAlphanumericPlate(plate, frontBackOffset = 20.mm)
-      hullAlphanumericPlate(plate, layerOffset = 40.mm)
+      hullAlphanumericPlate(plate, frontBackOffset = 20.mm, leftRightOffset = 20.mm)
+      hullAlphanumericPlate(plate, layerOffset = 60.mm)
    }
 }
 
