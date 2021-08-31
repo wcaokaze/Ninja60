@@ -37,103 +37,171 @@ fun ScadWriter.case(case: Case) {
    thumbPlate(thumbPlate)
 }
 
+private fun ScadWriter.distortedCube(
+   topPlane: Plane3d,
+   leftPlane: Plane3d,
+   backPlane: Plane3d,
+   rightPlane: Plane3d,
+   frontPlane: Plane3d,
+   bottomPlane: Plane3d
+) {
+   hullPoints(
+      listOf(leftPlane, rightPlane).flatMap { x ->
+         listOf(frontPlane, backPlane).flatMap { y ->
+            listOf(bottomPlane, topPlane).map { z ->
+               x intersection y intersection z
+            }
+         }
+      }
+   )
+}
+
+private fun alphanumericTopPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+   // 上面の平面を算出する。
+   // 各Columnの一番手前の点から2点を選び、
+   // その2点を通る平面が他のすべての点より上にあるとき使える
+
+   val frontVector = alphanumericPlate.columns.map { it.frontVector } .sum()
+
+   val points = alphanumericPlate.columns
+      .flatMap { column ->
+         val plate = column.keySwitches.last().plate(AlphanumericPlate.KEY_PLATE_SIZE)
+         listOf(plate.frontLeft, plate.frontRight)
+      }
+
+   return points.flatMap { left ->
+         (points - left).map { right ->
+            val otherPoints = points - left - right
+            Triple(left, right, otherPoints)
+         }
+      }
+      .asSequence()
+      .filter { (left, right) ->
+         // 総当りなので右から左のベクトルが混入してます
+         // filterします
+         // もうちょっといいやり方があるといいですね
+         Vector3d(
+            alphanumericPlate.columns.first().referencePoint,
+            alphanumericPlate.columns.last() .referencePoint
+         ) angleWith Vector3d(left, right) in (-90).deg..90.deg
+      }
+      .map { (left, right, otherPoints) ->
+         object {
+            val left = left
+            val right = right
+            val otherPoints = otherPoints
+
+            /** 2点を通りfrontVectorと平行な平面 */
+            val plane = Plane3d(left, frontVector vectorProduct Vector3d(left, right))
+         }
+      }
+      .filter {
+         it.otherPoints.all { p ->
+            /** pからplaneへの垂線 */
+            val perpendicular = Line3d(p, it.plane.normalVector)
+            /** 垂線とplaneの交点 */
+            val intersectionPoint = it.plane intersection perpendicular
+
+            // pから交点へのベクトルを改めて算出し、planeの法線ベクトルと比較
+            // 0°もしくは180°となるはずで、0°の場合planeより下にpが存在する
+            Vector3d(p, intersectionPoint) angleWith it.plane.normalVector in (-90).deg..90.deg
+         }
+      }
+      .minByOrNull {
+         Vector3d(
+            alphanumericPlate.columns.first().referencePoint,
+            alphanumericPlate.columns.last() .referencePoint
+         ) angleWith Vector3d(it.left, it.right)
+      } !!
+      .plane
+      .let {
+         it.translate(it.normalVector, offset)
+      }
+}
+
+private fun alphanumericBottomPlane(offset: Size): Plane3d
+      = Plane3d.XY_PLANE.translate(Vector3d.Z_UNIT_VECTOR, -offset)
+
+private fun alphanumericLeftPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d
+      = alphanumericPlate.leftmostPlane.let { it.translate(it.normalVector, -offset) }
+private fun alphanumericRightPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d
+      = alphanumericPlate.rightmostPlane.let { it.translate(it.normalVector, offset) }
+
+private fun alphanumericBackPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+   val y = alphanumericPlate.columns
+      .map { it.keySwitches.first().plate(AlphanumericPlate.KEY_PLATE_SIZE) }
+      .flatMap { mostBackKeyPlate ->
+         listOf(mostBackKeyPlate.backLeft, mostBackKeyPlate.backRight).map {
+            it.translate(mostBackKeyPlate.backVector, 1.5.mm)
+               .translate(mostBackKeyPlate.bottomVector, 12.mm)
+         }
+      }
+      .maxOf { it.y }
+
+   return Plane3d.ZX_PLANE
+      .translate(Vector3d.Y_UNIT_VECTOR, y.distanceFromOrigin)
+      .translate(Vector3d.Y_UNIT_VECTOR, offset)
+}
+
+private fun alphanumericFrontPlane(offset: Size): Plane3d {
+   return Plane3d.ZX_PLANE
+      .translate(Vector3d.Y_UNIT_VECTOR, 9.mm)
+      .translate(Vector3d.Y_UNIT_VECTOR, -offset)
+}
+
 private fun ScadWriter.alphanumericFrontCase(alphanumericPlate: AlphanumericPlate) {
-   val topPlane = run {
-      // 上面の平面を算出する。
-      // 各Columnの一番手前の点から2点を選び、
-      // その2点を通る平面が他のすべての点より上にあるとき使える
+   val leftRightOffset = 1.5.mm
 
-      val frontVector = alphanumericPlate.columns.map { it.frontVector } .sum()
+   val topPlane = alphanumericTopPlane(alphanumericPlate, 3.mm)
+   val bottomPlane = alphanumericBottomPlane(0.mm)
+   val leftPlane = alphanumericLeftPlane(alphanumericPlate, leftRightOffset)
+   val rightPlane = alphanumericRightPlane(alphanumericPlate, leftRightOffset)
+   val backPlane = alphanumericBackPlane(alphanumericPlate, 1.5.mm)
+   val frontPlane = alphanumericFrontPlane(1.5.mm)
 
-      val points = alphanumericPlate.columns
-         .flatMap { column ->
-            val plate = column.keySwitches.last().plate(AlphanumericPlate.KEY_PLATE_SIZE)
-            listOf(plate.frontLeft, plate.frontRight)
-         }
+   /** 手前と奥の境目の平面 */
+   val middlePlane = Plane3d(
+      alphanumericPlate.columns.map { it.referencePoint } .average(),
+      Vector3d.Y_UNIT_VECTOR
+   )
 
-      points.flatMap { left ->
-            (points - left).map { right ->
-               val otherPoints = points - left - right
-               Triple(left, right, otherPoints)
-            }
-         }
-         .asSequence()
-         .filter { (left, right) ->
-            // 総当りなので右から左のベクトルが混入してます
-            // filterします
-            // もうちょっといいやり方があるといいですね
-            Vector3d(
-               alphanumericPlate.columns.first().referencePoint,
-               alphanumericPlate.columns.last() .referencePoint
-            ) angleWith Vector3d(left, right) in (-90).deg..90.deg
-         }
-         .map { (left, right, otherPoints) ->
-            object {
-               val left = left
-               val right = right
-               val otherPoints = otherPoints
-
-               /** 2点を通りfrontVectorと平行な平面 */
-               val plane = Plane3d(left, frontVector vectorProduct Vector3d(left, right))
-            }
-         }
-         .filter {
-            it.otherPoints.all { p ->
-               /** pからplaneへの垂線 */
-               val perpendicular = Line3d(p, it.plane.normalVector)
-               /** 垂線とplaneの交点 */
-               val intersectionPoint = it.plane intersection perpendicular
-
-               // pから交点へのベクトルを改めて算出し、planeの法線ベクトルと比較
-               // 0°もしくは180°となるはずで、0°の場合planeより下にpが存在する
-               Vector3d(p, intersectionPoint) angleWith it.plane.normalVector in (-90).deg..90.deg
-            }
-         }
-         .minByOrNull {
-            Vector3d(
-               alphanumericPlate.columns.first().referencePoint,
-               alphanumericPlate.columns.last() .referencePoint
-            ) angleWith Vector3d(it.left, it.right)
-         } !!
-         .plane
+   fun ScadWriter.frontCase() {
+      distortedCube(topPlane, leftPlane, middlePlane.translate(Vector3d.Y_UNIT_VECTOR),
+         rightPlane, frontPlane, bottomPlane)
    }
 
-   val bottomPlane = Plane3d.XY_PLANE
-   val leftPlane = alphanumericPlate.leftmostPlane
-   val rightPlane = alphanumericPlate.rightmostPlane
-   val backPlane = Plane3d.ZX_PLANE.translate(Vector3d.Y_UNIT_VECTOR, 58.mm)
-   val frontPlane = Plane3d.ZX_PLANE.translate(Vector3d.Y_UNIT_VECTOR, 18.mm)
+   fun ScadWriter.backCase() {
+      intersection {
+         hullAlphanumericPlate(alphanumericPlate, layerOffset = 100.mm,
+            frontBackOffset = 1.5.mm, leftRightOffset, columnOffset = 1.mm)
 
-   val xPlanes = listOf(
-      leftPlane .translate(-leftPlane.normalVector, 3.mm),
-      rightPlane.translate(rightPlane.normalVector, 3.mm)
-   )
-
-   val yPlanes = listOf(
-      frontPlane,
-      backPlane
-   )
-
-   val zPlanes = listOf(
-      bottomPlane,
-      topPlane.translate(topPlane.normalVector, 3.mm)
-   )
-
-   val points = xPlanes.flatMap { x ->
-      yPlanes.flatMap { y ->
-         zPlanes.map { z ->
-            x intersection y intersection z
-         }
+         distortedCube(topPlane, leftPlane, backPlane, rightPlane,
+            middlePlane.translate(-Vector3d.Y_UNIT_VECTOR), bottomPlane)
       }
    }
 
-   hullPoints(points)
+   union {
+      frontCase()
+      backCase()
+   }
 }
 
-private fun ScadWriter.alphanumericCave(plate: AlphanumericPlate) {
+private fun ScadWriter.alphanumericCave(alphanumericPlate: AlphanumericPlate) {
    union {
-      hullAlphanumericPlate(plate, frontBackOffset = 20.mm, leftRightOffset = 20.mm)
-      hullAlphanumericPlate(plate, layerOffset = 60.mm)
+      hullAlphanumericPlate(alphanumericPlate, frontBackOffset = 20.mm, leftRightOffset = 20.mm)
+
+      intersection {
+         hullAlphanumericPlate(alphanumericPlate, layerOffset = 100.mm)
+
+         distortedCube(
+            alphanumericTopPlane(alphanumericPlate, 0.mm),
+            alphanumericLeftPlane(alphanumericPlate, 0.mm),
+            alphanumericBackPlane(alphanumericPlate, 0.mm),
+            alphanumericRightPlane(alphanumericPlate, 0.mm),
+            alphanumericFrontPlane(0.mm),
+            alphanumericBottomPlane(1.mm)
+         )
+      }
    }
 }
 

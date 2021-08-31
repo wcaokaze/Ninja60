@@ -88,7 +88,7 @@ fun ScadWriter.alphanumericPlate(alphanumericPlate: AlphanumericPlate) {
    union {
       difference {
          //                                                   layerOffset, frontBackOffset, leftRightOffset, columnOffset
-         hullAlphanumericPlate(alphanumericPlate, KeySwitch.BOTTOM_HEIGHT,          1.5.mm,          1.5.mm,         1.mm)
+         hullAlphanumericPlate(alphanumericPlate, KeySwitch.BOTTOM_HEIGHT,          1.5.mm,          0.5.mm,         1.mm)
          hullAlphanumericPlate(alphanumericPlate,                    0.mm,         20.0.mm,          3.0.mm,         0.mm)
 
          for (c in alphanumericPlate.columns) {
@@ -156,8 +156,8 @@ private fun ScadWriter.hullColumn(
 
    val boundaryLines = columnBoundaryLines(columnPlates)
 
-   val mostBackLine  = boundaryLines.first().translate(mostBackPlate .frontVector, -frontBackOffset)
-   val mostFrontLine = boundaryLines.last() .translate(mostFrontPlate.frontVector,  frontBackOffset)
+   val mostBackLine  = boundaryLines.first().translate(mostBackPlate.backVector,   frontBackOffset)
+   val mostFrontLine = boundaryLines.last() .translate(mostFrontPlate.frontVector, frontBackOffset)
 
    val lines = listOf(
       mostBackLine.translate(mostBackPlate.topVector, layerOffset.coerceAtLeast(20.mm)),
