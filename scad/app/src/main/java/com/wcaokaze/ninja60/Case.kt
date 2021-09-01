@@ -127,6 +127,69 @@ private fun alphanumericLeftPlane(alphanumericPlate: AlphanumericPlate, offset: 
 private fun alphanumericRightPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d
       = alphanumericPlate.rightmostPlane.let { it.translate(it.normalVector, offset) }
 
+private fun alphanumericBackSlopePlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+   // 後ろの斜めになっている部分の平面を算出する。
+   // だいたいはalphanumericTopPlaneと同じ方法
+
+   val mostBackKeyPlates = alphanumericPlate.columns
+      .map { it.keySwitches.first().plate(AlphanumericPlate.KEY_PLATE_SIZE) }
+
+   val alphanumericPlateTopVector = alphanumericPlate.columns.map { it.topVector } .sum()
+
+   val slopeVector = mostBackKeyPlates
+      .map { it.topVector }
+      .maxByOrNull { it angleWith alphanumericPlateTopVector } !!
+
+   val points = mostBackKeyPlates.flatMap { listOf(it.backLeft, it.backRight) }
+
+   return points.flatMap { left ->
+         (points - left).map { right ->
+            val otherPoints = points - left - right
+            Triple(left, right, otherPoints)
+         }
+      }
+      .asSequence()
+      .filter { (left, right) ->
+         Vector3d(
+            alphanumericPlate.columns.first().referencePoint,
+            alphanumericPlate.columns.last() .referencePoint
+         ) angleWith Vector3d(left, right) in (-90).deg..90.deg
+      }
+      .map { (left, right, otherPoints) ->
+         object {
+            val otherPoints = otherPoints
+
+            val plane = Plane3d(left, slopeVector vectorProduct Vector3d(left, right))
+         }
+      }
+      .filter {
+         it.otherPoints.all { p ->
+            val perpendicular = Line3d(p, it.plane.normalVector)
+            val intersectionPoint = it.plane intersection perpendicular
+
+            Vector3d(p, intersectionPoint) angleWith it.plane.normalVector in (-90).deg..90.deg
+         }
+      }
+      .minByOrNull {
+         // ケースの角とキースイッチの間の角度の合計が一番小さいやつを選びます
+
+         val slopePlane = it.plane
+
+         mostBackKeyPlates
+            .map { mostBackKey ->
+               val mostBackKeyPlane = Plane3d(mostBackKey.referencePoint, mostBackKey.topVector)
+               val caseCornerLine = slopePlane intersection mostBackKeyPlane
+
+               caseCornerLine.vector angleWith mostBackKey.rightVector
+            }
+            .sumOf { a -> a.numberAsRadian }
+      } !!
+      .plane
+      .let {
+         it.translate(it.normalVector, offset)
+      }
+}
+
 private fun alphanumericBackPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
    val y = alphanumericPlate.columns
       .map { it.keySwitches.first().plate(AlphanumericPlate.KEY_PLATE_SIZE) }
@@ -150,45 +213,24 @@ private fun alphanumericFrontPlane(offset: Size): Plane3d {
 }
 
 private fun ScadWriter.alphanumericFrontCase(alphanumericPlate: AlphanumericPlate) {
-   val leftRightOffset = 1.5.mm
-
    val topPlane = alphanumericTopPlane(alphanumericPlate, 3.mm)
    val bottomPlane = alphanumericBottomPlane(0.mm)
-   val leftPlane = alphanumericLeftPlane(alphanumericPlate, leftRightOffset)
-   val rightPlane = alphanumericRightPlane(alphanumericPlate, leftRightOffset)
+   val leftPlane = alphanumericLeftPlane(alphanumericPlate, 1.5.mm)
+   val rightPlane = alphanumericRightPlane(alphanumericPlate, 1.5.mm)
+   val backSlopePlane = alphanumericBackSlopePlane(alphanumericPlate, 1.5.mm)
    val backPlane = alphanumericBackPlane(alphanumericPlate, 1.5.mm)
    val frontPlane = alphanumericFrontPlane(1.5.mm)
 
-   /** 手前と奥の境目の平面 */
-   val middlePlane = Plane3d(
-      alphanumericPlate.columns.map { it.referencePoint } .average(),
-      Vector3d.Y_UNIT_VECTOR
-   )
-
-   fun ScadWriter.frontCase() {
-      distortedCube(topPlane, leftPlane, middlePlane.translate(Vector3d.Y_UNIT_VECTOR),
-         rightPlane, frontPlane, bottomPlane)
-   }
-
-   fun ScadWriter.backCase() {
-      intersection {
-         hullAlphanumericPlate(alphanumericPlate, layerOffset = 100.mm,
-            frontBackOffset = 1.5.mm, leftRightOffset, columnOffset = 1.mm)
-
-         distortedCube(topPlane, leftPlane, backPlane, rightPlane,
-            middlePlane.translate(-Vector3d.Y_UNIT_VECTOR), bottomPlane)
-      }
-   }
-
-   union {
-      frontCase()
-      backCase()
+   intersection {
+      distortedCube(topPlane, leftPlane, backPlane, rightPlane, frontPlane, bottomPlane)
+      distortedCube(backSlopePlane, leftPlane, backPlane, rightPlane, frontPlane, bottomPlane)
    }
 }
 
 private fun ScadWriter.alphanumericCave(alphanumericPlate: AlphanumericPlate) {
    union {
-      hullAlphanumericPlate(alphanumericPlate, frontBackOffset = 20.mm, leftRightOffset = 20.mm)
+      hullAlphanumericPlate(alphanumericPlate, layerOffset = -KeySwitch.TRAVEL, frontBackOffset = 20.mm, leftRightOffset = 20.mm)
+      hullAlphanumericPlate(alphanumericPlate)
 
       intersection {
          hullAlphanumericPlate(alphanumericPlate, layerOffset = 100.mm)
