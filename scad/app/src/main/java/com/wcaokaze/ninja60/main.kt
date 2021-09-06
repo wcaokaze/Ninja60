@@ -31,15 +31,13 @@ fun main(vararg args: String) {
       case(Case)
 
       translate((-91).mm, 56.mm, 23.mm) {
-         encoderKnob(30.mm)
-      }
-
-      translate(4.mm, 29.mm, 73.mm) {
-         rotate(y = (-14).deg) { encoderKnob(18.mm) }
+         cylinder(14.mm, 30.mm, `$fa`)
       }
 
       translate((-5).mm, 106.mm, 73.mm) {
-         rotate(y = 75.deg) { encoderKnob(12.mm) }
+         rotate(y = 75.deg) {
+            cylinder(14.mm, 12.mm, `$fa`)
+         }
       }
    }
 }

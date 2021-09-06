@@ -17,24 +17,45 @@ fun ScadWriter.case(case: Case) {
       .rotate(Line3d.Z_AXIS, (-8).deg)
       .translate(x = 66.mm, y = 0.mm, z = 53.mm)
 
-   difference {
-      union {
-         alphanumericFrontCase(alphanumericPlate)
-         thumbCase(thumbPlate)
+   union {
+      difference {
+         union {
+            difference {
+               union {
+                  alphanumericFrontCase(alphanumericPlate)
+                  thumbCase(thumbPlate)
+               }
+
+               union {
+                  alphanumericCave(alphanumericPlate)
+                  thumbCave(thumbPlate)
+               }
+            }
+
+            translate((-62).mm, (-108).mm, 0.mm) {
+               cube(102.mm, 70.mm, 80.mm)
+            }
+
+            alphanumericPlate(alphanumericPlate)
+            thumbPlate(thumbPlate)
+         }
+
+         frontRotaryEncoderHole(alphanumericPlate)
       }
 
-      union {
-         alphanumericCave(alphanumericPlate)
-         thumbCave(thumbPlate)
-      }
+      frontRotaryEncoderMountPlate(alphanumericPlate)
    }
 
-   translate((-62).mm, (-108).mm, 0.mm) {
-      cube(102.mm, 70.mm, 80.mm)
-   }
+   // ----
 
-   alphanumericPlate(alphanumericPlate)
-   thumbPlate(thumbPlate)
+   val caseTopPlane = alphanumericTopPlane(alphanumericPlate, 0.mm)
+   val frontRotaryEncoder = frontRotaryEncoder(alphanumericPlate)
+      .translate(caseTopPlane.normalVector, 1.mm)
+
+   rotaryEncoderKnob(frontRotaryEncoder,
+      frontRotaryEncoderKnobRadius,
+      frontRotaryEncoderKnobHeight,
+      frontRotaryEncoderKnobHoleHeight)
 }
 
 private fun ScadWriter.distortedCube(
@@ -269,5 +290,85 @@ private fun ScadWriter.thumbCave(plate: ThumbPlate) {
    union {
       hullThumbPlate(plate, leftRightOffset = 20.mm, frontOffset = 20.mm)
       hullThumbPlate(plate, layerOffset = 10.mm)
+   }
+}
+
+private val frontRotaryEncoderKnobRadius = 18.mm
+private val frontRotaryEncoderKnobHeight = 14.mm
+private val frontRotaryEncoderKnobHoleHeight = frontRotaryEncoderKnobHeight - 2.mm
+
+private fun frontRotaryEncoder(alphanumericPlate: AlphanumericPlate): RotaryEncoder {
+   val caseTopPlane = alphanumericTopPlane(alphanumericPlate, 0.mm)
+   val caseFrontPlane = alphanumericFrontPlane(0.mm)
+
+   val column = alphanumericPlate.columns[3]
+   val columnPlane = Plane3d(column.referencePoint, column.rightVector)
+
+   val mostFrontKey = column.keySwitches.last()
+   val mostFrontKeycapTopPlane = Plane3d(mostFrontKey.referencePoint, mostFrontKey.topVector)
+      .translate(mostFrontKey.topVector, KeySwitch.TOP_HEIGHT + KeySwitch.STEM_HEIGHT + Keycap.THICKNESS)
+
+   val knobCenter = (
+            caseTopPlane
+               .translate(-caseTopPlane.normalVector, 2.mm)
+         ) intersection (
+            columnPlane
+         ) intersection (
+            mostFrontKeycapTopPlane
+               .translate(mostFrontKey.bottomVector, frontRotaryEncoderKnobRadius)
+               .translate(mostFrontKey.bottomVector, KeySwitch.TRAVEL)
+               .translate(mostFrontKey.bottomVector, 2.mm)
+         )
+
+   return RotaryEncoder(
+      caseFrontPlane.normalVector vectorProduct caseTopPlane.normalVector,
+      -caseTopPlane.normalVector,
+      knobCenter.translate(caseTopPlane.normalVector,
+         1.mm + frontRotaryEncoderKnobHoleHeight - RotaryEncoder.HEIGHT),
+   )
+}
+
+private fun ScadWriter.frontRotaryEncoderHole(alphanumericPlate: AlphanumericPlate) {
+   val rotaryEncoder = frontRotaryEncoder(alphanumericPlate)
+
+   union {
+      cube(Cube(
+         rotaryEncoder.referencePoint
+            .translate(rotaryEncoder.leftVector,  RotaryEncoder.BODY_SIZE.x / 2)
+            .translate(rotaryEncoder.frontVector, RotaryEncoder.BODY_SIZE.y / 2)
+            .translate(rotaryEncoder.bottomVector, 6.mm),
+         RotaryEncoder.BODY_SIZE.copy(z = RotaryEncoder.HEIGHT + 6.mm),
+         rotaryEncoder.frontVector,
+         rotaryEncoder.bottomVector
+      ))
+
+      translate(rotaryEncoder.referencePoint - Point3d.ORIGIN) {
+         rotate(
+            Vector3d.Z_UNIT_VECTOR angleWith     rotaryEncoder.topVector,
+            Vector3d.Z_UNIT_VECTOR vectorProduct rotaryEncoder.topVector
+         ) {
+            translate(z = RotaryEncoder.HEIGHT - frontRotaryEncoderKnobHoleHeight) {
+               cylinder(height = 20.mm, frontRotaryEncoderKnobRadius + 2.mm, `$fa`)
+            }
+         }
+      }
+   }
+}
+
+private fun ScadWriter.frontRotaryEncoderMountPlate(alphanumericPlate: AlphanumericPlate) {
+   val rotaryEncoder = frontRotaryEncoder(alphanumericPlate)
+
+   difference {
+      cube(Cube(
+         rotaryEncoder.referencePoint
+            .translate(rotaryEncoder.leftVector,  RotaryEncoder.BODY_SIZE.x / 2)
+            .translate(rotaryEncoder.frontVector, RotaryEncoder.BODY_SIZE.y / 2)
+            .translate(rotaryEncoder.bottomVector, 1.6.mm),
+         RotaryEncoder.BODY_SIZE.copy(z = 1.6.mm),
+         rotaryEncoder.frontVector,
+         rotaryEncoder.bottomVector
+      ))
+
+      rotaryEncoderMountHole(rotaryEncoder, 2.mm)
    }
 }
