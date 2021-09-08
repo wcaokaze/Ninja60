@@ -19,12 +19,11 @@ fun ScadParentObject.case(case: Case): ScadObject {
 
    return union {
       (
-         (
-            alphanumericFrontCase(alphanumericPlate) + thumbCase(thumbPlate)
-            - (alphanumericCave(alphanumericPlate) + thumbCave(thumbPlate))
-            + alphanumericPlate(alphanumericPlate)
-            + thumbPlate(thumbPlate)
-         )
+         alphanumericFrontCase(alphanumericPlate) + thumbCase(thumbPlate)
+         - (alphanumericCave(alphanumericPlate) + thumbCave(thumbPlate))
+         + alphanumericPlate(alphanumericPlate)
+         + thumbPlate(thumbPlate)
+
          - frontRotaryEncoderHole(alphanumericPlate)
          + frontRotaryEncoderMountPlate(alphanumericPlate)
       )
