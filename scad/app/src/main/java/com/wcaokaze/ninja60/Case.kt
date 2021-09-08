@@ -336,7 +336,7 @@ private fun ScadParentObject.frontRotaryEncoderHole
          rotaryEncoder.bottomVector
       ))
 
-      translate(rotaryEncoder.referencePoint - Point3d.ORIGIN) {
+      locale(rotaryEncoder.referencePoint) {
          rotate(
             Vector3d.Z_UNIT_VECTOR angleWith     rotaryEncoder.topVector,
             Vector3d.Z_UNIT_VECTOR vectorProduct rotaryEncoder.topVector

@@ -112,7 +112,7 @@ fun ScadParentObject.switchSideHolder(keySwitch: KeySwitch): ScadObject {
    }
 
    fun ScadParentObject.point(dx: Size, dy: Size, dz: Size): ScadObject {
-      return translate(keySwitch.referencePoint.dx(dx).dy(dy).dz(dz) - Point3d.ORIGIN) {
+      return locale(keySwitch.referencePoint.dx(dx).dy(dy).dz(dz)) {
          cube(0.01.mm, 0.01.mm, 0.01.mm, center = true)
       }
    }
@@ -126,7 +126,7 @@ fun ScadParentObject.switchSideHolder(keySwitch: KeySwitch): ScadObject {
             point(dx,  ySize / 2, 1.5.mm)
             point(dx, -ySize / 2, 1.5.mm)
 
-            translate(keySwitch.referencePoint.dx(dx).dz(zSize - cylinderRadius) - Point3d.ORIGIN) {
+            locale(keySwitch.referencePoint.dx(dx).dz(zSize - cylinderRadius)) {
                rotate(
                   Vector3d.Z_UNIT_VECTOR angleWith keySwitch.frontVector,
                   Vector3d.Z_UNIT_VECTOR vectorProduct keySwitch.frontVector

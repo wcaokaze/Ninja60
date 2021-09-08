@@ -34,7 +34,7 @@ fun ScadParentObject.rotaryEncoderKnob(
    val cylinderPosition = rotaryEncoder.referencePoint
       .translate(rotaryEncoder.topVector, RotaryEncoder.HEIGHT - shaftHoleHeight)
 
-   return translate(cylinderPosition - Point3d.ORIGIN) {
+   return locale(cylinderPosition) {
       rotate(
          Vector3d.Z_UNIT_VECTOR angleWith     rotaryEncoder.topVector,
          Vector3d.Z_UNIT_VECTOR vectorProduct rotaryEncoder.topVector
