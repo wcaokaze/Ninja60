@@ -36,7 +36,7 @@ data class Cube(
          = Cube(referencePoint, size, frontVector, bottomVector)
 }
 
-fun ScadWriter.cube(cube: Cube) {
+fun ScadParentObject.cube(cube: Cube): ScadObject {
    val points = listOf(0.mm, cube.size.x).flatMap { x ->
       listOf(0.mm, cube.size.y).flatMap { y ->
          listOf(0.mm, cube.size.z).map { z ->
@@ -48,5 +48,5 @@ fun ScadWriter.cube(cube: Cube) {
       }
    }
 
-   hullPoints(points)
+   return hullPoints(points)
 }

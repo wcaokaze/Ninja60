@@ -1,20 +1,24 @@
 package com.wcaokaze.scadwriter
 
-import com.wcaokaze.scadwriter.foundation.Size
-import com.wcaokaze.scadwriter.foundation.Size3d
+import com.wcaokaze.scadwriter.foundation.*
 
-fun ScadWriter.cube(x: Size, y: Size, z: Size) {
-   cube(Size3d(x, y, z))
+data class Cube(
+   val size: Size3d,
+   val center: Boolean = false
+) : ScadPrimitiveObject() {
+   constructor(x: Size, y: Size, z: Size, center: Boolean = false)
+         : this(Size3d(x, y, z), center)
+
+   override fun writeScad(scadWriter: ScadWriter) {
+      scadWriter.writeln("cube($size, center = $center);")
+   }
 }
 
-fun ScadWriter.cube(x: Size, y: Size, z: Size, center: Boolean) {
-   cube(Size3d(x, y, z), center)
-}
+fun ScadParentObject.cube(x: Size, y: Size, z: Size, center: Boolean = false): Cube
+      = cube(Size3d(x, y, z), center)
 
-fun ScadWriter.cube(size: Size3d) {
-   writeln("cube($size);")
-}
-
-fun ScadWriter.cube(size: Size3d, center: Boolean = false) {
-   writeln("cube($size, center = $center);")
+fun ScadParentObject.cube(size: Size3d, center: Boolean = false): Cube {
+   val cube = Cube(size, center)
+   addChild(cube)
+   return cube
 }

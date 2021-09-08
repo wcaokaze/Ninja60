@@ -15,8 +15,6 @@ fun main(vararg args: String) {
    }
 
    writeScad(config.outputFile) {
-      prepareSharedScads()
-
       /*
       prepareBottomPlateModule()
       prepareMiddlePlateModule()

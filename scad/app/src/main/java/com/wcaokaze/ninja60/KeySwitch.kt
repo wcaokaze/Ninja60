@@ -58,7 +58,7 @@ fun KeySwitch.plate(size: Size2d) = KeyPlate(
    frontVector
 )
 
-fun ScadWriter.switchHole(keySwitch: KeySwitch) {
+fun ScadParentObject.switchHole(keySwitch: KeySwitch): ScadObject {
    fun KeySwitch.keyPlate(size: Size2d)
          = KeyPlate(referencePoint, size, bottomVector, frontVector)
 
@@ -68,7 +68,7 @@ fun ScadWriter.switchHole(keySwitch: KeySwitch) {
    /* スイッチが入る穴。 */
    val switchHole = keySwitch.keyPlate(Size2d(16.mm, 16.mm))
 
-   union {
+   return union {
       hullPoints(
          mountPlateHole.translate(keySwitch.bottomVector, -(0.5).mm).points +
          mountPlateHole.translate(keySwitch.bottomVector,   2.0 .mm).points
@@ -86,7 +86,7 @@ fun ScadWriter.switchHole(keySwitch: KeySwitch) {
  *
  * まずプレートから[switchHole]を[difference]して穴を開けたあとコイツをつけるといい
  */
-fun ScadWriter.switchSideHolder(keySwitch: KeySwitch) {
+fun ScadParentObject.switchSideHolder(keySwitch: KeySwitch): ScadObject {
    fun Point3d.dx(dx: Size) = translate(keySwitch.rightVector, dx)
    fun Point3d.dy(dy: Size) = translate(keySwitch.frontVector, dy)
    fun Point3d.dz(dz: Size) = translate(keySwitch.bottomVector, dz)
@@ -95,7 +95,7 @@ fun ScadWriter.switchSideHolder(keySwitch: KeySwitch) {
    val zSize = 3.7.mm
    val cylinderRadius = 1.mm
 
-   fun ScadWriter.pillar(dx: Size) {
+   fun ScadParentObject.pillar(dx: Size): ScadObject {
       val pillarCenter = keySwitch.referencePoint.dx(dx)
 
       val points = ArrayList<Point3d>()
@@ -108,16 +108,16 @@ fun ScadWriter.switchSideHolder(keySwitch: KeySwitch) {
          }
       }
 
-      hullPoints(points)
+      return hullPoints(points)
    }
 
-   fun ScadWriter.point(dx: Size, dy: Size, dz: Size) {
-      translate(keySwitch.referencePoint.dx(dx).dy(dy).dz(dz) - Point3d.ORIGIN) {
+   fun ScadParentObject.point(dx: Size, dy: Size, dz: Size): ScadObject {
+      return translate(keySwitch.referencePoint.dx(dx).dy(dy).dz(dz) - Point3d.ORIGIN) {
          cube(0.01.mm, 0.01.mm, 0.01.mm, center = true)
       }
    }
 
-   union {
+   return union {
       pillar(  8 .mm)
       pillar((-8).mm)
 

@@ -1,37 +1,10 @@
 package com.wcaokaze.scadwriter
 
-import java.io.File
-import java.io.Writer
+import java.io.*
 
 class ScadWriter(@PublishedApi internal val writer: Writer) {
    @PublishedApi
    internal var indent = 0
-
-   var `$fs`: Double = 2.0
-      set(value) {
-         field = value
-         writeln("\$fs = $value;")
-      }
-
-   var `$fa`: Double = 12.0
-      set(value) {
-         field = value
-         writeln("\$fa = $value;")
-      }
-
-   var `$fn`: Double = 0.0
-      set(value) {
-         field = value
-         writeln("\$fn = $value;")
-      }
-}
-
-inline fun writeScad(outputFile: File, scad: ScadWriter.() -> Unit) {
-   outputFile.outputStream().bufferedWriter().use { writeScad(it, scad) }
-}
-
-inline fun writeScad(writer: Writer, scad: ScadWriter.() -> Unit) {
-   ScadWriter(writer).scad()
 }
 
 @PublishedApi

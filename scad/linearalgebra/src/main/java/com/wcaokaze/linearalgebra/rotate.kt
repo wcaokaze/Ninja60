@@ -29,6 +29,8 @@ fun Point3d.rotate(axis: Line3d, angle: Angle): Point3d {
    )
 }
 
-inline fun ScadWriter.rotate(a: Angle, v: Vector3d, children: ScadWriter.() -> Unit) {
-   rotate(a, Point3d.ORIGIN.translate(v), children)
-}
+inline fun ScadParentObject.rotate(
+   a: Angle,
+   v: Vector3d,
+   children: RotateWithAxis.() -> Unit
+): RotateWithAxis = rotate(a, Point3d.ORIGIN.translate(v), children)

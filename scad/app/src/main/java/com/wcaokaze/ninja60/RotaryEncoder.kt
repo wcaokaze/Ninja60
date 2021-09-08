@@ -28,13 +28,13 @@ data class RotaryEncoder(
          = RotaryEncoder(frontVector, bottomVector, referencePoint)
 }
 
-fun ScadWriter.rotaryEncoderKnob(
+fun ScadParentObject.rotaryEncoderKnob(
    rotaryEncoder: RotaryEncoder, radius: Size, height: Size, shaftHoleHeight: Size
-) {
+): ScadObject {
    val cylinderPosition = rotaryEncoder.referencePoint
       .translate(rotaryEncoder.topVector, RotaryEncoder.HEIGHT - shaftHoleHeight)
 
-   translate(cylinderPosition - Point3d.ORIGIN) {
+   return translate(cylinderPosition - Point3d.ORIGIN) {
       rotate(
          Vector3d.Z_UNIT_VECTOR angleWith     rotaryEncoder.topVector,
          Vector3d.Z_UNIT_VECTOR vectorProduct rotaryEncoder.topVector
@@ -50,16 +50,16 @@ fun ScadWriter.rotaryEncoderKnob(
  *
  * 性質上必ず他のモデルとの[difference]をとることになる。
  */
-fun ScadWriter.rotaryEncoderMountHole(
+fun ScadParentObject.rotaryEncoderMountHole(
    rotaryEncoder: RotaryEncoder,
    thickness: Size
-) {
+): ScadObject {
    fun Point3d.translate(x: Size, y: Size): Point3d {
       return translate(rotaryEncoder.rightVector, x)
             .translate(rotaryEncoder.frontVector, y)
    }
 
-   fun ScadWriter.hole(positionX: Size, positionY: Size, sizeX: Size, sizeY: Size) {
+   fun ScadParentObject.hole(positionX: Size, positionY: Size, sizeX: Size, sizeY: Size): ScadObject {
       val holeCenter = rotaryEncoder.referencePoint.translate(positionX, positionY)
 
       val holePoints = listOf(
@@ -69,19 +69,21 @@ fun ScadWriter.rotaryEncoderMountHole(
          holeCenter.translate(-sizeX / 2.0, -sizeY / 2.0)
       )
 
-      hullPoints(
+      return hullPoints(
          holePoints.map { it.translate(rotaryEncoder.topVector, 0.1.mm) } +
          holePoints.map { it.translate(rotaryEncoder.bottomVector, thickness) }
       )
    }
 
-   hole((-2.5).mm, (-7.5).mm, 1.mm, 1.mm)
-   hole(  0.0 .mm, (-7.5).mm, 1.mm, 1.mm)
-   hole(  2.5 .mm, (-7.5).mm, 1.mm, 1.mm)
+   return union {
+      hole((-2.5).mm, (-7.5).mm, 1.mm, 1.mm)
+      hole(  0.0 .mm, (-7.5).mm, 1.mm, 1.mm)
+      hole(  2.5 .mm, (-7.5).mm, 1.mm, 1.mm)
 
-   hole((-5.6).mm, 0.mm, 2.mm, 2.5.mm)
-   hole(  5.6 .mm, 0.mm, 2.mm, 2.5.mm)
+      hole((-5.6).mm, 0.mm, 2.mm, 2.5.mm)
+      hole(  5.6 .mm, 0.mm, 2.mm, 2.5.mm)
 
-   hole((-2.5).mm, 7.mm, 1.mm, 1.mm)
-   hole(  2.5 .mm, 7.mm, 1.mm, 1.mm)
+      hole((-2.5).mm, 7.mm, 1.mm, 1.mm)
+      hole(  2.5 .mm, 7.mm, 1.mm, 1.mm)
+   }
 }

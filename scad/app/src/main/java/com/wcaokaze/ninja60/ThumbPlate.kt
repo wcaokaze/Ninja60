@@ -95,8 +95,8 @@ data class ThumbPlate(
 
 // =============================================================================
 
-fun ScadWriter.thumbPlate(thumbPlate: ThumbPlate) {
-   union {
+fun ScadParentObject.thumbPlate(thumbPlate: ThumbPlate): ScadObject {
+   return union {
       difference {
          //                                     layerOffset, leftRightOffset, frontOffset
          hullThumbPlate(thumbPlate, KeySwitch.BOTTOM_HEIGHT,          1.5.mm,      1.5.mm)
@@ -122,12 +122,12 @@ fun ScadWriter.thumbPlate(thumbPlate: ThumbPlate) {
  * @param frontOffset
  * 手前(親指の付け根方向)に広がる
  */
-fun ScadWriter.hullThumbPlate(
+fun ScadParentObject.hullThumbPlate(
    thumbPlate: ThumbPlate,
    layerOffset: Size = 0.mm,
    leftRightOffset: Size = 0.mm,
    frontOffset: Size = 0.mm
-) {
+): ScadObject {
    val columnSwitches = thumbPlate.column.map { it.translate(it.bottomVector, layerOffset) }
    val columnPlates = columnSwitches.map { it.plate(ThumbPlate.KEY_PLATE_SIZE) }
    val backKeySwitch = thumbPlate.backKey.translate(thumbPlate.backKey.bottomVector, layerOffset)
@@ -175,7 +175,7 @@ fun ScadWriter.hullThumbPlate(
          )
       }
 
-   hullPoints(
+   return hullPoints(
       *columnPoints.toTypedArray(),
       *backPlatePoints.toTypedArray(),
    )

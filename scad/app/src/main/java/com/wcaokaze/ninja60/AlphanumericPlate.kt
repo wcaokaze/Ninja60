@@ -84,8 +84,8 @@ fun AlphanumericPlate.rotate(axis: Line3d, angle: Angle) = AlphanumericPlate(
 
 // =============================================================================
 
-fun ScadWriter.alphanumericPlate(alphanumericPlate: AlphanumericPlate) {
-   union {
+fun ScadParentObject.alphanumericPlate(alphanumericPlate: AlphanumericPlate): ScadObject {
+   return union {
       difference {
          //                                                   layerOffset, frontBackOffset, leftRightOffset, columnOffset
          hullAlphanumericPlate(alphanumericPlate, KeySwitch.BOTTOM_HEIGHT,          1.5.mm,          0.5.mm,         1.mm)
@@ -116,13 +116,13 @@ fun ScadWriter.alphanumericPlate(alphanumericPlate: AlphanumericPlate) {
  * @param columnOffset
  * 各Column 左右方向に広がる
  */
-fun ScadWriter.hullAlphanumericPlate(
+fun ScadParentObject.hullAlphanumericPlate(
    alphanumericPlate: AlphanumericPlate,
    layerOffset: Size = 0.mm,
    frontBackOffset: Size = 0.mm,
    leftRightOffset: Size = 0.mm,
    columnOffset: Size = 0.mm
-) {
+): ScadObject {
    val switches: List<List<KeySwitch>> = alphanumericPlate.columns.map { column ->
       column.keySwitches.map { it.translate(it.bottomVector, layerOffset) }
    }
@@ -133,7 +133,7 @@ fun ScadWriter.hullAlphanumericPlate(
 
    val wallPlanes = getWallPlanes(alphanumericPlate.columns, leftRightOffset)
 
-   union {
+   return union {
       for ((wallPlane, plate) in wallPlanes.zipWithNext() zip plates) {
          hullColumn(plate,
             wallPlane.first .let { it.translate(it.normalVector, -columnOffset) },
@@ -144,13 +144,13 @@ fun ScadWriter.hullAlphanumericPlate(
    }
 }
 
-private fun ScadWriter.hullColumn(
+private fun ScadParentObject.hullColumn(
    columnPlates: List<KeyPlate>,
    leftWallPlane: Plane3d,
    rightWallPlane: Plane3d,
    layerOffset: Size,
    frontBackOffset: Size
-) {
+): ScadObject {
    val mostBackPlate  = columnPlates.first()
    val mostFrontPlate = columnPlates.last()
 
@@ -167,7 +167,7 @@ private fun ScadWriter.hullColumn(
       mostFrontLine.translate(mostFrontPlate.topVector, layerOffset.coerceAtLeast(20.mm))
    )
 
-   hullPoints(
+   return hullPoints(
       lines.map { leftWallPlane  intersection it } +
       lines.map { rightWallPlane intersection it }
    )
