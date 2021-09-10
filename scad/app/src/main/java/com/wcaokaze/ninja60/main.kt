@@ -18,6 +18,7 @@ fun main(vararg args: String) {
       val case = Case()
       case(case)
 
+      /*
       case.alphanumericPlate.columns
          .flatMap { it.keySwitches.map { it.plate(Size2d(16.mm, 16.mm)) } }
          .map { it.translate(it.topVector, KeySwitch.TOP_HEIGHT + KeySwitch.STEM_HEIGHT + Keycap.THICKNESS) }
@@ -51,6 +52,7 @@ fun main(vararg args: String) {
             cylinder(14.mm, 12.mm, `$fa`)
          }
       }
+      */
    }
 }
 
