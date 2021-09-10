@@ -15,8 +15,10 @@ fun main(vararg args: String) {
    }
 
    writeScad(config.outputFile) {
-      val case = Case()
-      case(case)
+      mirror(1.mm, 0.mm, 0.mm) {
+         val case = Case()
+         case(case)
+      }
 
       /*
       case.alphanumericPlate.columns
