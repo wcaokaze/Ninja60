@@ -1,5 +1,14 @@
 package com.wcaokaze.scadwriter
 
-inline fun ScadWriter.union(children: ScadWriter.() -> Unit) {
-   writeBlock("union()", children)
+class Union : ScadParentObject() {
+   override fun writeScad(scadWriter: ScadWriter) {
+      writeChildren(scadWriter, "union()")
+   }
+}
+
+inline fun ScadParentObject.union(children: Union.() -> Unit): Union {
+   val union = Union()
+   addChild(union)
+   union.children()
+   return union
 }

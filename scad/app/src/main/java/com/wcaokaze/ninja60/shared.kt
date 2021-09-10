@@ -3,23 +3,23 @@ package com.wcaokaze.ninja60
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
-val keyPitch = Size2d(19.05.mm, 16.mm)
+val `$fs`: Double = 2.0
+val `$fa`: Double = 12.0
+val `$fn`: Double = 0.0
 
-fun ScadWriter.prepareSharedScads() {
-   val fs = "\$fs"
-   writeRawScad("""
-      $fs = 0.1;
+val keyPitch = Size2d(19.2.mm, 16.mm)
 
-      module polygon_pyramid(n, r, h) {
-         linear_extrude(h) polygon([
-            for (a = [180.0 / n : 360.0 / n : 360.0 + 180.0 / n])
-               [r * sin(a), r * cos(a)]
-         ]);
-      }
-   """)
-}
-fun ScadWriter.polygonPyramid(n: Int, height: Size, radius: Size) {
-   writeRawScad("polygon_pyramid($n, $radius, $height);")
+fun ScadParentObject.polygonPyramid(n: Int, height: Size, radius: Size): ScadObject {
+   return linearExtrude(height) {
+      polygon(
+         ((180.deg / n)..(360.deg / n) step (360.deg + 180.deg / n)).map {
+            Point2d(
+               Point(radius * sin(it)),
+               Point(radius * cos(it))
+            )
+         }
+      )
+   }
 }
 
 /**
@@ -69,16 +69,16 @@ fun zPointOnLine(a: Point3d, b: Point3d, z: Point) = Point3d(
  * @param isUpperLayer
  * trueで上の層に配置。このとき自動的にX軸で180°回転して裏返されます
  */
-fun ScadWriter.layout(
+fun ScadParentObject.layout(
    x: Double, y: Double,
    rotationX: Angle = 0.0.rad, rotationY: Angle = 0.0.rad, rotationZ: Angle = 0.0.rad,
    isUpperLayer: Boolean = false,
-   children: ScadWriter.() -> Unit
-) {
+   children: ScadParentObject.() -> Unit
+): Translate {
    val keyDistance = 16.5.mm
    val upperLayerZOffset = 28.5.mm
 
-   translate(
+   return translate(
       keyDistance * (x + 0.5),
       keyDistance * (y + 0.5),
       if (isUpperLayer) { upperLayerZOffset } else { 0.mm }

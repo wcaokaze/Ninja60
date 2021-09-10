@@ -52,10 +52,10 @@ fun arcLengthToAngle(arcR: Size, length: Size) = Angle(length.numberAsMilliMeter
  * ステムの十字部が太くなります。
  * 磨きなどする場合に削れる分を想定して指定しましょう
  */
-fun ScadWriter.thumbKeycap(
+fun ScadParentObject.thumbKeycap(
    arcR: Size, arcStartA: Angle, arcEndA: Angle,
    dishOffset: Size, h: Size, polishingMargin: Size = 0.mm
-) {
+): ScadObject {
    val topW = 18.mm - (keyPitch.x - 11.mm)
    val topH = h     - (keyPitch.y - 11.mm)
 
@@ -70,20 +70,20 @@ fun ScadWriter.thumbKeycap(
    val bottomZ = Point(0.mm)
    val topZ = dishPositionZ + keycapHeight
 
-   fun ScadWriter.dish(fa: Double) {
-      translate(bottomCenterR, dishOffset, (topZ + dishR - 2.mm).distanceFromOrigin) {
+   fun ScadParentObject.dish(fa: Double): ScadObject {
+      return translate(bottomCenterR, dishOffset, (topZ + dishR - 2.mm).distanceFromOrigin) {
          rotate(90.deg - thumbTiltA, 0.deg, 90.deg) {
             cylinder(height = 32.mm, dishR, center = true, fa)
          }
       }
    }
 
-   fun ScadWriter.arc(
+   fun ScadParentObject.arc(
       outerR: Size, innerR: Size,
       startA: Angle, endA: Angle,
       topW: Size, topH: Size,
       z: Point
-   ) {
+   ): ScadObject {
       fun bottomInnerX(a: Angle) = Point(innerR * cos(a))
       fun bottomInnerY(a: Angle) = Point(innerR * sin(a))
       fun bottomOuterX(a: Angle) = Point(outerR * cos(a))
@@ -110,22 +110,22 @@ fun ScadWriter.thumbKeycap(
             }
       )
 
-      translate(z = z.distanceFromOrigin) {
+      return locale(z = z) {
          linearExtrude(0.01.mm) {
             polygon(points.flatten())
          }
       }
    }
 
-   fun ScadWriter.roundArc(
+   fun ScadParentObject.roundArc(
       outerR: Size, innerR: Size,
       startA: Angle, endA: Angle,
       topW: Size, topH: Size,
       roundR: Size,
       z: Point,
       fa: Double
-   ) {
-      minkowski {
+   ): ScadObject {
+      return minkowski {
          arc(
             outerR - roundR,
             innerR + roundR,
@@ -140,7 +140,7 @@ fun ScadWriter.thumbKeycap(
       }
    }
 
-   fun ScadWriter.outer() {
+   fun ScadParentObject.outer(): ScadObject {
       val bottomR = 0.mm
       val topR = 3.mm
 
@@ -149,7 +149,7 @@ fun ScadWriter.thumbKeycap(
          return bottomR + (topR - bottomR) * rate
       }
 
-      difference {
+      return difference {
          union {
             val step = 0.5.mm
             for (z in bottomZ..topZ step step) {
@@ -182,7 +182,7 @@ fun ScadWriter.thumbKeycap(
          hull {
             cylinder(height = 0.01.mm, radius = bottomInnerR, fa = keycapWallFa)
 
-            translate(z = topZ.distanceFromOrigin) {
+            locale(z = topZ) {
                cube(bottomCenterR * 2 - topH, topW, 0.01.mm, center = true)
             }
          }
@@ -191,8 +191,8 @@ fun ScadWriter.thumbKeycap(
       }
    }
 
-   fun ScadWriter.inner() {
-      difference {
+   fun ScadParentObject.inner(): ScadObject {
+      return difference {
          hull {
             arc(
                bottomOuterR - Keycap.THICKNESS,
@@ -220,7 +220,7 @@ fun ScadWriter.thumbKeycap(
                keycapInvisibleFa
             )
 
-            translate(z = topZ.distanceFromOrigin - Keycap.THICKNESS) {
+            locale(z = topZ - Keycap.THICKNESS) {
                cube(
                   bottomCenterR * 2 - (topH - Keycap.THICKNESS * 2),
                   topW - Keycap.THICKNESS * 2,
@@ -236,8 +236,8 @@ fun ScadWriter.thumbKeycap(
       }
    }
 
-   fun ScadWriter.pillar() {
-      intersection {
+   fun ScadParentObject.pillar(): ScadObject {
+      return intersection {
          union {
             translate(z = 2.5.mm) {
                difference {
@@ -267,7 +267,7 @@ fun ScadWriter.thumbKeycap(
       }
    }
 
-   translate(x = -arcR) {
+   return translate(x = -arcR) {
       union {
          if (enableOnlyOuter) {
             outer()
@@ -327,7 +327,7 @@ fun ScadWriter.thumbKeycap(
  * ステムの十字部が太くなります。
  * 磨きなどする場合に削れる分を想定して指定しましょう
  */
-fun ScadWriter.keycap(
+fun ScadParentObject.keycap(
    x: Double, y: Double, w: Double = 1.0, h: Double = 1.0, legend: String,
    isFluentToNorth: Boolean = false, isFluentToSouth: Boolean = false,
    isCylindrical: Boolean = false, isHomePosition: Boolean = false,
@@ -336,8 +336,8 @@ fun ScadWriter.keycap(
    leftWallAngle: Angle = 0.0.rad, rightWallAngle: Angle = 0.0.rad,
    wallY: Point = Point(0.mm),
    polishingMargin: Size = 0.mm,
-   children: ScadWriter.() -> Unit
-) {
+   children: ScadParentObject.() -> Unit
+): ScadObject {
    val topW = 13.mm + keyPitch.x * (w - 1)
    val topH = 13.mm + keyPitch.y * (h - 1)
    val bottomW = keyPitch.x * w - keycapMargin * 2
@@ -363,8 +363,8 @@ fun ScadWriter.keycap(
     *
     * 要するにtiltXa, tiltYaで回転し、XY座標は回転前の位置に戻してZ座標だけそのままにする。
     */
-   fun ScadWriter.rotateForTilt(children: ScadWriter.() -> Unit) {
-      translate(z = tiltXr * (1 - cos(-tiltXa)) + tiltYr * (1 - cos(tiltYa))) {
+   fun ScadParentObject.rotateForTilt(children: ScadParentObject.() -> Unit): ScadObject {
+      return translate(z = tiltXr * (1 - cos(-tiltXa)) + tiltYr * (1 - cos(tiltYa))) {
          rotate(tiltYa, -tiltXa) {
             children()
          }
@@ -391,8 +391,8 @@ fun ScadWriter.keycap(
       Size3d(0.mm, 0.mm, tiltXr * (1 - cos(-tiltXa)) + tiltYr * (1 - cos(tiltYa)))
    }
 
-   fun ScadWriter.dish(keycapHeight: Size, fa: Double) {
-      if (isCylindrical) {
+   fun ScadParentObject.dish(keycapHeight: Size, fa: Double): ScadObject {
+      return if (isCylindrical) {
          minkowski {
             cube(
                keyPitch.x * (w - 1) + 0.001.mm,
@@ -434,8 +434,8 @@ fun ScadWriter.keycap(
       }
    }
 
-   fun ScadWriter.legend(text: String) {
-      intersection {
+   fun ScadParentObject.legend(text: String): ScadObject {
+      return intersection {
          translate(z = keycapHeight) {
             rotateForTilt {
                translate(z = (-0.5).mm) {
@@ -454,8 +454,8 @@ fun ScadWriter.keycap(
       }
    }
 
-   fun ScadWriter.outer(children: ScadWriter.() -> Unit) {
-      fun ScadWriter.roundRectPyramid() {
+   fun ScadParentObject.outer(children: ScadWriter.() -> Unit): ScadObject {
+      fun ScadParentObject.roundRectPyramid(): ScadObject {
          fun dishPosition(x: Point, y: Point): Point3d {
             return rotatePointForTilt(Point3d(
                      x, y,
@@ -469,8 +469,8 @@ fun ScadWriter.keycap(
 
          fun extractXy(point: Point3d) = Point2d(point.x, point.y)
 
-         fun ScadWriter.polygonFrom3d(points: List<Point3d>) {
-            linearExtrude(0.1.mm) {
+         fun ScadParentObject.polygonFrom3d(points: List<Point3d>): ScadObject {
+            return linearExtrude(0.1.mm) {
                polygon(points.map { extractXy(it) })
             }
          }
@@ -502,11 +502,11 @@ fun ScadWriter.keycap(
          fun getRate(z: Point) = (z - bottomZ).numberAsMilliMeter / (topZ - bottomZ).numberAsMilliMeter
          fun rAt(z: Point) = bottomR + (topR - bottomR) * getRate(z)
 
-         union {
+         return union {
             val step = 0.5.mm
             for (z in bottomZ..topZ step step) {
                hull {
-                  translate(z = z.distanceFromOrigin) {
+                  locale(z = z) {
                      minkowski {
                         polygonFrom3d(
                            (bottomPoints zip topPoints)
@@ -517,7 +517,7 @@ fun ScadWriter.keycap(
                      }
                   }
 
-                  translate(z = z.distanceFromOrigin + step) {
+                  locale(z = z + step) {
                      minkowski {
                         polygonFrom3d(
                            (bottomPoints zip topPoints)
@@ -532,7 +532,7 @@ fun ScadWriter.keycap(
          }
       }
 
-      intersection {
+      return intersection {
          difference {
             roundRectPyramid()
             dish(keycapHeight, dishFa)
@@ -542,12 +542,12 @@ fun ScadWriter.keycap(
       }
    }
 
-   fun ScadWriter.inner() {
-      fun ScadWriter.rectPyramid() {
-         hull {
+   fun ScadParentObject.inner(): ScadObject {
+      fun ScadParentObject.rectPyramid(): ScadObject {
+         return hull {
             val topZ = Point(keycapHeight)
 
-            translate(z = topZ.distanceFromOrigin) {
+            locale(z = topZ) {
                rotateForTilt {
                   cube(
                      topW - Keycap.THICKNESS * 2,
@@ -558,7 +558,7 @@ fun ScadWriter.keycap(
                }
             }
 
-            translate(z = bottomZ.distanceFromOrigin) {
+            locale(z = bottomZ) {
                linearExtrude(0.01.mm) {
                   polygon(listOf(
                      Point2d(bottomNorthLeftX  + Keycap.THICKNESS, bottomNorthY - Keycap.THICKNESS),
@@ -571,14 +571,14 @@ fun ScadWriter.keycap(
          }
       }
 
-      difference {
+      return difference {
          rectPyramid()
          dish(keycapHeight - Keycap.THICKNESS, keycapInvisibleFa)
       }
    }
 
-   fun ScadWriter.pillar(children: ScadWriter.() -> Unit) {
-      intersection {
+   fun ScadParentObject.pillar(children: ScadWriter.() -> Unit): ScadObject {
+      return intersection {
          union {
             translate((-16).mm, (- 1.5).mm, 2.5.mm) { cube(32.mm,  3.mm, 24.mm) }
             translate((- 1).mm, (-16.0).mm, 2.5.mm) { cube( 2.mm, 32.mm, 24.mm) }
@@ -609,8 +609,8 @@ fun ScadWriter.keycap(
       }
    }
 
-   fun ScadWriter.homePositionMark() {
-      translate(z = keycapHeight) {
+   fun ScadParentObject.homePositionMark(): ScadObject {
+      return translate(z = keycapHeight) {
          rotateForTilt {
             translate((-0.5).mm, -topH / 2 + 0.15.mm, (-1.5).mm) {
                minkowski {
@@ -622,7 +622,7 @@ fun ScadWriter.keycap(
       }
    }
 
-   difference {
+   return difference {
       if (enableOnlyOuter) {
          outer { children() }
       } else {

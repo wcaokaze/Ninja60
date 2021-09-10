@@ -113,8 +113,11 @@ data class Vector3d(val x: Size, val y: Size, val z: Size) {
    )
 
    infix fun angleWith(v: Vector3d) = Angle(
-      acos(innerProduct(v).numberAsMilliMeter
-            / (norm.numberAsMilliMeter * v.norm.numberAsMilliMeter))
+      acos(
+         (innerProduct(v).numberAsMilliMeter
+            / (norm.numberAsMilliMeter * v.norm.numberAsMilliMeter)
+         ).coerceIn(-1.0, 1.0)
+      )
    )
 }
 

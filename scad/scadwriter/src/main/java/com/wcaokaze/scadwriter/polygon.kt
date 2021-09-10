@@ -1,11 +1,21 @@
 package com.wcaokaze.scadwriter
 
-import com.wcaokaze.scadwriter.foundation.Point2d
+import com.wcaokaze.scadwriter.foundation.*
 
-fun ScadWriter.polygon(points: List<Point2d>) {
-   writeIndent()
-   write("polygon(")
-   writeArray(points)
-   write(");")
-   writeln()
+data class Polygon(
+   val points: List<Point2d>
+) : ScadPrimitiveObject() {
+   override fun writeScad(scadWriter: ScadWriter) {
+      scadWriter.writeIndent()
+      scadWriter.write("polygon(")
+      scadWriter.writeArray(points)
+      scadWriter.write(");")
+      scadWriter.writeln()
+   }
+}
+
+fun ScadParentObject.polygon(points: List<Point2d>): Polygon {
+   val polygon = Polygon(points)
+   addChild(polygon)
+   return polygon
 }

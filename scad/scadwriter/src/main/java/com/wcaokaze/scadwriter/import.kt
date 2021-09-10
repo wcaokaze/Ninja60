@@ -1,15 +1,45 @@
 package com.wcaokaze.scadwriter
 
-import java.io.File
+import java.io.*
 
-fun ScadWriter.import(file: File) {
-   writeln("import(\"${file.absolutePath}\");")
+data class Import(
+   val file: File
+) : ScadPrimitiveObject() {
+   override fun writeScad(scadWriter: ScadWriter) {
+      scadWriter.writeln("import(\"${file.absolutePath}\");")
+   }
 }
 
-fun ScadWriter.include(file: File) {
-   writeln("include <${file.absolutePath}>;")
+fun ScadParentObject.import(file: File): Import {
+   val import = Import(file)
+   addChild(import)
+   return import
 }
 
-fun ScadWriter.use(file: File) {
-   writeln("use <${file.absolutePath}>;")
+data class Include(
+   val file: File
+) : ScadPrimitiveObject() {
+   override fun writeScad(scadWriter: ScadWriter) {
+      scadWriter.writeln("include <${file.absolutePath}>;")
+   }
+}
+
+fun ScadParentObject.include(file: File): Include {
+   val include = Include(file)
+   addChild(include)
+   return include
+}
+
+data class Use(
+   val file: File
+) : ScadPrimitiveObject() {
+   override fun writeScad(scadWriter: ScadWriter) {
+      scadWriter.writeln("use <${file.absolutePath}>;")
+   }
+}
+
+fun ScadParentObject.use(file: File): Use {
+   val use = Use(file)
+   addChild(use)
+   return use
 }

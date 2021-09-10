@@ -1,5 +1,6 @@
 package com.wcaokaze.ninja60
 
+import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 import java.io.File
@@ -14,26 +15,44 @@ fun main(vararg args: String) {
    }
 
    writeScad(config.outputFile) {
-      prepareSharedScads()
+      val case = Case()
+      case(case)
 
       /*
-      prepareBottomPlateModule()
-      prepareMiddlePlateModule()
-
-      translate(x = 19.05.mm * 2) { rotate(y = Angle.PI) { bottomPlate() } }
-      translate(z = 1.cm) { middlePlate() }
-      translate(z = 2.cm) { topPlate() }
-
-      leftKeys()
-      */
-
-      thumbPlate()
-
-      ThumbPlate()
-         .thumbKeys
-         .copy(layerDistance = 0.mm)
-         .let { it.column + it.backKey }
+      case.alphanumericPlate.columns
+         .flatMap { it.keySwitches.map { it.plate(Size2d(16.mm, 16.mm)) } }
+         .map { it.translate(it.topVector, KeySwitch.TOP_HEIGHT + KeySwitch.STEM_HEIGHT + Keycap.THICKNESS) }
          .forEach { hullPoints(it.points) }
+
+      // ----
+
+      val caseTopPlane = alphanumericTopPlane(case.alphanumericPlate, 0.mm)
+      val frontRotaryEncoder = frontRotaryEncoder(case.alphanumericPlate)
+         .translate(caseTopPlane.normalVector, 1.mm)
+
+      rotaryEncoderKnob(
+         frontRotaryEncoder,
+         Case.FRONT_ROTARY_ENCODER_KNOB_RADIUS,
+         Case.FRONT_ROTARY_ENCODER_KNOB_HEIGHT,
+         Case.FRONT_ROTARY_ENCODER_KNOB_HOLE_HEIGHT
+      )
+
+      // ----
+
+      translate((-62).mm, (-108).mm, 0.mm) {
+         cube(102.mm, 70.mm, 80.mm)
+      }
+
+      translate((-91).mm, 56.mm, 23.mm) {
+         cylinder(14.mm, 30.mm, `$fa`)
+      }
+
+      translate((-5).mm, 106.mm, 73.mm) {
+         rotate(y = 75.deg) {
+            cylinder(14.mm, 12.mm, `$fa`)
+         }
+      }
+      */
    }
 }
 

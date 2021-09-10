@@ -93,6 +93,8 @@ class Plane3d
    }
 }
 
+infix fun Line3d.intersection(plane: Plane3d): Point3d = plane intersection this
+
 fun Plane3d.translate(distance: Size3d)
       = Plane3d(somePoint.translate(distance), normalVector)
 

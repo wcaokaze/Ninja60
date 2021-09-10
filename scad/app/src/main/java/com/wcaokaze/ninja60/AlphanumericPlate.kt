@@ -4,43 +4,111 @@ import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
-val topPlateThickness = 1.5.mm
-val topPlateHeight = 5.mm - topPlateThickness
-
-val topPlateHoleSize = Size2d(14.mm, 14.mm)
-
+/**
+ * 人差し指から小指の4本の指で押す、アルファベットと数字のキースイッチを挿すためのプレート
+ */
 data class AlphanumericPlate(
-   val alphanumericColumns: AlphanumericColumns
+   /** 小指側から人差し指側の順 */
+   val columns: List<AlphanumericColumn>
 ) {
    companion object {
-      operator fun invoke() = AlphanumericPlate(
-         AlphanumericColumns(-Keycap.THICKNESS - KeySwitch.STEM_HEIGHT - KeySwitch.TOP_HEIGHT)
-      )
+      val KEY_PLATE_SIZE = Size2d(17.5.mm, 17.5.mm)
+
+      operator fun invoke(): AlphanumericPlate {
+         fun column(
+            dx: Size, dy: Size, dz: Size,
+            radius: Size,
+            az: Angle, ax: Angle,
+            twist: Angle
+         ): AlphanumericColumn {
+            return AlphanumericColumn(
+                  Point3d.ORIGIN.translate(y = dy),
+                  -Vector3d.Z_UNIT_VECTOR,
+                  -Vector3d.Y_UNIT_VECTOR,
+                  radius,
+                  twist
+               )
+               .rotate(
+                  Line3d.Z_AXIS.translate(y = (-30).mm),
+                  az
+               )
+               .let { column ->
+                  column.rotate(
+                     Line3d(
+                        column.referencePoint
+                           .translate(column.bottomVector, radius),
+                        column.frontVector
+                     ),
+                     ax
+                  )
+               }
+               .translate(x = dx, z = dz)
+         }
+
+         return AlphanumericPlate(listOf(
+            //    | dx                    | dy      | dz     | radius | az      | ax        | twist   |
+            column(keyPitch.x * -2 - 19.mm, (-18).mm,  9.5.mm,   38.mm,   4 .deg,   1.5 .deg, (-8).deg),
+            column(keyPitch.x * -2        , (-16).mm, 10.0.mm,   38.mm,   4 .deg,   3.0 .deg,   0 .deg),
+            column(keyPitch.x * -1        , (- 5).mm,  5.0.mm,   42.mm,   2 .deg,   2.0 .deg,   0 .deg),
+            column(keyPitch.x *  0        ,    0 .mm,  0.0.mm,   44.mm,   0 .deg,   0.0 .deg,   0 .deg),
+            column(keyPitch.x *  1        , (- 3).mm,  4.0.mm,   41.mm, (-2).deg, (-1.0).deg,   0 .deg),
+            column(keyPitch.x *  1 + 19.mm, (- 5).mm,  4.1.mm,   41.mm, (-2).deg,   0.5 .deg,   8 .deg),
+         ))
+      }
    }
 }
 
-fun ScadWriter.alphanumericPlate() {
-   val topPlate = AlphanumericPlate()
+// =============================================================================
 
-   difference {
-      //                                           layerOffset, frontBackOffset, leftRightOffset, columnOffset
-      alphanumericColumns(topPlate.alphanumericColumns, 1.5.mm,          1.5.mm,          3.0.mm,         1.mm)
-      alphanumericColumns(topPlate.alphanumericColumns, 0.0.mm,         20.0.mm,          1.5.mm,         0.mm)
+fun AlphanumericPlate.translate(distance: Size3d) = AlphanumericPlate(
+   columns.map { it.translate(distance) }
+)
 
-      topPlate.alphanumericColumns.columns
-         .flatMap { it.keyPlates }
-         .map { it.copy(size = Size2d(14.mm, 14.mm)) }
-         .map { keyPlate ->
-            keyPlate.points +
-                  keyPlate.points.map { it.translate(keyPlate.normalVector, (-2).mm) }
+fun AlphanumericPlate.translate(distance: Vector3d) = AlphanumericPlate(
+   columns.map { it.translate(distance) }
+)
+
+fun AlphanumericPlate.translate(direction: Vector3d, distance: Size) = AlphanumericPlate(
+   columns.map { it.translate(direction, distance) }
+)
+
+fun AlphanumericPlate.translate(
+   x: Size = 0.mm,
+   y: Size = 0.mm,
+   z: Size = 0.mm
+): AlphanumericPlate = translate(Size3d(x, y, z))
+
+fun AlphanumericPlate.rotate(axis: Line3d, angle: Angle) = AlphanumericPlate(
+   columns.map { it.rotate(axis, angle) }
+)
+
+// =============================================================================
+
+fun ScadParentObject.alphanumericPlate(alphanumericPlate: AlphanumericPlate): ScadObject {
+   return union {
+      difference {
+         //                                                   layerOffset, frontBackOffset, leftRightOffset, columnOffset
+         hullAlphanumericPlate(alphanumericPlate, KeySwitch.BOTTOM_HEIGHT,          1.5.mm,          0.5.mm,         1.mm)
+         hullAlphanumericPlate(alphanumericPlate,                    0.mm,         20.0.mm,          3.0.mm,         0.mm)
+
+         for (c in alphanumericPlate.columns) {
+            for (k in c.keySwitches) {
+               switchHole(k)
+            }
          }
-         .forEach { hullPoints(it) }
+      }
+
+      for (c in alphanumericPlate.columns) {
+         for (k in c.keySwitches) {
+            switchSideHolder(k)
+         }
+      }
    }
 }
 
 /**
  * @param layerOffset
- * 各Columnの[layerDistance][Column.layerDistance]が足される。つまり各Column深くなる
+ * 各KeyPlateの位置が[KeySwitch.bottomVector]方向へ移動する
  * @param frontBackOffset
  * 各Column手前と奥に広がるが、Ninja60の場合手前と奥のKeyPlateは上を向いているので上に広がる
  * @param leftRightOffset
@@ -48,130 +116,135 @@ fun ScadWriter.alphanumericPlate() {
  * @param columnOffset
  * 各Column 左右方向に広がる
  */
-private fun ScadWriter.alphanumericColumns(
-   alphanumericColumns: AlphanumericColumns,
-   layerOffset: Size,
-   frontBackOffset: Size,
-   leftRightOffset: Size,
-   columnOffset: Size
-) {
-   fun Plane3d.translateByNormalVector(size: Size): Plane3d {
-      return translate(normalVector, size)
+fun ScadParentObject.hullAlphanumericPlate(
+   alphanumericPlate: AlphanumericPlate,
+   layerOffset: Size = 0.mm,
+   frontBackOffset: Size = 0.mm,
+   leftRightOffset: Size = 0.mm,
+   columnOffset: Size = 0.mm
+): ScadObject {
+   val switches: List<List<KeySwitch>> = alphanumericPlate.columns.map { column ->
+      column.keySwitches.map { it.translate(it.bottomVector, layerOffset) }
    }
 
-   val columns = alphanumericColumns.columns.map { it.copy(layerDistance = it.layerDistance - layerOffset) }
-   val leftmostColumn = columns[0]
-
-   val leftmostWallPlane = Plane3d(
-         leftmostColumn.keyPlates
-            .flatMap { listOf(it.backLeft, it.frontLeft) }
-            .minByOrNull {
-               // いやこのへんのコード汚すぎでしょ
-               // とりあえずColumnから見て一番左の座標が知りたいだけなので
-               // 真面目に回転せずalignmentVectorのX成分がゼロになればいいくらいの感じ
-               it.rotate(
-                  Line3d.Z_AXIS,
-                  leftmostColumn.alignmentVector.copy(z = 0.mm) angleWith Vector3d.Y_UNIT_VECTOR
-               ).x
-            } !!,
-         leftmostColumn.alignmentVector vectorProduct leftmostColumn.bottomVector
-      )
-      .translateByNormalVector(-leftRightOffset)
-
-   val leftmostRightWallPlane = getWallPlane(columns[0], columns[1])
-      .translateByNormalVector(columnOffset)
-
-   // --------
-
-   val rightmostColumn = columns[columns.lastIndex]
-
-   val rightmostWallPlane = Plane3d(
-         rightmostColumn.keyPlates
-            .flatMap { listOf(it.backRight, it.frontRight) }
-            .maxByOrNull {
-               it.rotate(
-                  Line3d.Z_AXIS,
-                  rightmostColumn.alignmentVector.copy(z = 0.mm) angleWith Vector3d.Y_UNIT_VECTOR
-               ).x
-            } !!,
-         rightmostColumn.alignmentVector vectorProduct rightmostColumn.bottomVector
-      )
-      .translateByNormalVector(leftRightOffset)
-
-   val rightmostLeftWallPlane = getWallPlane(columns[columns.lastIndex - 1], columns[columns.lastIndex])
-      .translateByNormalVector(-columnOffset)
-
-   // --------
-
-   fun ScadWriter.column(
-      column: Column,
-      leftWallPlane: Plane3d,
-      rightWallPlane: Plane3d
-   ) {
-      val mostBackPlate  = column.keyPlates.first()
-      val mostFrontPlate = column.keyPlates.last()
-
-      val boundaryLines = column.boundaryLines()
-
-      val mostBackLine  = boundaryLines.first().translate(mostBackPlate .frontVector, -frontBackOffset)
-      val mostFrontLine = boundaryLines.last() .translate(mostFrontPlate.frontVector,  frontBackOffset)
-
-      val lines = listOf(
-         mostBackLine.translate(mostBackPlate.normalVector, 20.mm),
-         mostBackLine,
-         *boundaryLines.drop(1).dropLast(1).toTypedArray(),
-         mostFrontLine,
-         mostFrontLine.translate(mostFrontPlate.normalVector, 20.mm)
-      )
-
-      hullPoints(
-         lines.map { leftWallPlane  intersection it } +
-         lines.map { rightWallPlane intersection it }
-      )
+   val plates: List<List<KeyPlate>> = switches.map { columnSwitches ->
+      columnSwitches.map { it.plate(AlphanumericPlate.KEY_PLATE_SIZE) }
    }
 
-   // --------
+   val wallPlanes = getWallPlanes(alphanumericPlate.columns, leftRightOffset)
 
-   union {
-      column(leftmostColumn, leftmostWallPlane, leftmostRightWallPlane)
-
-      for ((left, column, right) in columns.windowed(3)) {
-         column(
-            column,
-            getWallPlane(left, column) .translateByNormalVector(-columnOffset),
-            getWallPlane(column, right).translateByNormalVector( columnOffset)
-         )
+   return union {
+      for ((wallPlane, plate) in wallPlanes.zipWithNext() zip plates) {
+         hullColumn(plate,
+            wallPlane.first .let { it.translate(it.normalVector, -columnOffset) },
+            wallPlane.second.let { it.translate(it.normalVector,  columnOffset) },
+            layerOffset,
+            frontBackOffset)
       }
-
-      column(rightmostColumn, rightmostLeftWallPlane, rightmostWallPlane)
    }
 }
 
-/**
- * このColumnの各KeyPlate同士の境界線(最上段の奥のフチと最下段の手前のフチを含む)
- */
-private fun Column.boundaryLines(): List<Line3d> {
+private fun ScadParentObject.hullColumn(
+   columnPlates: List<KeyPlate>,
+   leftWallPlane: Plane3d,
+   rightWallPlane: Plane3d,
+   layerOffset: Size,
+   frontBackOffset: Size
+): ScadObject {
+   val mostBackPlate  = columnPlates.first()
+   val mostFrontPlate = columnPlates.last()
+
+   val boundaryLines = columnBoundaryLines(columnPlates)
+
+   val mostBackLine  = boundaryLines.first().translate(mostBackPlate.backVector,   frontBackOffset)
+   val mostFrontLine = boundaryLines.last() .translate(mostFrontPlate.frontVector, frontBackOffset)
+
+   val lines = listOf(
+      mostBackLine.translate(mostBackPlate.topVector, layerOffset.coerceAtLeast(20.mm)),
+      mostBackLine,
+      *boundaryLines.drop(1).dropLast(1).toTypedArray(),
+      mostFrontLine,
+      mostFrontLine.translate(mostFrontPlate.topVector, layerOffset.coerceAtLeast(20.mm))
+   )
+
+   return hullPoints(
+      lines.map { leftWallPlane  intersection it } +
+      lines.map { rightWallPlane intersection it }
+   )
+}
+
+private fun columnBoundaryLines(columnPlates: List<KeyPlate>): List<Line3d> {
    val lines = ArrayList<Line3d>()
 
-   val mostBackPlate = keyPlates.first()
+   val mostBackPlate = columnPlates.first()
    lines += Line3d(mostBackPlate.backLeft, mostBackPlate.backRight)
 
-   for ((back, front) in keyPlates.zipWithNext()) {
-      val backPlane  = Plane3d(back .center, back .normalVector)
-      val frontPlane = Plane3d(front.center, front.normalVector)
+   for ((back, front) in columnPlates.zipWithNext()) {
+      val backPlane  = Plane3d(back .referencePoint, back .bottomVector)
+      val frontPlane = Plane3d(front.referencePoint, front.bottomVector)
       lines += backPlane intersection frontPlane
    }
 
-   val mostFrontPlate = keyPlates.last()
+   val mostFrontPlate = columnPlates.last()
    lines += Line3d(mostFrontPlate.frontLeft, mostFrontPlate.frontRight)
 
    return lines
 }
 
-private fun getWallPlane(leftColumn: Column, rightColumn: Column): Plane3d {
+private fun getLeftPlane(column: AlphanumericColumn): Plane3d {
+   return Plane3d(
+      column.referencePoint
+         .translate(
+            column.leftVector,
+            AlphanumericPlate.KEY_PLATE_SIZE.x * column.keySwitches.maxOf { it.layoutSize.x } / 2
+         ),
+      column.rightVector
+   )
+}
+
+private fun getRightPlane(column: AlphanumericColumn): Plane3d {
+   return Plane3d(
+      column.referencePoint
+         .translate(
+            column.rightVector,
+            AlphanumericPlate.KEY_PLATE_SIZE.x * column.keySwitches.maxOf { it.layoutSize.x } / 2
+         ),
+      column.rightVector
+   )
+}
+
+val AlphanumericPlate.leftmostPlane: Plane3d
+   get() = getLeftPlane(columns.first())
+
+val AlphanumericPlate.rightmostPlane: Plane3d
+   get() = getRightPlane(columns.last())
+
+private fun getWallPlanes(columns: List<AlphanumericColumn>, leftRightOffset: Size): List<Plane3d> {
+   val planes = ArrayList<Plane3d>()
+
+   planes += run {
+      val leftmostColumn = columns.first()
+      getLeftPlane(leftmostColumn)
+         .translate(leftmostColumn.leftVector, leftRightOffset)
+   }
+
+   for ((left, right) in columns.zipWithNext()) {
+      planes += getWallPlane(left, right)
+   }
+
+   planes += run {
+      val rightmostColumn = columns.last()
+      getRightPlane(rightmostColumn)
+         .translate(rightmostColumn.rightVector, leftRightOffset)
+   }
+
+   return planes
+}
+
+private fun getWallPlane(leftColumn: AlphanumericColumn, rightColumn: AlphanumericColumn): Plane3d {
    val alignmentVector = run {
-      val (lx, ly, lz) = leftColumn .alignmentVector
-      val (rx, ry, rz) = rightColumn.alignmentVector
+      val (lx, ly, lz) = leftColumn .frontVector
+      val (rx, ry, rz) = rightColumn.frontVector
       Vector3d((lx + rx) / 2, (ly + ry) / 2, (lz + rz) / 2)
    }
 

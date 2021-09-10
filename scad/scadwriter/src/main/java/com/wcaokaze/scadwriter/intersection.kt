@@ -1,5 +1,14 @@
 package com.wcaokaze.scadwriter
 
-inline fun ScadWriter.intersection(children: ScadWriter.() -> Unit) {
-   writeBlock("intersection()", children)
+class Intersection : ScadParentObject() {
+   override fun writeScad(scadWriter: ScadWriter) {
+      writeChildren(scadWriter, "intersection()")
+   }
+}
+
+inline fun ScadParentObject.intersection(children: Intersection.() -> Unit): Intersection {
+   val intersection = Intersection()
+   addChild(intersection)
+   intersection.children()
+   return intersection
 }

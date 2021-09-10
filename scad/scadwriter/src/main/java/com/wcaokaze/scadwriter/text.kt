@@ -1,6 +1,22 @@
 package com.wcaokaze.scadwriter
 
-import com.wcaokaze.scadwriter.foundation.Size
+import com.wcaokaze.scadwriter.foundation.*
+
+data class Text(
+   val text: String,
+   val size: Size,
+   val fontName: String,
+   val hAlign: HAlign = HAlign.LEFT,
+   val vAlign: VAlign = VAlign.BASELINE,
+   val direction: Direction = Direction.LEFT_TO_RIGHT
+) : ScadPrimitiveObject() {
+   override fun writeScad(scadWriter: ScadWriter) {
+      scadWriter.writeln(
+         "text(\"$text\", size = $size, font = \"$fontName\", halign = \"$hAlign\"," +
+               "valign = \"$vAlign\", direction = \"$direction\");"
+      )
+   }
+}
 
 enum class HAlign(private val string: String) {
    LEFT  ("left"),
@@ -28,14 +44,15 @@ enum class Direction(private val string: String) {
    override fun toString() = string
 }
 
-fun ScadWriter.text(
+fun ScadParentObject.text(
    text: String,
    size: Size,
    fontName: String,
    hAlign: HAlign = HAlign.LEFT,
    vAlign: VAlign = VAlign.BASELINE,
    direction: Direction = Direction.LEFT_TO_RIGHT
-) {
-   writeln("text(\"$text\", size = $size, font = \"$fontName\", halign = \"$hAlign\"," +
-           "valign = \"$vAlign\", direction = \"$direction\");")
+): Text {
+   val text = Text(text, size, fontName, hAlign, vAlign, direction)
+   addChild(text)
+   return text
 }

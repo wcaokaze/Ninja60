@@ -1,5 +1,14 @@
 package com.wcaokaze.scadwriter
 
-inline fun ScadWriter.difference(children: ScadWriter.() -> Unit) {
-   writeBlock("difference()", children)
+class Difference : ScadParentObject() {
+   override fun writeScad(scadWriter: ScadWriter) {
+      writeChildren(scadWriter, "difference()")
+   }
+}
+
+inline fun ScadParentObject.difference(children: Difference.() -> Unit): Difference {
+   val difference = Difference()
+   addChild(difference)
+   difference.children()
+   return difference
 }
