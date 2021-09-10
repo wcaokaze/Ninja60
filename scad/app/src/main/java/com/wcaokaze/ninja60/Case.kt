@@ -4,50 +4,40 @@ import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
-object Case
+data class Case(
+   val alphanumericPlate: AlphanumericPlate,
+   val thumbPlate: ThumbPlate
+) {
+   companion object {
+      val FRONT_ROTARY_ENCODER_KNOB_RADIUS = 18.mm
+      val FRONT_ROTARY_ENCODER_KNOB_HEIGHT = 14.mm
+      val FRONT_ROTARY_ENCODER_KNOB_HOLE_HEIGHT = FRONT_ROTARY_ENCODER_KNOB_HEIGHT - 2.mm
+
+      operator fun invoke(): Case {
+         return Case(
+            AlphanumericPlate()
+               .rotate(Line3d.Y_AXIS, (-15).deg)
+               .translate(x = 0.mm, y = 69.mm, z = 85.mm),
+            ThumbPlate()
+               .rotate(Line3d.Y_AXIS, 69.deg)
+               .rotate(Line3d.X_AXIS, (-7).deg)
+               .rotate(Line3d.Z_AXIS, (-8).deg)
+               .translate(x = 66.mm, y = 0.mm, z = 53.mm)
+         )
+      }
+   }
+}
 
 fun ScadParentObject.case(case: Case): ScadObject {
-   val alphanumericPlate = AlphanumericPlate()
-      .rotate(Line3d.Y_AXIS, (-15).deg)
-      .translate(x = 0.mm, y = 69.mm, z = 85.mm)
+   return (
+      alphanumericFrontCase(case.alphanumericPlate) + thumbCase(case.thumbPlate)
+      - (alphanumericCave(case.alphanumericPlate) + thumbCave(case.thumbPlate))
+      + alphanumericPlate(case.alphanumericPlate)
+      + thumbPlate(case.thumbPlate)
 
-   val thumbPlate = ThumbPlate()
-      .rotate(Line3d.Y_AXIS, 69.deg)
-      .rotate(Line3d.X_AXIS, (-7).deg)
-      .rotate(Line3d.Z_AXIS, (-8).deg)
-      .translate(x = 66.mm, y = 0.mm, z = 53.mm)
-
-   return union {
-      (
-         alphanumericFrontCase(alphanumericPlate) + thumbCase(thumbPlate)
-         - (alphanumericCave(alphanumericPlate) + thumbCave(thumbPlate))
-         + alphanumericPlate(alphanumericPlate)
-         + thumbPlate(thumbPlate)
-
-         - frontRotaryEncoderHole(alphanumericPlate)
-         + frontRotaryEncoderMountPlate(alphanumericPlate)
-      )
-
-      translate((-62).mm, (-108).mm, 0.mm) {
-         cube(102.mm, 70.mm, 80.mm)
-      }
-
-      alphanumericPlate.columns
-         .flatMap { it.keySwitches.map { it.plate(Size2d(16.mm, 16.mm)) } }
-         .map { it.translate(it.topVector, KeySwitch.TOP_HEIGHT + KeySwitch.STEM_HEIGHT + Keycap.THICKNESS) }
-         .forEach { hullPoints(it.points) }
-
-      // ----
-
-      val caseTopPlane = alphanumericTopPlane(alphanumericPlate, 0.mm)
-      val frontRotaryEncoder = frontRotaryEncoder(alphanumericPlate)
-         .translate(caseTopPlane.normalVector, 1.mm)
-
-      rotaryEncoderKnob(frontRotaryEncoder,
-         frontRotaryEncoderKnobRadius,
-         frontRotaryEncoderKnobHeight,
-         frontRotaryEncoderKnobHoleHeight)
-   }
+      - frontRotaryEncoderHole(case.alphanumericPlate)
+      + frontRotaryEncoderMountPlate(case.alphanumericPlate)
+   )
 }
 
 private fun ScadParentObject.distortedCube(
@@ -69,7 +59,7 @@ private fun ScadParentObject.distortedCube(
    )
 }
 
-private fun alphanumericTopPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+fun alphanumericTopPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
    // 上面の平面を算出する。
    // 各Columnの一番手前の点から2点を選び、
    // その2点を通る平面が他のすべての点より上にあるとき使える
@@ -285,11 +275,7 @@ private fun ScadParentObject.thumbCave(plate: ThumbPlate): ScadObject {
    }
 }
 
-private val frontRotaryEncoderKnobRadius = 18.mm
-private val frontRotaryEncoderKnobHeight = 14.mm
-private val frontRotaryEncoderKnobHoleHeight = frontRotaryEncoderKnobHeight - 2.mm
-
-private fun frontRotaryEncoder(alphanumericPlate: AlphanumericPlate): RotaryEncoder {
+fun frontRotaryEncoder(alphanumericPlate: AlphanumericPlate): RotaryEncoder {
    val caseTopPlane = alphanumericTopPlane(alphanumericPlate, 0.mm)
    val caseFrontPlane = alphanumericFrontPlane(0.mm)
 
@@ -307,7 +293,7 @@ private fun frontRotaryEncoder(alphanumericPlate: AlphanumericPlate): RotaryEnco
             columnPlane
          ) intersection (
             mostFrontKeycapTopPlane
-               .translate(mostFrontKey.bottomVector, frontRotaryEncoderKnobRadius)
+               .translate(mostFrontKey.bottomVector, Case.FRONT_ROTARY_ENCODER_KNOB_RADIUS)
                .translate(mostFrontKey.bottomVector, KeySwitch.TRAVEL)
                .translate(mostFrontKey.bottomVector, 2.mm)
          )
@@ -316,7 +302,7 @@ private fun frontRotaryEncoder(alphanumericPlate: AlphanumericPlate): RotaryEnco
       caseFrontPlane.normalVector vectorProduct caseTopPlane.normalVector,
       -caseTopPlane.normalVector,
       knobCenter.translate(caseTopPlane.normalVector,
-         1.mm + frontRotaryEncoderKnobHoleHeight - RotaryEncoder.HEIGHT),
+         1.mm + Case.FRONT_ROTARY_ENCODER_KNOB_HOLE_HEIGHT - RotaryEncoder.HEIGHT),
    )
 }
 
@@ -341,8 +327,8 @@ private fun ScadParentObject.frontRotaryEncoderHole
             Vector3d.Z_UNIT_VECTOR angleWith     rotaryEncoder.topVector,
             Vector3d.Z_UNIT_VECTOR vectorProduct rotaryEncoder.topVector
          ) {
-            translate(z = RotaryEncoder.HEIGHT - frontRotaryEncoderKnobHoleHeight) {
-               cylinder(height = 20.mm, frontRotaryEncoderKnobRadius + 2.mm, `$fa`)
+            translate(z = RotaryEncoder.HEIGHT - Case.FRONT_ROTARY_ENCODER_KNOB_HOLE_HEIGHT) {
+               cylinder(height = 20.mm, Case.FRONT_ROTARY_ENCODER_KNOB_RADIUS + 2.mm, `$fa`)
             }
          }
       }
