@@ -1,16 +1,28 @@
 
 OpenSCADをインストールして `openscad` コマンドが使えるようにしておいてください
 
+##### snap
 ```sh
 sudo snap install openscad
 ```
-でインストールできる？
 
-僕は
+##### Debian, Ubuntu
 ```sh
 sudo apt install openscad
 ```
-でしました
+
+##### macOS
+```sh
+brew install openscad
+```
+
+##### Arch
+```sh
+pacman -S openscad
+```
+
+##### Windows
+略
 
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

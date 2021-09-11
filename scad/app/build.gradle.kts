@@ -1,6 +1,6 @@
 
 plugins {
-   id("org.jetbrains.kotlin.jvm") version "1.4.20"
+   id("org.jetbrains.kotlin.jvm") version "1.5.30"
 }
 
 repositories {
@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
    implementation(project(":scadwriter"))
+   implementation(project(":linearalgebra"))
 }
 
 tasks.register<Exec>("generateAllScads") {
@@ -21,7 +22,7 @@ tasks.register<Exec>("generateAllScads") {
    commandLine(
       "java",
       "--class-path", classPath.joinToString(separator = ":"),
-      "com.wcaokaze.ninja60.scadgenerator.MainKt",
+      "com.wcaokaze.ninja60.MainKt",
       "--output-file", File(buildDir, "test.scad")
    )
 }
