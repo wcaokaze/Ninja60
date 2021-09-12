@@ -15,12 +15,21 @@ fun main(vararg args: String) {
    }
 
    writeScad(config.outputFile) {
+      val gear1 = Gear(3, 12, 3.mm, Point3d.ORIGIN, -Vector3d.Y_UNIT_VECTOR, -Vector3d.Z_UNIT_VECTOR)
+      val gear2 = Gear(3, 16, 3.mm, Point3d.ORIGIN, -Vector3d.Y_UNIT_VECTOR, -Vector3d.Z_UNIT_VECTOR)
+
+      gear(gear1)
+
+      gear(gear2)
+         .rotate(z = Angle.PI * 2 / gear2.toothCount / 2)
+         .translate(y = Size((gear1.toothCount + gear2.toothCount) * 3.0 / 2.0))
+
+      /*
       mirror(1.mm, 0.mm, 0.mm) {
          val case = Case()
          case(case)
       }
 
-      /*
       case.alphanumericPlate.columns
          .flatMap { it.keySwitches.map { it.plate(Size2d(16.mm, 16.mm)) } }
          .map { it.translate(it.topVector, KeySwitch.TOP_HEIGHT + KeySwitch.STEM_HEIGHT + Keycap.THICKNESS) }
