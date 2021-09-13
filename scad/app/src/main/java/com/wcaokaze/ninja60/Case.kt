@@ -9,10 +9,6 @@ data class Case(
    val thumbPlate: ThumbPlate
 ) {
    companion object {
-      val FRONT_ROTARY_ENCODER_KNOB_RADIUS = 18.mm
-      val FRONT_ROTARY_ENCODER_KNOB_HEIGHT = 14.mm
-      val FRONT_ROTARY_ENCODER_KNOB_HOLE_HEIGHT = FRONT_ROTARY_ENCODER_KNOB_HEIGHT - 2.mm
-
       operator fun invoke(): Case {
          return Case(
             AlphanumericPlate()
@@ -26,6 +22,8 @@ data class Case(
          )
       }
    }
+
+   val frontRotaryEncoderKnob get() = FrontRotaryEncoderKnob(alphanumericPlate)
 }
 
 fun ScadParentObject.case(case: Case): ScadObject {
@@ -35,8 +33,8 @@ fun ScadParentObject.case(case: Case): ScadObject {
       + alphanumericPlate(case.alphanumericPlate)
       + thumbPlate(case.thumbPlate)
 
-      - frontRotaryEncoderHole(case.alphanumericPlate)
-      + frontRotaryEncoderMountPlate(case.alphanumericPlate)
+      - frontRotaryEncoderHole(case.frontRotaryEncoderKnob)
+      + frontRotaryEncoderMountPlate(case.frontRotaryEncoderKnob)
    )
 }
 
@@ -122,15 +120,15 @@ fun alphanumericTopPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Pl
       }
 }
 
-private fun alphanumericBottomPlane(offset: Size): Plane3d
+fun alphanumericBottomPlane(offset: Size): Plane3d
       = Plane3d.XY_PLANE.translate(Vector3d.Z_UNIT_VECTOR, -offset)
 
-private fun alphanumericLeftPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d
+fun alphanumericLeftPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d
       = alphanumericPlate.leftmostPlane.let { it.translate(it.normalVector, -offset) }
-private fun alphanumericRightPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d
+fun alphanumericRightPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d
       = alphanumericPlate.rightmostPlane.let { it.translate(it.normalVector, offset) }
 
-private fun alphanumericBackSlopePlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+fun alphanumericBackSlopePlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
    // 後ろの斜めになっている部分の平面を算出する。
    // だいたいはalphanumericTopPlaneと同じ方法
 
@@ -193,7 +191,7 @@ private fun alphanumericBackSlopePlane(alphanumericPlate: AlphanumericPlate, off
       }
 }
 
-private fun alphanumericBackPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+fun alphanumericBackPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
    val y = alphanumericPlate.columns
       .map { it.keySwitches.first().plate(AlphanumericPlate.KEY_PLATE_SIZE) }
       .flatMap { mostBackKeyPlate ->
@@ -209,7 +207,7 @@ private fun alphanumericBackPlane(alphanumericPlate: AlphanumericPlate, offset: 
       .translate(Vector3d.Y_UNIT_VECTOR, offset)
 }
 
-private fun alphanumericFrontPlane(offset: Size): Plane3d {
+fun alphanumericFrontPlane(offset: Size): Plane3d {
    return Plane3d.ZX_PLANE
       .translate(Vector3d.Y_UNIT_VECTOR, 9.mm)
       .translate(Vector3d.Y_UNIT_VECTOR, -offset)
@@ -275,41 +273,8 @@ private fun ScadParentObject.thumbCave(plate: ThumbPlate): ScadObject {
    }
 }
 
-fun frontRotaryEncoder(alphanumericPlate: AlphanumericPlate): RotaryEncoder {
-   val caseTopPlane = alphanumericTopPlane(alphanumericPlate, 0.mm)
-   val caseFrontPlane = alphanumericFrontPlane(0.mm)
-
-   val column = alphanumericPlate.columns[3]
-   val columnPlane = Plane3d(column.referencePoint, column.rightVector)
-
-   val mostFrontKey = column.keySwitches.last()
-   val mostFrontKeycapTopPlane = Plane3d(mostFrontKey.referencePoint, mostFrontKey.topVector)
-      .translate(mostFrontKey.topVector, KeySwitch.TOP_HEIGHT + KeySwitch.STEM_HEIGHT + Keycap.THICKNESS)
-
-   val knobCenter = (
-            caseTopPlane
-               .translate(-caseTopPlane.normalVector, 2.mm)
-         ) intersection (
-            columnPlane
-         ) intersection (
-            mostFrontKeycapTopPlane
-               .translate(mostFrontKey.bottomVector, Case.FRONT_ROTARY_ENCODER_KNOB_RADIUS)
-               .translate(mostFrontKey.bottomVector, KeySwitch.TRAVEL)
-               .translate(mostFrontKey.bottomVector, 2.mm)
-         )
-
-   return RotaryEncoder(
-      caseFrontPlane.normalVector vectorProduct caseTopPlane.normalVector,
-      -caseTopPlane.normalVector,
-      knobCenter.translate(caseTopPlane.normalVector,
-         1.mm + Case.FRONT_ROTARY_ENCODER_KNOB_HOLE_HEIGHT - RotaryEncoder.HEIGHT)
-   )
-}
-
-private fun ScadParentObject.frontRotaryEncoderHole
-         (alphanumericPlate: AlphanumericPlate): ScadObject
-{
-   val rotaryEncoder = frontRotaryEncoder(alphanumericPlate)
+private fun ScadParentObject.frontRotaryEncoderHole(knob: FrontRotaryEncoderKnob): ScadObject {
+   val rotaryEncoder = knob.rotaryEncoder()
 
    return union {
       cube(Cube(
@@ -322,13 +287,14 @@ private fun ScadParentObject.frontRotaryEncoderHole
          rotaryEncoder.bottomVector
       ))
 
-      locale(rotaryEncoder.referencePoint) {
+      locale(knob.referencePoint) {
          rotate(
             Vector3d.Z_UNIT_VECTOR angleWith     rotaryEncoder.topVector,
             Vector3d.Z_UNIT_VECTOR vectorProduct rotaryEncoder.topVector
          ) {
-            translate(z = RotaryEncoder.HEIGHT - Case.FRONT_ROTARY_ENCODER_KNOB_HOLE_HEIGHT) {
-               cylinder(height = 20.mm, Case.FRONT_ROTARY_ENCODER_KNOB_RADIUS + 2.mm, `$fa`)
+            translate(z = 1.mm) {
+               cylinder(FrontRotaryEncoderKnob.HEIGHT * 2,
+                  FrontRotaryEncoderKnob.RADIUS + 2.mm, `$fa`)
             }
          }
       }
@@ -336,9 +302,9 @@ private fun ScadParentObject.frontRotaryEncoderHole
 }
 
 private fun ScadParentObject.frontRotaryEncoderMountPlate
-         (alphanumericPlate: AlphanumericPlate): ScadObject
+      (knob: FrontRotaryEncoderKnob): ScadObject
 {
-   val rotaryEncoder = frontRotaryEncoder(alphanumericPlate)
+   val rotaryEncoder = knob.rotaryEncoder()
 
    return difference {
       cube(Cube(

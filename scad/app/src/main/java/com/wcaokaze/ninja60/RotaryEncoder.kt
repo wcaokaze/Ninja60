@@ -28,19 +28,6 @@ data class RotaryEncoder(
          = RotaryEncoder(frontVector, bottomVector, referencePoint)
 }
 
-fun ScadParentObject.rotaryEncoderKnob(
-   rotaryEncoder: RotaryEncoder, radius: Size, height: Size, shaftHoleHeight: Size
-): ScadObject {
-   return locale(rotaryEncoder.knobPosition(shaftHoleHeight)) {
-      rotate(
-         Vector3d.Z_UNIT_VECTOR angleWith     rotaryEncoder.topVector,
-         Vector3d.Z_UNIT_VECTOR vectorProduct rotaryEncoder.topVector
-      ) {
-         cylinder(height, radius, `$fa`)
-      }
-   }
-}
-
 /**
  * [RotaryEncoder]を嵌めるための穴を出力する。
  * EC12Eシリーズ用。固定用の穴、ロータリーエンコーダの端子3つ、押し込みスイッチ用の端子2つ
@@ -83,13 +70,4 @@ fun ScadParentObject.rotaryEncoderMountHole(
       hole((-2.5).mm, 7.mm, 1.mm, 1.mm)
       hole(  2.5 .mm, 7.mm, 1.mm, 1.mm)
    }
-}
-
-/**
- * ロータリーエンコーダのノブの位置。底面、中心
- * @param shaftHoleHeight ノブに空いてる穴の深さ
- */
-fun RotaryEncoder.knobPosition(shaftHoleHeight: Size): Point3d {
-   return referencePoint
-      .translate(topVector, RotaryEncoder.HEIGHT - shaftHoleHeight)
 }

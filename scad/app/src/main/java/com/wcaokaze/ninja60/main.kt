@@ -25,19 +25,7 @@ fun main(vararg args: String) {
 
       // ----
 
-      val caseTopPlane = alphanumericTopPlane(case.alphanumericPlate, 0.mm)
-      val frontRotaryEncoder = frontRotaryEncoder(case.alphanumericPlate)
-         .translate(caseTopPlane.normalVector, 1.mm)
-
-      rotaryEncoderKnob(
-         frontRotaryEncoder,
-         Case.FRONT_ROTARY_ENCODER_KNOB_RADIUS,
-         Case.FRONT_ROTARY_ENCODER_KNOB_HEIGHT,
-         Case.FRONT_ROTARY_ENCODER_KNOB_HOLE_HEIGHT
-      )
-
-      // ----
-
+      frontRotaryEncoderKnob(case.frontRotaryEncoderKnob)
       backRotaryEncoderKnob(BackRotaryEncoderKnob(case.alphanumericPlate))
 
       // ----
