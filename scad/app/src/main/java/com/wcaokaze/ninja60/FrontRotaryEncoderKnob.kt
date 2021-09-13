@@ -47,7 +47,7 @@ class FrontRotaryEncoderKnob(
 
    fun rotaryEncoder() = RotaryEncoder(
       frontVector, bottomVector,
-      referencePoint.translate(topVector, 1.mm + HOLE_HEIGHT - RotaryEncoder.HEIGHT)
+      referencePoint.translate(topVector, HOLE_HEIGHT - RotaryEncoder.HEIGHT)
    )
 
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)

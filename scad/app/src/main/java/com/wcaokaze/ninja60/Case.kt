@@ -292,7 +292,7 @@ private fun ScadParentObject.frontRotaryEncoderHole(knob: FrontRotaryEncoderKnob
             Vector3d.Z_UNIT_VECTOR angleWith     rotaryEncoder.topVector,
             Vector3d.Z_UNIT_VECTOR vectorProduct rotaryEncoder.topVector
          ) {
-            translate(z = 1.mm) {
+            translate(z = (-1).mm) {
                cylinder(FrontRotaryEncoderKnob.HEIGHT * 2,
                   FrontRotaryEncoderKnob.RADIUS + 2.mm, `$fa`)
             }
