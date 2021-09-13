@@ -22,7 +22,7 @@ fun main(vararg args: String) {
 
       gear(gear2)
          .rotate(z = Angle.PI * 2 / gear2.toothCount / 2)
-         .translate(y = Size((gear1.toothCount + gear2.toothCount) * 3.0 / 2.0))
+         .translate(y = gear1 distance gear2)
 
       /*
       mirror(1.mm, 0.mm, 0.mm) {

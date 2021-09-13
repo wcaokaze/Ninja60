@@ -23,6 +23,14 @@ data class Gear(
          = Gear(module, toothCount, thickness, referencePoint, frontVector, bottomVector)
 }
 
+infix fun Gear.distance(another: Gear): Size {
+   require(module == another.module) {
+      "Attempt to get the distance even though their modules unmatching"
+   }
+
+   return module.mm * (toothCount + another.toothCount) / 2
+}
+
 fun ScadParentObject.gear(gear: Gear): ScadObject {
    val addendumDiameter = gear.diameter + (gear.module).mm * 2.0
    val bottomDiameter = gear.diameter - (gear.module).mm * 2.5
