@@ -44,12 +44,22 @@ private val Gear.involuteDiameter get() = diameter * cos(Gear.PRESSURE_ANGLE)
 private val Gear.involuteRadius get() = involuteDiameter / 2
 
 private fun ScadParentObject.tooth(gear: Gear): ScadObject {
+   /** 歯から次の歯までの角度 */
    val pitchAngle = Angle.PI * 2 / gear.toothCount
+   /** 標準円上での歯1枚の角度 */
+   val thicknessAngle = pitchAngle / 2
+   /** 標準円上での歯の半分の角度 */
+   val halfThicknessAngle = thicknessAngle / 2
+   /**
+    * 基礎円上での歯の半分の角度。
+    * 歯が直線ではなくインボリュート曲線のため[pitchThicknessAngle]より少し広い
+    * ちなみにこの角度を算出するtan(α) - αのことをインボリュート関数と呼ぶらしいです
+    */
+   val involuteHalfThicknessAngle = halfThicknessAngle + tan(Gear.PRESSURE_ANGLE).rad - Gear.PRESSURE_ANGLE
 
    return intersection {
       val half = linearExtrude(gear.thickness) {
-         // FIXME: 歯厚計算されてません
-         rotate(z = -pitchAngle * 0.283) {
+         rotate(z = -involuteHalfThicknessAngle) {
             polygon(
                (0.0.rad..Angle.PI / 2 step (Angle.PI * 2 / `$fa`))
                   .map { a ->
