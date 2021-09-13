@@ -16,7 +16,7 @@ data class Gear(
    override val bottomVector: Vector3d
 ) : Transformable<Gear> {
    companion object {
-      val PRESSURE_ANGLE = 20.deg
+      val PROFILE_ANGLE = 20.deg
    }
 
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
@@ -40,7 +40,7 @@ fun ScadParentObject.gear(gear: Gear): ScadObject {
 
 private val Gear.diameter get() = module.mm * toothCount
 private val Gear.radius get() = diameter / 2
-private val Gear.involuteDiameter get() = diameter * cos(Gear.PRESSURE_ANGLE)
+private val Gear.involuteDiameter get() = diameter * cos(Gear.PROFILE_ANGLE)
 private val Gear.involuteRadius get() = involuteDiameter / 2
 
 private fun ScadParentObject.tooth(gear: Gear): ScadObject {
@@ -55,7 +55,7 @@ private fun ScadParentObject.tooth(gear: Gear): ScadObject {
     * 歯が直線ではなくインボリュート曲線のため[pitchThicknessAngle]より少し広い
     * ちなみにこの角度を算出するtan(α) - αのことをインボリュート関数と呼ぶらしいです
     */
-   val involuteHalfThicknessAngle = halfThicknessAngle + tan(Gear.PRESSURE_ANGLE).rad - Gear.PRESSURE_ANGLE
+   val involuteHalfThicknessAngle = halfThicknessAngle + tan(Gear.PROFILE_ANGLE).rad - Gear.PROFILE_ANGLE
 
    return intersection {
       val half = linearExtrude(gear.thickness) {
