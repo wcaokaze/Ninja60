@@ -35,15 +35,22 @@ fun ScadParentObject.gear(gear: Gear): ScadObject {
    val addendumDiameter = gear.diameter + gear.module * 2.0
    val bottomDiameter = gear.diameter - gear.module * 2.5
 
-   return (
-      union {
-         for (i in 0 until gear.toothCount) {
-            tooth(gear).rotate(z = 360.deg / gear.toothCount * i)
-         }
+   return locale(gear.referencePoint) {
+      rotate(
+         -Vector3d.Z_UNIT_VECTOR angleWith gear.bottomVector,
+         -Vector3d.Z_UNIT_VECTOR vectorProduct gear.bottomVector,
+      ) {
+         (
+            union {
+               for (i in 0 until gear.toothCount) {
+                  tooth(gear).rotate(z = 360.deg / gear.toothCount * i)
+               }
+            }
+            + cylinder(gear.thickness, bottomDiameter / 2, `$fa`)
+            intersection cylinder(gear.thickness, addendumDiameter / 2, `$fa`)
+         )
       }
-      + cylinder(gear.thickness, bottomDiameter / 2, `$fa`)
-      intersection cylinder(gear.thickness, addendumDiameter / 2, `$fa`)
-   )
+   }
 }
 
 private val Gear.diameter get() = module * toothCount

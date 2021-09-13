@@ -31,10 +31,7 @@ data class RotaryEncoder(
 fun ScadParentObject.rotaryEncoderKnob(
    rotaryEncoder: RotaryEncoder, radius: Size, height: Size, shaftHoleHeight: Size
 ): ScadObject {
-   val cylinderPosition = rotaryEncoder.referencePoint
-      .translate(rotaryEncoder.topVector, RotaryEncoder.HEIGHT - shaftHoleHeight)
-
-   return locale(cylinderPosition) {
+   return locale(rotaryEncoder.knobPosition(shaftHoleHeight)) {
       rotate(
          Vector3d.Z_UNIT_VECTOR angleWith     rotaryEncoder.topVector,
          Vector3d.Z_UNIT_VECTOR vectorProduct rotaryEncoder.topVector
@@ -86,4 +83,13 @@ fun ScadParentObject.rotaryEncoderMountHole(
       hole((-2.5).mm, 7.mm, 1.mm, 1.mm)
       hole(  2.5 .mm, 7.mm, 1.mm, 1.mm)
    }
+}
+
+/**
+ * ロータリーエンコーダのノブの位置。底面、中心
+ * @param shaftHoleHeight ノブに空いてる穴の深さ
+ */
+fun RotaryEncoder.knobPosition(shaftHoleHeight: Size): Point3d {
+   return referencePoint
+      .translate(topVector, RotaryEncoder.HEIGHT - shaftHoleHeight)
 }

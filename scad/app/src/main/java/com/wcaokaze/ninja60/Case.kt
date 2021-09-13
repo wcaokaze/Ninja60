@@ -302,7 +302,7 @@ fun frontRotaryEncoder(alphanumericPlate: AlphanumericPlate): RotaryEncoder {
       caseFrontPlane.normalVector vectorProduct caseTopPlane.normalVector,
       -caseTopPlane.normalVector,
       knobCenter.translate(caseTopPlane.normalVector,
-         1.mm + Case.FRONT_ROTARY_ENCODER_KNOB_HOLE_HEIGHT - RotaryEncoder.HEIGHT),
+         1.mm + Case.FRONT_ROTARY_ENCODER_KNOB_HOLE_HEIGHT - RotaryEncoder.HEIGHT)
    )
 }
 

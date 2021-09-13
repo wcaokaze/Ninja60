@@ -15,20 +15,8 @@ fun main(vararg args: String) {
    }
 
    writeScad(config.outputFile) {
-      val gear1 = Gear(3.mm, 12, 3.mm, Point3d.ORIGIN, -Vector3d.Y_UNIT_VECTOR, -Vector3d.Z_UNIT_VECTOR)
-      val gear2 = Gear(3.mm, 16, 3.mm, Point3d.ORIGIN, -Vector3d.Y_UNIT_VECTOR, -Vector3d.Z_UNIT_VECTOR)
-
-      gear(gear1)
-
-      gear(gear2)
-         .rotate(z = Angle.PI * 2 / gear2.toothCount / 2)
-         .translate(y = gear1 distance gear2)
-
-      /*
-      mirror(1.mm, 0.mm, 0.mm) {
-         val case = Case()
-         case(case)
-      }
+      val case = Case()
+      case(case)
 
       case.alphanumericPlate.columns
          .flatMap { it.keySwitches.map { it.plate(Size2d(16.mm, 16.mm)) } }
@@ -50,6 +38,10 @@ fun main(vararg args: String) {
 
       // ----
 
+      backRotaryEncoderKnob(BackRotaryEncoderKnob(case.alphanumericPlate))
+
+      // ----
+
       translate((-62).mm, (-108).mm, 0.mm) {
          cube(102.mm, 70.mm, 80.mm)
       }
@@ -57,13 +49,6 @@ fun main(vararg args: String) {
       translate((-91).mm, 56.mm, 23.mm) {
          cylinder(14.mm, 30.mm, `$fa`)
       }
-
-      translate((-5).mm, 106.mm, 73.mm) {
-         rotate(y = 75.deg) {
-            cylinder(14.mm, 12.mm, `$fa`)
-         }
-      }
-      */
    }
 }
 
