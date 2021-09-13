@@ -8,7 +8,7 @@ import com.wcaokaze.scadwriter.foundation.*
  * インボリュート歯車の平歯車です
  */
 data class Gear(
-   val module: Int,
+   val module: Size,
    val toothCount: Int,
    val thickness: Size,
    override val referencePoint: Point3d,
@@ -28,12 +28,12 @@ infix fun Gear.distance(another: Gear): Size {
       "Attempt to get the distance even though their modules unmatching"
    }
 
-   return module.mm * (toothCount + another.toothCount) / 2
+   return module * (toothCount + another.toothCount) / 2
 }
 
 fun ScadParentObject.gear(gear: Gear): ScadObject {
-   val addendumDiameter = gear.diameter + (gear.module).mm * 2.0
-   val bottomDiameter = gear.diameter - (gear.module).mm * 2.5
+   val addendumDiameter = gear.diameter + gear.module * 2.0
+   val bottomDiameter = gear.diameter - gear.module * 2.5
 
    return (
       union {
@@ -46,7 +46,7 @@ fun ScadParentObject.gear(gear: Gear): ScadObject {
    )
 }
 
-private val Gear.diameter get() = module.mm * toothCount
+private val Gear.diameter get() = module * toothCount
 private val Gear.radius get() = diameter / 2
 private val Gear.involuteDiameter get() = diameter * cos(Gear.PROFILE_ANGLE)
 private val Gear.involuteRadius get() = involuteDiameter / 2

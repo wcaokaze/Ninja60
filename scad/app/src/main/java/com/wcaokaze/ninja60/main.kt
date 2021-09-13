@@ -15,8 +15,8 @@ fun main(vararg args: String) {
    }
 
    writeScad(config.outputFile) {
-      val gear1 = Gear(3, 12, 3.mm, Point3d.ORIGIN, -Vector3d.Y_UNIT_VECTOR, -Vector3d.Z_UNIT_VECTOR)
-      val gear2 = Gear(3, 16, 3.mm, Point3d.ORIGIN, -Vector3d.Y_UNIT_VECTOR, -Vector3d.Z_UNIT_VECTOR)
+      val gear1 = Gear(3.mm, 12, 3.mm, Point3d.ORIGIN, -Vector3d.Y_UNIT_VECTOR, -Vector3d.Z_UNIT_VECTOR)
+      val gear2 = Gear(3.mm, 16, 3.mm, Point3d.ORIGIN, -Vector3d.Y_UNIT_VECTOR, -Vector3d.Z_UNIT_VECTOR)
 
       gear(gear1)
 
