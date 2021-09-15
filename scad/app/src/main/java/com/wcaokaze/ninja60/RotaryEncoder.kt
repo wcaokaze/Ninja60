@@ -14,6 +14,9 @@ data class RotaryEncoder(
       val BODY_SIZE = Size3d(13.4.mm, 22.3.mm, 6.2.mm)
       val SHAFT_HEIGHT = HEIGHT - BODY_SIZE.z
       val SHAFT_RADIUS = 3.4.mm
+
+      /** 基板に取り付ける用の足の高さ */
+      val LEG_HEIGHT = 3.2.mm
    }
 
    init {

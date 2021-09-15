@@ -23,6 +23,10 @@ data class Gear(
          = Gear(module, toothCount, thickness, referencePoint, frontVector, bottomVector)
 }
 
+/**
+ * 中心距離。[Gear.referencePoint]には関係なく
+ * この2つの歯車が配置されるべき理想的な中心距離を返す。
+ */
 infix fun Gear.distance(another: Gear): Size {
    require(module == another.module) {
       "Attempt to get the distance even though their modules unmatching"
@@ -32,9 +36,6 @@ infix fun Gear.distance(another: Gear): Size {
 }
 
 fun ScadParentObject.gear(gear: Gear): ScadObject {
-   val addendumDiameter = gear.diameter + gear.module * 2.0
-   val bottomDiameter = gear.diameter - gear.module * 2.5
-
    return locale(gear.referencePoint) {
       rotate(
          -Vector3d.Z_UNIT_VECTOR angleWith gear.bottomVector,
@@ -46,17 +47,29 @@ fun ScadParentObject.gear(gear: Gear): ScadObject {
                   tooth(gear).rotate(z = 360.deg / gear.toothCount * i)
                }
             }
-            + cylinder(gear.thickness, bottomDiameter / 2, `$fa`)
-            intersection cylinder(gear.thickness, addendumDiameter / 2, `$fa`)
+            + cylinder(gear.thickness, gear.bottomDiameter / 2, `$fa`)
+            intersection cylinder(gear.thickness, gear.addendumDiameter / 2, `$fa`)
          )
       }
    }
 }
 
-private val Gear.diameter get() = module * toothCount
-private val Gear.radius get() = diameter / 2
-private val Gear.involuteDiameter get() = diameter * cos(Gear.PROFILE_ANGLE)
-private val Gear.involuteRadius get() = involuteDiameter / 2
+/** 標準円直径 */
+val Gear.pitchDiameter: Size get() = module * toothCount
+/** 標準円半径 */
+val Gear.pitchRadius: Size get() = pitchDiameter / 2
+/** 基礎円直径 */
+val Gear.involuteDiameter: Size get() = pitchDiameter * cos(Gear.PROFILE_ANGLE)
+/** 基礎円半径 */
+val Gear.involuteRadius: Size get() = involuteDiameter / 2
+/** 歯先円直径 */
+val Gear.addendumDiameter: Size get() = pitchDiameter + module * 2
+/** 歯先円半径 */
+val Gear.addendumRadius: Size get() = addendumDiameter / 2
+/** 歯底円直径 */
+val Gear.bottomDiameter: Size get() = pitchDiameter - module * 2.5
+/** 歯底円半径 */
+val Gear.bottomRadius: Size get() = bottomDiameter / 2
 
 private fun ScadParentObject.tooth(gear: Gear): ScadObject {
    /** 歯から次の歯までの角度 */

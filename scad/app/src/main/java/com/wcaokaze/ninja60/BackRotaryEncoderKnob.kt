@@ -39,51 +39,177 @@ data class BackRotaryEncoderKnob(
       }
    }
 
+   val gear: Gear get() {
+      val module = BackRotaryEncoderGear.MODULE
+      val diameter = RADIUS * 2 - module * 2
+
+      val toothCount = (diameter.numberAsMilliMeter/ module.numberAsMilliMeter).toInt()
+
+      return Gear(
+         BackRotaryEncoderGear.MODULE,
+         toothCount,
+         GEAR_THICKNESS,
+         referencePoint.translate(bottomVector, GEAR_THICKNESS),
+         frontVector, bottomVector
+      )
+   }
+
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
          = BackRotaryEncoderKnob(frontVector, bottomVector, referencePoint)
 }
 
 fun ScadParentObject.backRotaryEncoderKnob(knob: BackRotaryEncoderKnob): ScadObject {
-   val module = BackRotaryEncoderGear.MODULE
-   val diameter = BackRotaryEncoderKnob.RADIUS * 2 - module * 2
-
-   val toothCount = (diameter.numberAsMilliMeter/ module.numberAsMilliMeter).toInt()
-
-   val gear = Gear(
-      BackRotaryEncoderGear.MODULE,
-      toothCount,
-      BackRotaryEncoderKnob.GEAR_THICKNESS,
-      Point3d.ORIGIN.translate(z = -BackRotaryEncoderKnob.GEAR_THICKNESS),
-      -Vector3d.Y_UNIT_VECTOR, -Vector3d.Z_UNIT_VECTOR
-   )
-
-   return union {
-      locale(knob.referencePoint) {
+   fun ScadParentObject.locale(knob: BackRotaryEncoderKnob, children: ScadParentObject.() -> Unit): Translate {
+      return locale(knob.referencePoint) {
          rotate(
             -Vector3d.Z_UNIT_VECTOR angleWith knob.bottomVector,
-            -Vector3d.Z_UNIT_VECTOR vectorProduct knob.bottomVector
-         ) {
-            (
-               gear(gear)
-               + cylinder(BackRotaryEncoderKnob.HEIGHT, BackRotaryEncoderKnob.RADIUS, `$fa`)
-               - cylinder(
-                  BackRotaryEncoderKnob.HEIGHT * 3,
-                  BackRotaryEncoderKnob.SHAFT_HOLE_RADIUS,
-                  center = true, `$fa`)
-            )
-         }
+            -Vector3d.Z_UNIT_VECTOR vectorProduct knob.bottomVector,
+            children
+         )
       }
    }
+
+
+   return (
+      gear(knob.gear)
+      + locale(knob) {
+         cylinder(BackRotaryEncoderKnob.HEIGHT, BackRotaryEncoderKnob.RADIUS, `$fa`)
+      }
+      - locale(knob) {
+         cylinder(
+            BackRotaryEncoderKnob.HEIGHT * 3,
+            BackRotaryEncoderKnob.SHAFT_HOLE_RADIUS,
+            center = true, `$fa`)
+      }
+   )
 }
 
 /**
- * 奥側のロータリーエンコーダにつける歯車。
+ * 奥側のロータリーエンコーダにつける歯車
+ *
+ * ロータリーエンコーダに挿すシャフト部分に1枚歯車がついた形状。
  */
 class BackRotaryEncoderGear(
 ) {
    companion object {
       val MODULE = 1.mm
-      val HEIGHT = RotaryEncoder.SHAFT_HEIGHT - 1.mm
-      val HOLE_HEIGHT = HEIGHT - 2.mm
+
+      /** 歯車の暑さ */
+      val GEAR_THICKNESS = 2.mm
+
+      /** ロータリーエンコーダに挿す部分の高さ */
+      val SHAFT_HEIGHT = RotaryEncoder.SHAFT_HEIGHT - 1.mm
+
+      /** ロータリーエンコーダに挿す部分の穴の高さ */
+      val SHAFT_HOLE_HEIGHT = SHAFT_HEIGHT - 2.mm
+
+      /** ロータリーエンコーダに挿す部分の半径 */
+      val SHAFT_RADIUS = RotaryEncoder.SHAFT_RADIUS + 2.mm
+
+      operator fun invoke(alphanumericPlate: AlphanumericPlate, velocityRatio: Double): Gear {
+         val knob = BackRotaryEncoderKnob(alphanumericPlate)
+
+         val gear = Gear(
+            MODULE,
+            toothCount = (velocityRatio * knob.gear.toothCount).toInt(),
+            GEAR_THICKNESS,
+            knob.gear.referencePoint,
+            knob.gear.frontVector,
+            knob.gear.bottomVector
+         )
+
+         val column = alphanumericPlate.columns[3]
+         val mostBackKey = column.keySwitches.first()
+         val mostBackKeyLine = Line3d(mostBackKey.referencePoint, mostBackKey.rightVector)
+            .translate(mostBackKey.topVector, KeySwitch.TRAVEL)
+            .translate(mostBackKey.backVector, AlphanumericPlate.KEY_PLATE_SIZE.y / 2)
+         val mostBackPoint = Plane3d(knob.gear.referencePoint, knob.gear.topVector)
+            .intersection(mostBackKeyLine)
+
+         /*
+          * キーに干渉しないぎりぎり低い位置、
+          * つまりgearの歯先円がmostBackKeyPointと接し、
+          * gearの基準円がknob.gearの基準円と接するように配置する
+          *
+          *
+          *     ケースの左側から
+          *     見た図                 knob.gear
+          *                                a
+          *
+          *                                +
+          *                               /|
+          *                              /α|
+          *                             /  |
+          *                            /   |
+          *                           /    |
+          *                          /     |
+          *                         /      |
+          *                        /       |
+          *                       /        |
+          *               gear   /         |
+          *                  c  +----------|
+          *                       --       |
+          *                         --     |
+          *                           --   |
+          *                             --β|
+          *                               -+
+          *
+          *                                b
+          *                          mostBackPoint
+          *
+          * いろいろ解法はあろうかと思いますがここでは
+          *
+          *     ac sin α = bc sin β                   (1)
+          *
+          *     ab = ac cos α + bc cos β              (2)
+          *
+          * を利用します。
+          *
+          * (1)より
+          *
+          *     ac²sin²α = bc²sin²β
+          *
+          *     ac²sin²α = bc²(1 - cos²β)
+          *
+          *     bc²cos²β = bc² - ac²sin²α             (3)
+          *
+          * (2)より
+          *
+          *     ab - ac cos α = bc cos β
+          *
+          *     (ab - ac cos α)² = bc²cos²β           (4)
+          *
+          * (3), (4)より
+          *
+          *     (ab - ac cos α)² = bc² - ac²sin²α
+          *
+          * この方程式を解くと
+          *
+          *                ac² - bc² + ab²
+          *     α = cos⁻¹ -----------------
+          *                    2 ab ac
+          *
+          * が得られる。
+          */
+
+         operator fun Int.times(size: Size) = size * this
+         operator fun Size.times(another: Size) = Size(numberAsMilliMeter * another.numberAsMilliMeter)
+         fun Size.square() = this * this
+
+         val ac = knob.gear distance gear
+         val bc = gear.addendumRadius
+         val abVector = Vector3d(knob.gear.referencePoint, mostBackPoint)
+         val ab = abVector.norm
+
+         val acVector = abVector.rotate(
+            knob.gear.topVector,
+            acos(
+               ac.square() - bc.square() + ab.square(),
+               2 * ab * ac
+            )
+         )
+
+         return gear.translate(acVector, ac)
+      }
    }
 }
