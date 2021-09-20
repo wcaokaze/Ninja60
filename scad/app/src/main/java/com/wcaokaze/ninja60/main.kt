@@ -27,9 +27,9 @@ fun main(vararg args: String) {
 
       frontRotaryEncoderKnob(case.frontRotaryEncoderKnob)
       backRotaryEncoderKnob(BackRotaryEncoderKnob(case.alphanumericPlate))
-      gear(
-         BackRotaryEncoderGear(case.alphanumericPlate, 0.95)
-      )
+
+      val backRotaryEncoderGear = BackRotaryEncoderGear(case.alphanumericPlate, 0.95)
+      backRotaryEncoderGear(backRotaryEncoderGear)
 
       // ----
 

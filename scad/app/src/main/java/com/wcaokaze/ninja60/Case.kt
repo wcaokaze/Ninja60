@@ -57,6 +57,8 @@ private fun ScadParentObject.distortedCube(
    )
 }
 
+// =============================================================================
+
 fun alphanumericTopPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
    // 上面の平面を算出する。
    // 各Columnの一番手前の点から2点を選び、
@@ -248,6 +250,8 @@ private fun ScadParentObject.alphanumericCave(alphanumericPlate: AlphanumericPla
    }
 }
 
+// =============================================================================
+
 private fun ScadParentObject.thumbCase(plate: ThumbPlate): ScadObject {
    /*
    translate(66.mm, 0.mm, 0.mm) {
@@ -272,6 +276,28 @@ private fun ScadParentObject.thumbCave(plate: ThumbPlate): ScadObject {
       hullThumbPlate(plate, layerOffset = 10.mm)
    }
 }
+
+// =============================================================================
+
+fun backRotaryEncoderCaseLeftPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+   val column = alphanumericPlate.columns[BackRotaryEncoderKnob.COLUMN_INDEX]
+
+   return Plane3d(column.referencePoint, column.leftVector)
+      .translate(column.leftVector, BackRotaryEncoderGear.CASE_WIDTH / 2 + offset)
+}
+
+fun backRotaryEncoderCaseRightPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+   val column = alphanumericPlate.columns[BackRotaryEncoderKnob.COLUMN_INDEX]
+
+   return Plane3d(column.referencePoint, column.rightVector)
+      .translate(column.rightVector, BackRotaryEncoderGear.CASE_WIDTH / 2 + offset)
+}
+
+fun backRotaryEncoderCaseSlopePlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+   return alphanumericBackSlopePlane(alphanumericPlate, 1.5.mm)
+}
+
+// =============================================================================
 
 private fun ScadParentObject.frontRotaryEncoderHole(knob: FrontRotaryEncoderKnob): ScadObject {
    val rotaryEncoder = knob.rotaryEncoder()
