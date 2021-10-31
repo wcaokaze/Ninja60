@@ -126,13 +126,13 @@ data class BackRotaryEncoderGear(
        * ロータリーエンコーダが横向きに設置されるので、
        * ケースの幅はロータリーエンコーダの高さの向きになっていることに注意
        */
-      val CASE_WIDTH = INSERTION_HEIGHT + 1.mm
+      val CASE_WIDTH = INSERTION_HEIGHT + RotaryEncoder.LEG_HEIGHT + 1.mm
 
       operator fun invoke(alphanumericPlate: AlphanumericPlate, velocityRatio: Double): BackRotaryEncoderGear {
          val gear = gear(alphanumericPlate, velocityRatio)
          val gearAxis = Line3d(gear.referencePoint, gear.topVector)
          val caseLeftPlane = backRotaryEncoderCaseLeftPlane(alphanumericPlate, 0.mm)
-         val caseSlopePlane = backRotaryEncoderCaseSlopePlane(alphanumericPlate, 0.mm)
+         val caseSlopePlane = backRotaryEncoderCaseSlopePlane(alphanumericPlate, gear, 0.mm)
 
          val mountPlatePlane = caseLeftPlane
             .translate(-caseLeftPlane.normalVector, INSERTION_HEIGHT)
