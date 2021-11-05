@@ -42,6 +42,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
       + backRotaryEncoderCase(case)
       + backRotaryEncoderKnobHolder(case)
       - backRotaryEncoderCave(case)
+      - backRotaryEncoderKnobCave(case)
 
       - hullAlphanumericPlate(case.alphanumericPlate)
       - alphanumericBottomCave(case.alphanumericPlate)
@@ -554,6 +555,29 @@ fun ScadParentObject.backRotaryEncoderKnobHolder(case: Case): ScadObject {
       Plane3d.ZX_PLANE,
       Plane3d.XY_PLANE
    )
+}
+
+fun ScadParentObject.backRotaryEncoderKnobCave(case: Case): ScadObject {
+   val knob = case.backRotaryEncoderKnob
+
+   val locale = knob.referencePoint
+      .translate(knob.bottomVector, BackRotaryEncoderKnob.GEAR_THICKNESS)
+
+   val height = BackRotaryEncoderKnob.HEIGHT + BackRotaryEncoderKnob.GEAR_THICKNESS
+   val radius = BackRotaryEncoderKnob.RADIUS
+
+   return locale(locale.translate(knob.bottomVector, 0.6.mm)) {
+      rotate(
+         -Vector3d.Z_UNIT_VECTOR angleWith knob.bottomVector,
+         -Vector3d.Z_UNIT_VECTOR vectorProduct knob.bottomVector,
+      ) {
+         cylinder(
+            height + 1.2.mm,
+            radius + 0.6.mm,
+            `$fa`
+         )
+      }
+   }
 }
 
 // =============================================================================
