@@ -40,6 +40,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
       }
 
       + backRotaryEncoderCase(case)
+      + backRotaryEncoderKnobHolder(case)
       - backRotaryEncoderCave(case)
 
       - hullAlphanumericPlate(case.alphanumericPlate)
@@ -505,6 +506,54 @@ fun ScadParentObject.backRotaryEncoderMountPlate(case: Case): ScadObject {
       rotaryEncoderMountHole(rotaryEncoder, 2.mm)
       hullAlphanumericPlate(case.alphanumericPlate)
    }
+}
+
+fun ScadParentObject.backRotaryEncoderKnobHolder(case: Case): ScadObject {
+   val topPlane = backRotaryEncoderCaseTopPlane(case.backRotaryEncoderGear, 0.mm)
+      .translate(case.backRotaryEncoderKnob.referencePoint)
+
+   val frontPlane = Plane3d(
+      case.backRotaryEncoderKnob.referencePoint,
+      case.backRotaryEncoderKnob.topVector vectorProduct topPlane.normalVector
+   )
+
+   val backPlane = backRotaryEncoderCaseBackPlane(
+      case.alphanumericPlate, case.backRotaryEncoderGear.gear, 0.mm)
+
+   val rightPlane = backRotaryEncoderCaseRightPlane(case.alphanumericPlate, 0.mm)
+      .translate(case.backRotaryEncoderKnob.referencePoint)
+      .translate(case.backRotaryEncoderKnob.topVector, BackRotaryEncoderKnob.HEIGHT)
+
+   val leftPlane = backRotaryEncoderCaseLeftPlane(case.alphanumericPlate, 0.mm)
+      .translate(case.backRotaryEncoderKnob.referencePoint)
+      .translate(case.backRotaryEncoderKnob.bottomVector, BackRotaryEncoderKnob.GEAR_THICKNESS)
+
+   return minkowski {
+      hullPoints(
+         listOf(backPlane, rightPlane, frontPlane, leftPlane, backPlane)
+            .zipWithNext()
+            .map { (a, b) -> a intersection b intersection topPlane }
+      )
+
+      rotate(
+         -Vector3d.Z_UNIT_VECTOR angleWith case.backRotaryEncoderKnob.bottomVector,
+         -Vector3d.Z_UNIT_VECTOR vectorProduct case.backRotaryEncoderKnob.bottomVector,
+      ) {
+         cylinder(
+            height = 6.mm,
+            radius = 4.mm,
+            center = true,
+            `$fa`
+         )
+      }
+   } intersection distortedCube(
+      backRotaryEncoderCaseSlopePlane(case.alphanumericPlate, case.backRotaryEncoderGear.gear, 1.5.mm),
+      Plane3d.YZ_PLANE.translate(x = (-100).mm),
+      backRotaryEncoderCaseBackPlane(case.alphanumericPlate, case.backRotaryEncoderGear.gear, 1.5.mm),
+      Plane3d.YZ_PLANE.translate(x = 100 .mm),
+      Plane3d.ZX_PLANE,
+      Plane3d.XY_PLANE
+   )
 }
 
 // =============================================================================
