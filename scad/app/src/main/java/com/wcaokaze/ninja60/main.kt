@@ -36,9 +36,7 @@ fun main(vararg args: String) {
          cube(102.mm, 70.mm, 80.mm)
       }
 
-      translate((-91).mm, 56.mm, 23.mm) {
-         cylinder(14.mm, 30.mm, `$fa`)
-      }
+      leftOutRotaryEncoderKnob(case.leftOutRotaryEncoderKnob)
    }
 }
 
