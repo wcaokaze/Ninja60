@@ -16,6 +16,12 @@ class LeftOutRotaryEncoderKnob(
       val MODULE = 1.mm
       val RADIUS = 30.mm
       val HEIGHT = 14.mm
+      val THICKNESS = 2.mm
+
+      val INTERNAL_GEAR_TOOTH_COUNT = (
+         ((RADIUS * 2 - THICKNESS) - MODULE * 2).numberAsMilliMeter
+               / MODULE.numberAsMilliMeter
+         ).toInt()
 
       operator fun invoke(alphanumericPlate: AlphanumericPlate): LeftOutRotaryEncoderKnob {
          val leftmostColumn = alphanumericPlate.columns.first()
@@ -39,6 +45,12 @@ class LeftOutRotaryEncoderKnob(
       }
    }
 
+   val internalGear get() = InternalGear(
+      MODULE, INTERNAL_GEAR_TOOTH_COUNT, HEIGHT,
+      referencePoint.translate(bottomVector, THICKNESS),
+      frontVector, bottomVector
+   )
+
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
       =  LeftOutRotaryEncoderKnob(frontVector, bottomVector, referencePoint)
 }
@@ -46,16 +58,19 @@ class LeftOutRotaryEncoderKnob(
 fun ScadParentObject.leftOutRotaryEncoderKnob(
    leftOutRotaryEncoderKnob: LeftOutRotaryEncoderKnob
 ): ScadObject {
-   return locale(leftOutRotaryEncoderKnob.referencePoint) {
-      rotate(
-         -Vector3d.Z_UNIT_VECTOR angleWith leftOutRotaryEncoderKnob.bottomVector,
-         -Vector3d.Z_UNIT_VECTOR vectorProduct leftOutRotaryEncoderKnob.bottomVector
-      ) {
-         cylinder(
-            LeftOutRotaryEncoderKnob.HEIGHT,
-            LeftOutRotaryEncoderKnob.RADIUS,
-            `$fa`
-         )
+   return (
+      locale(leftOutRotaryEncoderKnob.referencePoint) {
+         rotate(
+            -Vector3d.Z_UNIT_VECTOR angleWith leftOutRotaryEncoderKnob.bottomVector,
+            -Vector3d.Z_UNIT_VECTOR vectorProduct leftOutRotaryEncoderKnob.bottomVector
+         ) {
+            cylinder(
+               LeftOutRotaryEncoderKnob.HEIGHT,
+               LeftOutRotaryEncoderKnob.RADIUS,
+               `$fa`
+            )
+         }
       }
-   }
+      - internalGear(leftOutRotaryEncoderKnob.internalGear)
+   )
 }
