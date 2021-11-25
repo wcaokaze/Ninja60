@@ -4,11 +4,11 @@ import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
-class LeftOutRotaryEncoderKnob(
+class LeftOuterRotaryEncoderKnob(
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
    override val referencePoint: Point3d
-) : Transformable<LeftOutRotaryEncoderKnob> {
+) : Transformable<LeftOuterRotaryEncoderKnob> {
    companion object {
       /** 奥から何番目の[KeySwitch]にノブを配置するか */
       val ROW_INDEX = 2
@@ -23,7 +23,7 @@ class LeftOutRotaryEncoderKnob(
                / MODULE.numberAsMilliMeter
          ).toInt()
 
-      operator fun invoke(alphanumericPlate: AlphanumericPlate): LeftOutRotaryEncoderKnob {
+      operator fun invoke(alphanumericPlate: AlphanumericPlate): LeftOuterRotaryEncoderKnob {
          val leftmostColumn = alphanumericPlate.columns.first()
          val keySwitch = leftmostColumn.keySwitches[ROW_INDEX]
 
@@ -34,7 +34,7 @@ class LeftOutRotaryEncoderKnob(
          val tangencyPoint = alphanumericPlate.leftmostPlane intersection
                Line3d(keycapTop, keySwitch.leftVector)
 
-         return LeftOutRotaryEncoderKnob(
+         return LeftOuterRotaryEncoderKnob(
             Vector3d.Y_UNIT_VECTOR,
             -Vector3d.Z_UNIT_VECTOR,
             tangencyPoint
@@ -52,25 +52,25 @@ class LeftOutRotaryEncoderKnob(
    )
 
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
-      =  LeftOutRotaryEncoderKnob(frontVector, bottomVector, referencePoint)
+      =  LeftOuterRotaryEncoderKnob(frontVector, bottomVector, referencePoint)
 }
 
-fun ScadParentObject.leftOutRotaryEncoderKnob(
-   leftOutRotaryEncoderKnob: LeftOutRotaryEncoderKnob
+fun ScadParentObject.leftOuterRotaryEncoderKnob(
+   leftOuterRotaryEncoderKnob: LeftOuterRotaryEncoderKnob
 ): ScadObject {
    return (
-      locale(leftOutRotaryEncoderKnob.referencePoint) {
+      locale(leftOuterRotaryEncoderKnob.referencePoint) {
          rotate(
-            -Vector3d.Z_UNIT_VECTOR angleWith leftOutRotaryEncoderKnob.bottomVector,
-            -Vector3d.Z_UNIT_VECTOR vectorProduct leftOutRotaryEncoderKnob.bottomVector
+            -Vector3d.Z_UNIT_VECTOR angleWith leftOuterRotaryEncoderKnob.bottomVector,
+            -Vector3d.Z_UNIT_VECTOR vectorProduct leftOuterRotaryEncoderKnob.bottomVector
          ) {
             cylinder(
-               LeftOutRotaryEncoderKnob.HEIGHT,
-               LeftOutRotaryEncoderKnob.RADIUS,
+               LeftOuterRotaryEncoderKnob.HEIGHT,
+               LeftOuterRotaryEncoderKnob.RADIUS,
                `$fa`
             )
          }
       }
-      - internalGear(leftOutRotaryEncoderKnob.internalGear)
+      - internalGear(leftOuterRotaryEncoderKnob.internalGear)
    )
 }

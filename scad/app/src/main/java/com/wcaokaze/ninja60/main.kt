@@ -36,7 +36,7 @@ fun main(vararg args: String) {
          cube(102.mm, 70.mm, 80.mm)
       }
 
-      leftOutRotaryEncoderKnob(case.leftOutRotaryEncoderKnob)
+      leftOuterRotaryEncoderKnob(case.leftOuterRotaryEncoderKnob)
    }
 }
 
