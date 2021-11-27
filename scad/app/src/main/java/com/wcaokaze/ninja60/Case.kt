@@ -27,6 +27,7 @@ data class Case(
    val backRotaryEncoderKnob get() = BackRotaryEncoderKnob(alphanumericPlate)
    val backRotaryEncoderGear get() = BackRotaryEncoderGear(alphanumericPlate, velocityRatio = 1.0)
    val leftOuterRotaryEncoderKnob get() = LeftOuterRotaryEncoderKnob(alphanumericPlate)
+   val leftInnerRotaryEncoderKnob get() = LeftInnerRotaryEncoderKnob(leftOuterRotaryEncoderKnob)
 }
 
 fun ScadParentObject.case(case: Case): ScadObject {
