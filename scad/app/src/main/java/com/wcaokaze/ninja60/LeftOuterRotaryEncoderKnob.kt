@@ -18,6 +18,8 @@ class LeftOuterRotaryEncoderKnob(
       val HEIGHT = 14.mm
       val THICKNESS = 2.mm
 
+      val INNER_KNOB_DEPTH = 1.5.mm
+
       val INTERNAL_GEAR_TOOTH_COUNT = (
          ((RADIUS * 2 - THICKNESS) - MODULE * 2).numberAsMilliMeter
                / MODULE.numberAsMilliMeter
@@ -47,7 +49,7 @@ class LeftOuterRotaryEncoderKnob(
 
    val internalGear get() = InternalGear(
       MODULE, INTERNAL_GEAR_TOOTH_COUNT, HEIGHT,
-      referencePoint.translate(bottomVector, THICKNESS),
+      referencePoint.translate(bottomVector, INNER_KNOB_DEPTH + THICKNESS),
       frontVector, bottomVector
    )
 
@@ -64,11 +66,30 @@ fun ScadParentObject.leftOuterRotaryEncoderKnob(
             -Vector3d.Z_UNIT_VECTOR angleWith leftOuterRotaryEncoderKnob.bottomVector,
             -Vector3d.Z_UNIT_VECTOR vectorProduct leftOuterRotaryEncoderKnob.bottomVector
          ) {
-            cylinder(
-               LeftOuterRotaryEncoderKnob.HEIGHT,
-               LeftOuterRotaryEncoderKnob.RADIUS,
-               `$fa`
-            )
+            difference {
+               cylinder(
+                  LeftOuterRotaryEncoderKnob.HEIGHT,
+                  LeftOuterRotaryEncoderKnob.RADIUS,
+                  `$fa`
+               )
+
+               translate(
+                  z = LeftOuterRotaryEncoderKnob.HEIGHT
+                        - LeftOuterRotaryEncoderKnob.INNER_KNOB_DEPTH
+               ) {
+                  cylinder(
+                     LeftOuterRotaryEncoderKnob.INNER_KNOB_DEPTH * 2,
+                     LeftInnerRotaryEncoderKnob.RADIUS + 0.7.mm,
+                     `$fa`
+                  )
+               }
+
+               cylinder(
+                  LeftOuterRotaryEncoderKnob.HEIGHT,
+                  RotaryEncoder.SHAFT_RADIUS + 0.5.mm,
+                  `$fa`
+               )
+            }
          }
       }
       - internalGear(leftOuterRotaryEncoderKnob.internalGear)
