@@ -58,7 +58,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
 
       + backRotaryEncoderMountPlate(case)
 
-      - frontRotaryEncoderHole(case.frontRotaryEncoderKnob)
+      - frontRotaryEncoderHole(case.alphanumericPlate, case.frontRotaryEncoderKnob)
       + frontRotaryEncoderMountPlate(case.frontRotaryEncoderKnob)
    )
 }
@@ -608,7 +608,10 @@ fun ScadParentObject.backRotaryEncoderKnobCave(case: Case): ScadObject {
 
 // =============================================================================
 
-private fun ScadParentObject.frontRotaryEncoderHole(knob: FrontRotaryEncoderKnob): ScadObject {
+private fun ScadParentObject.frontRotaryEncoderHole(
+   alphanumericPlate: AlphanumericPlate,
+   knob: FrontRotaryEncoderKnob
+): ScadObject {
    val rotaryEncoder = knob.rotaryEncoder()
 
    return union {
@@ -627,11 +630,35 @@ private fun ScadParentObject.frontRotaryEncoderHole(knob: FrontRotaryEncoderKnob
             Vector3d.Z_UNIT_VECTOR angleWith     rotaryEncoder.topVector,
             Vector3d.Z_UNIT_VECTOR vectorProduct rotaryEncoder.topVector
          ) {
-            translate(z = (-1).mm) {
+            translate(z = (-1.5).mm) {
                cylinder(FrontRotaryEncoderKnob.HEIGHT * 2,
-                  FrontRotaryEncoderKnob.RADIUS + 2.mm, `$fa`)
+                  FrontRotaryEncoderKnob.RADIUS + 0.7.mm, `$fa`)
             }
          }
+      }
+
+      intersection {
+         locale(knob.referencePoint) {
+            rotate(
+               Vector3d.Z_UNIT_VECTOR angleWith     rotaryEncoder.topVector,
+               Vector3d.Z_UNIT_VECTOR vectorProduct rotaryEncoder.topVector
+            ) {
+               translate((-50).mm, (-50).mm, (-1.5).mm) {
+                  cube(100.mm, 100.mm, 100.mm)
+               }
+            }
+         }
+
+         hullColumn(
+            alphanumericPlate.columns[FrontRotaryEncoderKnob.COLUMN_INDEX],
+            alphanumericPlate.columns.getOrNull(FrontRotaryEncoderKnob.COLUMN_INDEX - 1),
+            alphanumericPlate.columns.getOrNull(FrontRotaryEncoderKnob.COLUMN_INDEX + 1),
+            HullAlphanumericConfig(
+               layerOffset = 20.mm,
+               frontBackOffset = 20.mm,
+               columnOffset = 1.mm
+            )
+         )
       }
    }
 }
