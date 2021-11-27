@@ -46,7 +46,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
       - backRotaryEncoderCave(case)
       - backRotaryEncoderKnobCave(case)
 
-      - hullAlphanumericPlate(case.alphanumericPlate)
+      - hullAlphanumericPlate(case.alphanumericPlate, HullAlphanumericConfig())
       - alphanumericBottomCave(case.alphanumericPlate)
 
       + difference {
@@ -257,14 +257,25 @@ private fun ScadParentObject.alphanumericFrontCase(alphanumericPlate: Alphanumer
 
 private fun ScadParentObject.alphanumericTopCave(alphanumericPlate: AlphanumericPlate): ScadObject {
    return union {
-      hullAlphanumericPlate(alphanumericPlate, layerOffset = -KeySwitch.TRAVEL, frontBackOffset = 20.mm, leftRightOffset = 20.mm)
-      hullAlphanumericPlate(alphanumericPlate)
+      hullAlphanumericPlate(
+         alphanumericPlate,
+         HullAlphanumericConfig(
+            layerOffset = -KeySwitch.TRAVEL,
+            frontBackOffset = 20.mm,
+            leftRightOffset = 20.mm
+         )
+      )
+
+      hullAlphanumericPlate(alphanumericPlate, HullAlphanumericConfig())
    }
 }
 
 private fun ScadParentObject.alphanumericBottomCave(alphanumericPlate: AlphanumericPlate): ScadObject {
    return intersection {
-      hullAlphanumericPlate(alphanumericPlate, layerOffset = 100.mm)
+      hullAlphanumericPlate(
+         alphanumericPlate,
+         HullAlphanumericConfig(layerOffset = 100.mm)
+      )
 
       distortedCube(
          alphanumericTopPlane(alphanumericPlate, 0.mm),
@@ -425,7 +436,10 @@ fun ScadParentObject.backRotaryEncoderCase(case: Case): ScadObject {
          offset = 1.5.mm
       )
 
-      hullAlphanumericPlate(case.alphanumericPlate, layerOffset = 10.mm)
+      hullAlphanumericPlate(
+         case.alphanumericPlate,
+         HullAlphanumericConfig(layerOffset = 10.mm)
+      )
    }
 }
 
@@ -507,7 +521,7 @@ fun ScadParentObject.backRotaryEncoderMountPlate(case: Case): ScadObject {
       }
 
       rotaryEncoderMountHole(rotaryEncoder, 2.mm)
-      hullAlphanumericPlate(case.alphanumericPlate)
+      hullAlphanumericPlate(case.alphanumericPlate, HullAlphanumericConfig())
    }
 }
 

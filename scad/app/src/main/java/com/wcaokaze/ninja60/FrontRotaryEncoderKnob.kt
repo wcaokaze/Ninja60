@@ -10,6 +10,9 @@ class FrontRotaryEncoderKnob(
    override val referencePoint: Point3d
 ) : Transformable<FrontRotaryEncoderKnob> {
    companion object {
+      /** 何番目の[AlphanumericColumn]にノブを配置するか */
+      val COLUMN_INDEX = 3
+
       val RADIUS = 18.mm
       val HEIGHT = 14.mm
       val HOLE_HEIGHT = HEIGHT - 2.mm
@@ -18,7 +21,7 @@ class FrontRotaryEncoderKnob(
          val caseTopPlane = alphanumericTopPlane(alphanumericPlate, 0.mm)
          val caseFrontPlane = alphanumericFrontPlane(0.mm)
 
-         val column = alphanumericPlate.columns[3]
+         val column = alphanumericPlate.columns[COLUMN_INDEX]
          val columnPlane = Plane3d(column.referencePoint, column.rightVector)
 
          val mostFrontKey = column.keySwitches.last()
