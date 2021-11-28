@@ -37,13 +37,14 @@ class LeftOuterRotaryEncoderKnob(
                Line3d(keycapTop, keySwitch.leftVector)
 
          return LeftOuterRotaryEncoderKnob(
-            Vector3d.Y_UNIT_VECTOR,
-            -Vector3d.Z_UNIT_VECTOR,
-            tangencyPoint
-               .translate(-Vector3d.X_UNIT_VECTOR, RADIUS + 2.mm)
-               .translate( Vector3d.Y_UNIT_VECTOR, keyPitch.y / 3)
-               .translate(-Vector3d.Z_UNIT_VECTOR, HEIGHT)
-         )
+               -alphanumericPlate.leftmostPlane.normalVector
+                     vectorProduct -Vector3d.Z_UNIT_VECTOR,
+               -Vector3d.Z_UNIT_VECTOR,
+               tangencyPoint
+            )
+            .let { it.translate(it.leftVector, RADIUS + 2.mm) }
+            .let { it.translate(it.backVector, keyPitch.y / 3) }
+            .let { it.translate(it.bottomVector, HEIGHT) }
       }
    }
 
