@@ -38,6 +38,10 @@ fun main(vararg args: String) {
 
       leftOuterRotaryEncoderKnob(case.leftOuterRotaryEncoderKnob)
       leftInnerRotaryEncoderKnob(case.leftInnerRotaryEncoderKnob)
+
+      for (g in case.leftOuterRotaryEncoderKnob.gears) {
+         leftOuterRotaryEncoderGear(g)
+      }
    }
 }
 
