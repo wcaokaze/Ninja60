@@ -4,7 +4,7 @@ import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
 val `$fs`: Double = 2.0
-val `$fa`: Double = 12.0
+val `$fa`: Angle = 12.deg
 val `$fn`: Double = 0.0
 
 val keyPitch = Size2d(19.2.mm, 16.mm)

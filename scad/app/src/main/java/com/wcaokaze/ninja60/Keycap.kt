@@ -6,14 +6,14 @@ import com.wcaokaze.scadwriter.foundation.*
 val enableOnlyOuter = true
 val enableLegends = false
 
-val keycapInvisibleFa = 8.0
+val keycapInvisibleFa = 8.deg
 
 val keycapMargin = 0.375.mm
 val keycapHeight = 6.93.mm
-val keycapWallFa = 15.0 // 2.0
+val keycapWallFa = 15.deg // 2.deg
 
 val dishR = 15.mm
-val dishFa = 15.0 // 2.0
+val dishFa = 15.deg // 2.deg
 
 val tiltXr = 260.mm
 val tiltYr = 130.mm
@@ -70,7 +70,7 @@ fun ScadParentObject.thumbKeycap(
    val bottomZ = Point(0.mm)
    val topZ = dishPositionZ + keycapHeight
 
-   fun ScadParentObject.dish(fa: Double): ScadObject {
+   fun ScadParentObject.dish(fa: Angle): ScadObject {
       return translate(bottomCenterR, dishOffset, (topZ + dishR - 2.mm).distanceFromOrigin) {
          rotate(90.deg - thumbTiltA, 0.deg, 90.deg) {
             cylinder(height = 32.mm, dishR, center = true, fa)
@@ -123,7 +123,7 @@ fun ScadParentObject.thumbKeycap(
       topW: Size, topH: Size,
       roundR: Size,
       z: Point,
-      fa: Double
+      fa: Angle
    ): ScadObject {
       return minkowski {
          arc(
@@ -391,7 +391,7 @@ fun ScadParentObject.keycap(
       Size3d(0.mm, 0.mm, tiltXr * (1 - cos(-tiltXa)) + tiltYr * (1 - cos(tiltYa)))
    }
 
-   fun ScadParentObject.dish(keycapHeight: Size, fa: Double): ScadObject {
+   fun ScadParentObject.dish(keycapHeight: Size, fa: Angle): ScadObject {
       return if (isCylindrical) {
          minkowski {
             cube(
@@ -615,7 +615,7 @@ fun ScadParentObject.keycap(
             translate((-0.5).mm, -topH / 2 + 0.15.mm, (-1.5).mm) {
                minkowski {
                   cube(1.mm, 0.001.mm, 2.75.mm)
-                  sphere(0.3.mm, fa = 12.0)
+                  sphere(0.3.mm, fa = 12.deg)
                }
             }
          }

@@ -8,12 +8,12 @@ data class Pillar(
    val height: Size,
    val radius: Size,
    val center: Boolean,
-   val fa: Double
+   val fa: Angle
 ) : Cylinder() {
    constructor(
       height: Size,
       radius: Size,
-      fa: Double
+      fa: Angle
    ) : this(height, radius, center = false, fa)
 
    override fun writeScad(scadWriter: ScadWriter) {
@@ -28,13 +28,13 @@ data class Cone(
    val bottomRadius: Size,
    val topRadius: Size,
    val center: Boolean = false,
-   val fa: Double
+   val fa: Angle
 ) : Cylinder() {
    constructor(
       height: Size,
       bottomRadius: Size,
       topRadius: Size,
-      fa: Double
+      fa: Angle
    ) : this(height, bottomRadius, topRadius, center = false, fa)
 
    override fun writeScad(scadWriter: ScadWriter) {
@@ -47,21 +47,21 @@ data class Cone(
 fun ScadParentObject.cylinder(
    height: Size,
    radius: Size,
-   fa: Double
+   fa: Angle
 ): Pillar = cylinder(height, radius, center = false, fa)
 
 fun ScadParentObject.cylinder(
    height: Size,
    bottomRadius: Size,
    topRadius: Size,
-   fa: Double
+   fa: Angle
 ): Cone = cylinder(height, bottomRadius, topRadius, center = false, fa)
 
 fun ScadParentObject.cylinder(
    height: Size,
    radius: Size,
    center: Boolean,
-   fa: Double
+   fa: Angle
 ): Pillar {
    val pillar = Pillar(height, radius, center, fa)
    addChild(pillar)
@@ -72,7 +72,7 @@ fun ScadParentObject.cylinder(
    height: Size,
    bottomRadius: Size, topRadius: Size,
    center: Boolean,
-   fa: Double
+   fa: Angle
 ): Cone {
    val cone = Cone(height, bottomRadius, topRadius, center, fa)
    addChild(cone)

@@ -89,7 +89,7 @@ private fun ScadParentObject.tooth(gear: Gear): ScadObject {
       val half = linearExtrude(gear.thickness) {
          rotate(z = -involuteHalfThicknessAngle) {
             polygon(
-               (0.0.rad..Angle.PI / 2 step (Angle.PI * 2 / `$fa`))
+               (0.0.rad..Angle.PI / 2 step `$fa`)
                   .map { a ->
                      Point2d(
                         Point(gear.involuteRadius * (cos(a) + a.numberAsRadian * sin(a))),
