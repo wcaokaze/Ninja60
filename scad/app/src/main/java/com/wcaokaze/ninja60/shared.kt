@@ -3,7 +3,7 @@ package com.wcaokaze.ninja60
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
-val `$fs`: Double = 2.0
+val `$fs`: Size = 2.mm
 val `$fa`: Angle = 12.deg
 val `$fn`: Double = 0.0
 
