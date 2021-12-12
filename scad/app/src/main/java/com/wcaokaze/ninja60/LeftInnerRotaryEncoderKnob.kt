@@ -23,6 +23,22 @@ class LeftInnerRotaryEncoderKnob(
 
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
       = LeftInnerRotaryEncoderKnob(frontVector, bottomVector, referencePoint)
+
+   val rotaryEncoder: RotaryEncoder get() {
+      val outerKnob = LeftOuterRotaryEncoderKnob(
+         frontVector, bottomVector,
+         referencePoint.translate(bottomVector, LeftOuterRotaryEncoderKnob.HEIGHT)
+      )
+
+      val gearBottomPlane = Plane3d(outerKnob.gear.referencePoint, topVector)
+
+      val gearBottomPoint = gearBottomPlane intersection Line3d(referencePoint, topVector)
+
+      return RotaryEncoder(
+         frontVector, bottomVector,
+         gearBottomPoint.translate(bottomVector, RotaryEncoder.BODY_SIZE.z + 1.mm)
+      )
+   }
 }
 
 fun ScadParentObject.leftInnerRotaryEncoderKnob(

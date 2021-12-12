@@ -329,23 +329,6 @@ private fun Plane3d.translateTangential(gear: Gear): Plane3d {
    )
 }
 
-/**
- * 法線ベクトルの向きを正としたとき、より大きい位置にある平面を返します
- * 2つの平面の法線ベクトルは同じ向きである必要があります
- */
-private fun max(a: Plane3d, b: Plane3d): Plane3d {
-   require(a.normalVector angleWith b.normalVector < 0.01.deg)
-
-   val line = Line3d(Point3d.ORIGIN, a.normalVector)
-   val vAB = Vector3d(a intersection line, b intersection line)
-
-   return if (vAB angleWith a.normalVector in (-90).deg..90.deg) {
-      b
-   } else {
-      a
-   }
-}
-
 fun backRotaryEncoderCaseTopPlane(
    gear: BackRotaryEncoderGear,
    offset: Size

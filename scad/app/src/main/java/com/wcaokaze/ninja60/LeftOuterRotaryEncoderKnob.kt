@@ -15,15 +15,18 @@ class LeftOuterRotaryEncoderKnob(
 
       val MODULE = 1.mm
       val RADIUS = 30.mm
-      val HEIGHT = 14.mm
+      val HEIGHT = 8.mm
       val THICKNESS = 2.mm
 
       val INNER_KNOB_DEPTH = 1.5.mm
 
       val INTERNAL_GEAR_TOOTH_COUNT = gearToothCount(
          MODULE,
-         (RADIUS - THICKNESS - LeftOuterRotaryEncoderGear.SAUCER_THICKNESS) * 2
+         (RADIUS - THICKNESS) * 2
       )
+
+      val PROTUBERANCE_COUNT = 7
+      val PROTUBERANCE_RADIUS = 0.75.mm
 
       operator fun invoke(alphanumericPlate: AlphanumericPlate): LeftOuterRotaryEncoderKnob {
          val leftmostColumn = alphanumericPlate.columns.first()
@@ -49,34 +52,22 @@ class LeftOuterRotaryEncoderKnob(
    }
 
    val internalGear: InternalGear get() {
-      val h = LeftOuterRotaryEncoderGear.GEAR_THICKNESS + 0.5.mm
-
       return InternalGear(
-         MODULE, INTERNAL_GEAR_TOOTH_COUNT, h,
-         referencePoint
-            .translate(topVector, HEIGHT - INNER_KNOB_DEPTH - THICKNESS - h),
+         MODULE, INTERNAL_GEAR_TOOTH_COUNT, HEIGHT - THICKNESS,
+         referencePoint,
          frontVector, bottomVector
       )
    }
 
-   val gears: List<LeftOuterRotaryEncoderGear> get() {
+   val gear: LeftOuterRotaryEncoderGear get() {
       val gear = LeftOuterRotaryEncoderGear(
          internalGear.frontVector,
          internalGear.bottomVector,
          internalGear.referencePoint
-            .translate(
-               internalGear.bottomVector,
-               LeftOuterRotaryEncoderGear.SAUCER_THICKNESS
-            )
+            .translate(topVector, HEIGHT - INNER_KNOB_DEPTH - THICKNESS - LeftOuterRotaryEncoderGear.HEIGHT - 0.5.mm)
       )
 
-      val d = internalGear distance gear.gear
-
-      return listOf(
-         gear.translate(rightVector.rotate(bottomVector, 360.deg * 0 / 3), d),
-         gear.translate(rightVector.rotate(bottomVector, 360.deg * 1 / 3), d),
-         gear.translate(rightVector.rotate(bottomVector, 360.deg * 2 / 3), d)
-      )
+      return gear.translate(rightVector, internalGear distance gear.gear)
    }
 
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
@@ -125,10 +116,61 @@ fun ScadParentObject.leftOuterRotaryEncoderKnob(
                   `$fa`
                )
             }
+         } +
+         repeatRotation(LeftOuterRotaryEncoderKnob.PROTUBERANCE_COUNT) {
+            translate(x = leftOuterRotaryEncoderKnob.internalGear.bottomRadius
+                  + LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS)
+            {
+               linearProtuberance(
+                  LeftOuterRotaryEncoderKnob.RADIUS
+                        - leftOuterRotaryEncoderKnob.internalGear.bottomRadius
+                        - LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS,
+                  LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
+               )
+            }
+            translate(LeftOuterRotaryEncoderKnob.RADIUS) {
+               rotate(y = (-90).deg) {
+                  linearProtuberance(
+                     LeftOuterRotaryEncoderKnob.HEIGHT - 1.5.mm,
+                     LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
+                  )
+               }
+            }
+         } +
+         repeatRotation(14) {
+            translate(
+               x = LeftInnerRotaryEncoderKnob.RADIUS + 7.mm
+                     + LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS,
+               z = LeftOuterRotaryEncoderKnob.HEIGHT
+            ) {
+               linearProtuberance(
+                  LeftOuterRotaryEncoderKnob.RADIUS
+                        - LeftInnerRotaryEncoderKnob.RADIUS
+                        - 7.mm
+                        - LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
+                        - 1.mm,
+                  LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
+               )
+            }
          }
       }
       - internalGear(leftOuterRotaryEncoderKnob.internalGear)
    )
+}
+
+private fun ScadParentObject.repeatRotation(
+   count: Int,
+   child: ScadParentObject.() -> Unit
+): ScadObject {
+   val twoPi = Angle.PI * 2
+
+   return union {
+      for (a in 0.0.rad..twoPi step twoPi / count) {
+         rotate(z = a) {
+            child()
+         }
+      }
+   }
 }
 
 // =============================================================================
@@ -139,7 +181,7 @@ class LeftOuterRotaryEncoderGear(
    override val referencePoint: Point3d
 ) : Transformable<LeftOuterRotaryEncoderGear> {
    companion object {
-      val HEIGHT = 8.mm
+      val HEIGHT = 4.mm
 
       val RADIUS = (
             LeftOuterRotaryEncoderKnob.RADIUS
@@ -147,22 +189,24 @@ class LeftOuterRotaryEncoderGear(
                   - RotaryEncoder.SHAFT_RADIUS
          ) / 2 - 0.5.mm
 
-      val SAUCER_THICKNESS = 2.mm
-
-      val GEAR_THICKNESS = HEIGHT - SAUCER_THICKNESS
-
       val TOOTH_COUNT = gearToothCount(
          LeftOuterRotaryEncoderKnob.MODULE,
-         (RADIUS - SAUCER_THICKNESS) * 2
-      ) + 1
+         RADIUS * 2
+      )
    }
 
    val gear get() = Gear(
       LeftOuterRotaryEncoderKnob.MODULE,
       TOOTH_COUNT,
-      GEAR_THICKNESS,
-      referencePoint.translate(topVector, SAUCER_THICKNESS),
+      HEIGHT,
+      referencePoint,
       frontVector, bottomVector
+   )
+
+   val rotaryEncoder: RotaryEncoder get() = RotaryEncoder(
+      frontVector,
+      bottomVector,
+      referencePoint.translate(topVector, HEIGHT - RotaryEncoder.HEIGHT)
    )
 
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
@@ -172,22 +216,7 @@ class LeftOuterRotaryEncoderGear(
 fun ScadParentObject.leftOuterRotaryEncoderGear(
    leftOuterRotaryEncoderGear: LeftOuterRotaryEncoderGear
 ): ScadObject {
-   return union {
-      locale(leftOuterRotaryEncoderGear.referencePoint) {
-         rotate(
-            -Vector3d.Z_UNIT_VECTOR angleWith leftOuterRotaryEncoderGear.bottomVector,
-            -Vector3d.Z_UNIT_VECTOR vectorProduct leftOuterRotaryEncoderGear.bottomVector
-         ) {
-            cylinder(
-               LeftOuterRotaryEncoderGear.SAUCER_THICKNESS,
-               LeftOuterRotaryEncoderGear.RADIUS,
-               `$fa`
-            )
-         }
-      }
-
-      gear(leftOuterRotaryEncoderGear.gear)
-   }
+   return gear(leftOuterRotaryEncoderGear.gear)
 }
 
 private fun gearToothCount(module: Size, diameter: Size) = (

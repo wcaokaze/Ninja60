@@ -1,5 +1,6 @@
 package com.wcaokaze.ninja60
 
+import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
@@ -19,6 +20,35 @@ fun ScadParentObject.polygonPyramid(n: Int, height: Size, radius: Size): ScadObj
             )
          }
       )
+   }
+}
+
+/**
+ * 法線ベクトルの向きを正として2つの平面の位置を比較します
+ * 2つの平面の法線ベクトルは同じ向きである必要があります
+ */
+operator fun Plane3d.compareTo(another: Plane3d): Int {
+   require(normalVector angleWith another.normalVector < 0.01.deg)
+
+   val line = Line3d(Point3d.ORIGIN, normalVector)
+   val vAB = Vector3d(this intersection line, another intersection line)
+
+   return when {
+      vAB.norm < 0.001.mm -> 0
+      vAB angleWith normalVector in (-90).deg..90.deg -> -1
+      else -> 1
+   }
+}
+
+/**
+ * 法線ベクトルの向きを正としたとき、より大きい位置にある平面を返します
+ * 2つの平面の法線ベクトルは同じ向きである必要があります
+ */
+private fun max(a: Plane3d, b: Plane3d): Plane3d {
+   return if (a < b) {
+      b
+   } else {
+      a
    }
 }
 
