@@ -28,6 +28,9 @@ class LeftOuterRotaryEncoderKnob(
       val PROTUBERANCE_COUNT = 7
       val PROTUBERANCE_RADIUS = 0.75.mm
 
+      val SKIDPROOF_COUNT = 14
+      val SKIDPROOF_RADIUS = 0.75.mm
+
       operator fun invoke(alphanumericPlate: AlphanumericPlate): LeftOuterRotaryEncoderKnob {
          val leftmostColumn = alphanumericPlate.columns.first()
          val keySwitch = leftmostColumn.keySwitches[ROW_INDEX]
@@ -77,100 +80,106 @@ class LeftOuterRotaryEncoderKnob(
 fun ScadParentObject.leftOuterRotaryEncoderKnob(
    leftOuterRotaryEncoderKnob: LeftOuterRotaryEncoderKnob
 ): ScadObject {
+   fun ScadParentObject.mainBody(): ScadObject {
+      return cylinder(
+         LeftOuterRotaryEncoderKnob.HEIGHT,
+         LeftOuterRotaryEncoderKnob.RADIUS,
+         `$fa`
+      )
+   }
+
+   fun ScadParentObject.innerKnobHole(): ScadObject {
+      return translate(
+         z = LeftOuterRotaryEncoderKnob.HEIGHT
+               - LeftOuterRotaryEncoderKnob.INNER_KNOB_DEPTH
+      ) {
+         cylinder(
+            LeftOuterRotaryEncoderKnob.INNER_KNOB_DEPTH * 2,
+            LeftInnerRotaryEncoderKnob.RADIUS + 0.7.mm,
+            `$fa`
+         )
+      }
+   }
+
+   fun ScadParentObject.innerRotaryEncoderShaftHole(): ScadObject {
+      return cylinder(
+         LeftOuterRotaryEncoderKnob.HEIGHT,
+         RotaryEncoder.SHAFT_RADIUS + 0.5.mm,
+         `$fa`
+      )
+   }
+
+   fun ScadParentObject.internalCave(): ScadObject {
+      return cylinder(
+         Vector3d(
+            leftOuterRotaryEncoderKnob.referencePoint,
+            leftOuterRotaryEncoderKnob.internalGear.referencePoint
+         ).norm,
+         LeftOuterRotaryEncoderKnob.RADIUS - LeftOuterRotaryEncoderKnob.THICKNESS,
+         `$fa`
+      )
+   }
+
+   fun ScadParentObject.protuberance(): ScadObject {
+      return repeatRotation(LeftOuterRotaryEncoderKnob.PROTUBERANCE_COUNT) {
+         translate(x = leftOuterRotaryEncoderKnob.internalGear.bottomRadius
+               + LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS)
+         {
+            linearProtuberance(
+               LeftOuterRotaryEncoderKnob.RADIUS
+                     - leftOuterRotaryEncoderKnob.internalGear.bottomRadius
+                     - LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS,
+               LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
+            )
+         }
+         translate(LeftOuterRotaryEncoderKnob.RADIUS) {
+            rotate(y = (-90).deg) {
+               linearProtuberance(
+                  LeftOuterRotaryEncoderKnob.HEIGHT - 1.5.mm,
+                  LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
+               )
+            }
+         }
+      }
+   }
+
+   fun ScadParentObject.skidproof(): ScadObject {
+      return repeatRotation(LeftOuterRotaryEncoderKnob.SKIDPROOF_COUNT) {
+         translate(
+            x = LeftInnerRotaryEncoderKnob.RADIUS + 7.mm
+                  + LeftOuterRotaryEncoderKnob.SKIDPROOF_RADIUS,
+            z = LeftOuterRotaryEncoderKnob.HEIGHT
+         ) {
+            linearProtuberance(
+               LeftOuterRotaryEncoderKnob.RADIUS
+                     - LeftInnerRotaryEncoderKnob.RADIUS
+                     - 7.mm
+                     - LeftOuterRotaryEncoderKnob.SKIDPROOF_RADIUS
+                     - 1.mm,
+               LeftOuterRotaryEncoderKnob.SKIDPROOF_RADIUS
+            )
+         }
+      }
+   }
+
    return (
       locale(leftOuterRotaryEncoderKnob.referencePoint) {
          rotate(
             -Vector3d.Z_UNIT_VECTOR angleWith leftOuterRotaryEncoderKnob.bottomVector,
             -Vector3d.Z_UNIT_VECTOR vectorProduct leftOuterRotaryEncoderKnob.bottomVector
          ) {
-            difference {
-               cylinder(
-                  LeftOuterRotaryEncoderKnob.HEIGHT,
-                  LeftOuterRotaryEncoderKnob.RADIUS,
-                  `$fa`
-               )
-
-               translate(
-                  z = LeftOuterRotaryEncoderKnob.HEIGHT
-                        - LeftOuterRotaryEncoderKnob.INNER_KNOB_DEPTH
-               ) {
-                  cylinder(
-                     LeftOuterRotaryEncoderKnob.INNER_KNOB_DEPTH * 2,
-                     LeftInnerRotaryEncoderKnob.RADIUS + 0.7.mm,
-                     `$fa`
-                  )
-               }
-
-               cylinder(
-                  LeftOuterRotaryEncoderKnob.HEIGHT,
-                  RotaryEncoder.SHAFT_RADIUS + 0.5.mm,
-                  `$fa`
-               )
-
-               cylinder(
-                  Vector3d(
-                     leftOuterRotaryEncoderKnob.referencePoint,
-                     leftOuterRotaryEncoderKnob.internalGear.referencePoint
-                  ).norm,
-                  LeftOuterRotaryEncoderKnob.RADIUS - LeftOuterRotaryEncoderKnob.THICKNESS,
-                  `$fa`
-               )
-            }
-         } +
-         repeatRotation(LeftOuterRotaryEncoderKnob.PROTUBERANCE_COUNT) {
-            translate(x = leftOuterRotaryEncoderKnob.internalGear.bottomRadius
-                  + LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS)
-            {
-               linearProtuberance(
-                  LeftOuterRotaryEncoderKnob.RADIUS
-                        - leftOuterRotaryEncoderKnob.internalGear.bottomRadius
-                        - LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS,
-                  LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
-               )
-            }
-            translate(LeftOuterRotaryEncoderKnob.RADIUS) {
-               rotate(y = (-90).deg) {
-                  linearProtuberance(
-                     LeftOuterRotaryEncoderKnob.HEIGHT - 1.5.mm,
-                     LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
-                  )
-               }
-            }
-         } +
-         repeatRotation(14) {
-            translate(
-               x = LeftInnerRotaryEncoderKnob.RADIUS + 7.mm
-                     + LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS,
-               z = LeftOuterRotaryEncoderKnob.HEIGHT
-            ) {
-               linearProtuberance(
-                  LeftOuterRotaryEncoderKnob.RADIUS
-                        - LeftInnerRotaryEncoderKnob.RADIUS
-                        - 7.mm
-                        - LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
-                        - 1.mm,
-                  LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
-               )
-            }
+            (
+               mainBody()
+               - innerKnobHole()
+               - innerRotaryEncoderShaftHole()
+               - internalCave()
+               + protuberance()
+               + skidproof()
+            )
          }
       }
       - internalGear(leftOuterRotaryEncoderKnob.internalGear)
    )
-}
-
-private fun ScadParentObject.repeatRotation(
-   count: Int,
-   child: ScadParentObject.() -> Unit
-): ScadObject {
-   val twoPi = Angle.PI * 2
-
-   return union {
-      for (a in 0.0.rad..twoPi step twoPi / count) {
-         rotate(z = a) {
-            child()
-         }
-      }
-   }
 }
 
 // =============================================================================

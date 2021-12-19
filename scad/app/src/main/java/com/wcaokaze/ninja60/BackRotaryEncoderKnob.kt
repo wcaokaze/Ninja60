@@ -23,6 +23,9 @@ data class BackRotaryEncoderKnob(
       val SHAFT_HOLE_RADIUS = 1.6.mm
       val GEAR_THICKNESS = 2.mm
 
+      val SKIDPROOF_COUNT = 14
+      val SKIDPROOF_RADIUS = 0.75.mm
+
       operator fun invoke(alphanumericPlate: AlphanumericPlate): BackRotaryEncoderKnob {
          val column = alphanumericPlate.columns[COLUMN_INDEX]
          val mostBackKey = column.keySwitches.first()
@@ -62,27 +65,31 @@ data class BackRotaryEncoderKnob(
 }
 
 fun ScadParentObject.backRotaryEncoderKnob(knob: BackRotaryEncoderKnob): ScadObject {
-   fun ScadParentObject.locale(knob: BackRotaryEncoderKnob, children: ScadParentObject.() -> Unit): Translate {
-      return locale(knob.referencePoint) {
+   return (
+      gear(knob.gear)
+      + locale(knob.referencePoint) {
          rotate(
             -Vector3d.Z_UNIT_VECTOR angleWith knob.bottomVector,
             -Vector3d.Z_UNIT_VECTOR vectorProduct knob.bottomVector,
-            children
-         )
-      }
-   }
-
-
-   return (
-      gear(knob.gear)
-      + locale(knob) {
-         cylinder(BackRotaryEncoderKnob.HEIGHT, BackRotaryEncoderKnob.RADIUS, `$fa`)
-      }
-      - locale(knob) {
-         cylinder(
-            BackRotaryEncoderKnob.HEIGHT * 3,
-            BackRotaryEncoderKnob.SHAFT_HOLE_RADIUS,
-            center = true, `$fa`)
+         ) {
+            (
+               cylinder(BackRotaryEncoderKnob.HEIGHT, BackRotaryEncoderKnob.RADIUS, `$fa`)
+               + repeatRotation(BackRotaryEncoderKnob.SKIDPROOF_COUNT) {
+                  translate(x = BackRotaryEncoderKnob.RADIUS) {
+                     cylinder(
+                        BackRotaryEncoderKnob.HEIGHT,
+                        BackRotaryEncoderKnob.SKIDPROOF_RADIUS,
+                        `$fa`
+                     )
+                  }
+               }
+               - cylinder(
+                  BackRotaryEncoderKnob.HEIGHT * 3,
+                  BackRotaryEncoderKnob.SHAFT_HOLE_RADIUS,
+                  center = true, `$fa`
+               )
+            )
+         }
       }
    )
 }

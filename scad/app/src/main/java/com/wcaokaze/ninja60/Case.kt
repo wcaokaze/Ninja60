@@ -559,21 +559,22 @@ fun ScadParentObject.backRotaryEncoderKnobHolder(case: Case): ScadObject {
 fun ScadParentObject.backRotaryEncoderKnobCave(case: Case): ScadObject {
    val knob = case.backRotaryEncoderKnob
 
-   val locale = knob.referencePoint
-      .translate(knob.bottomVector, BackRotaryEncoderKnob.GEAR_THICKNESS)
-
-   val height = BackRotaryEncoderKnob.HEIGHT + BackRotaryEncoderKnob.GEAR_THICKNESS
-   val radius = BackRotaryEncoderKnob.RADIUS
-
-   return locale(locale) {
+   return locale(
+      knob.referencePoint
+         .translate(knob.bottomVector, BackRotaryEncoderKnob.GEAR_THICKNESS)
+   ) {
       rotate(
          -Vector3d.Z_UNIT_VECTOR angleWith knob.bottomVector,
          -Vector3d.Z_UNIT_VECTOR vectorProduct knob.bottomVector,
       ) {
          translate(z = (-0.6).mm) {
             cylinder(
-               height + 1.2.mm,
-               radius + 0.6.mm,
+               BackRotaryEncoderKnob.HEIGHT
+                     + BackRotaryEncoderKnob.GEAR_THICKNESS
+                     + 1.2.mm,
+               BackRotaryEncoderKnob.RADIUS
+                     + BackRotaryEncoderKnob.SKIDPROOF_RADIUS / 2
+                     + 0.7.mm,
                `$fa`
             )
          }
