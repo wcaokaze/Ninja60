@@ -41,6 +41,26 @@ fun main(vararg args: String) {
 
       leftOuterRotaryEncoderGear(case.leftOuterRotaryEncoderKnob.gear)
 
+      locale(case.leftOuterRotaryEncoderKnob.referencePoint) {
+         translate(z = LeftOuterRotaryEncoderKnob.HEIGHT - 3.mm) {
+            circularProtuberance(
+               LeftOuterRotaryEncoderKnob.RADIUS
+                     + LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
+                     + 0.1.mm
+                     + LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS,
+               LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
+            )
+         }
+
+         translate(z = -LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS - 0.1.mm) {
+            circularProtuberance(
+               LeftOuterRotaryEncoderKnob.RADIUS
+                     - LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS,
+               LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
+            )
+         }
+      }
+
       rotaryEncoderMountHole(
          case.leftOuterRotaryEncoderKnob.gear.rotaryEncoder,
          1.6.mm
