@@ -74,3 +74,29 @@ fun ScadParentObject.rotaryEncoderMountHole(
       hole(  2.5 .mm, 7.mm, 1.mm, 1.mm)
    }
 }
+
+/**
+ * ロータリーエンコーダのノブをシャフトに挿すとき用の穴。
+ */
+fun ScadParentObject.rotaryEncoderKnobHole(
+   rotaryEncoder: RotaryEncoder
+): ScadObject {
+   return locale(rotaryEncoder.referencePoint) {
+      rotate(
+         -Vector3d.Z_UNIT_VECTOR angleWith rotaryEncoder.bottomVector,
+         -Vector3d.Z_UNIT_VECTOR vectorProduct rotaryEncoder.bottomVector,
+      ) {
+         union {
+            difference {
+               cylinder(RotaryEncoder.HEIGHT + 0.1.mm, 3.mm, `$fa`)
+
+               translate(x = 1.45.mm, y = (-3).mm) {
+                  cube(3.mm, 6.mm, RotaryEncoder.HEIGHT + 0.1.mm)
+               }
+            }
+
+            cylinder(RotaryEncoder.HEIGHT - 3.mm, RotaryEncoder.SHAFT_RADIUS, `$fa`)
+         }
+      }
+   }
+}

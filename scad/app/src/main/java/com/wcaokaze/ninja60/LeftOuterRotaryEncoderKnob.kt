@@ -240,7 +240,10 @@ class LeftOuterRotaryEncoderGear(
 fun ScadParentObject.leftOuterRotaryEncoderGear(
    leftOuterRotaryEncoderGear: LeftOuterRotaryEncoderGear
 ): ScadObject {
-   return gear(leftOuterRotaryEncoderGear.gear)
+   return difference {
+      gear(leftOuterRotaryEncoderGear.gear)
+      rotaryEncoderKnobHole(leftOuterRotaryEncoderGear.rotaryEncoder)
+   }
 }
 
 private fun gearToothCount(module: Size, diameter: Size) = (

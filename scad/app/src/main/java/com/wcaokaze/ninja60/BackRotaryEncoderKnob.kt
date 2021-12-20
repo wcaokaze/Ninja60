@@ -323,5 +323,6 @@ fun ScadParentObject.backRotaryEncoderGear(gear: BackRotaryEncoderGear): ScadObj
          }
       }
       + gear(gear.gear)
+      - rotaryEncoderKnobHole(gear.rotaryEncoder)
    )
 }

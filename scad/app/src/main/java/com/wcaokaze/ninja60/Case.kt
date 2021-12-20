@@ -596,7 +596,7 @@ private fun ScadParentObject.frontRotaryEncoderHole(
    alphanumericPlate: AlphanumericPlate,
    knob: FrontRotaryEncoderKnob
 ): ScadObject {
-   val rotaryEncoder = knob.rotaryEncoder()
+   val rotaryEncoder = knob.rotaryEncoder
 
    return union {
       cube(Cube(
@@ -650,7 +650,7 @@ private fun ScadParentObject.frontRotaryEncoderHole(
 private fun ScadParentObject.frontRotaryEncoderMountPlate
       (knob: FrontRotaryEncoderKnob): ScadObject
 {
-   val rotaryEncoder = knob.rotaryEncoder()
+   val rotaryEncoder = knob.rotaryEncoder
 
    return difference {
       cube(Cube(

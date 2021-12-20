@@ -57,5 +57,6 @@ fun ScadParentObject.leftInnerRotaryEncoderKnob(
             )
          }
       }
+      - rotaryEncoderKnobHole(leftInnerRotaryEncoderKnob.rotaryEncoder)
    )
 }
