@@ -3,6 +3,7 @@ package com.wcaokaze.ninja60
 import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
+import kotlin.math.*
 
 val `$fs`: Size = 2.mm
 val `$fa`: Angle = 12.deg
@@ -20,6 +21,32 @@ fun ScadParentObject.polygonPyramid(n: Int, height: Size, radius: Size): ScadObj
             )
          }
       )
+   }
+}
+
+fun ScadParentObject.arcCylinder(
+   radius: Size, height: Size,
+   startAngle: Angle, endAngle: Angle,
+   fa: Angle
+): ScadObject {
+   val fixedRadius = radius * sqrt(2.0)
+
+   fun arcPoint(a: Angle) = Point2d.ORIGIN + Size2d(fixedRadius * cos(a),
+                                                    fixedRadius * sin(a))
+
+   return intersection {
+      cylinder(height, radius, fa)
+
+      linearExtrude(height) {
+         polygon(
+            listOf(
+               Point2d.ORIGIN,
+               arcPoint(startAngle),
+               *(startAngle..endAngle step Angle.PI / 2).map(::arcPoint).toTypedArray(),
+               arcPoint(endAngle)
+            )
+         )
+      }
    }
 }
 

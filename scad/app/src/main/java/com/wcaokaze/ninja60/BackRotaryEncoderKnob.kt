@@ -23,8 +23,8 @@ data class BackRotaryEncoderKnob(
       val SHAFT_HOLE_RADIUS = 1.6.mm
       val GEAR_THICKNESS = 2.mm
 
-      val SKIDPROOF_COUNT = 14
-      val SKIDPROOF_RADIUS = 0.75.mm
+      val SKIDPROOF_COUNT = 32
+      val SKIDPROOF_RADIUS = 0.25.mm
 
       operator fun invoke(alphanumericPlate: AlphanumericPlate): BackRotaryEncoderKnob {
          val column = alphanumericPlate.columns[COLUMN_INDEX]
@@ -65,6 +65,23 @@ data class BackRotaryEncoderKnob(
 }
 
 fun ScadParentObject.backRotaryEncoderKnob(knob: BackRotaryEncoderKnob): ScadObject {
+   fun ScadParentObject.skidproof(): ScadObject {
+      val twoPi = Angle.PI * 2
+      val skidproofAngle = twoPi / BackRotaryEncoderKnob.SKIDPROOF_COUNT / 2
+
+      return union {
+         for (a in 0.0.rad..twoPi step skidproofAngle * 2) {
+            arcCylinder(
+               BackRotaryEncoderKnob.RADIUS + BackRotaryEncoderKnob.SKIDPROOF_RADIUS,
+               BackRotaryEncoderKnob.HEIGHT,
+               a - skidproofAngle / 2,
+               a + skidproofAngle / 2,
+               `$fa`
+            )
+         }
+      }
+   }
+
    return (
       gear(knob.gear)
       + locale(knob.referencePoint) {
@@ -74,15 +91,7 @@ fun ScadParentObject.backRotaryEncoderKnob(knob: BackRotaryEncoderKnob): ScadObj
          ) {
             (
                cylinder(BackRotaryEncoderKnob.HEIGHT, BackRotaryEncoderKnob.RADIUS, `$fa`)
-               + repeatRotation(BackRotaryEncoderKnob.SKIDPROOF_COUNT) {
-                  translate(x = BackRotaryEncoderKnob.RADIUS) {
-                     cylinder(
-                        BackRotaryEncoderKnob.HEIGHT,
-                        BackRotaryEncoderKnob.SKIDPROOF_RADIUS,
-                        `$fa`
-                     )
-                  }
-               }
+               + skidproof()
                - cylinder(
                   BackRotaryEncoderKnob.HEIGHT * 3,
                   BackRotaryEncoderKnob.SHAFT_HOLE_RADIUS,
