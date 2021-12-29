@@ -7,16 +7,13 @@ import com.wcaokaze.scadwriter.foundation.*
 /**
  * 親指で押すキースイッチを挿すためのプレート。
  *
- * このプレートの[KeySwitch]を扱う場合[column]と[backKey]に分かれているので注意
- *
  * @param bottomVector 下向きの方向を表すベクトル。
  * @param frontVector 手前方向を表すベクトル。
  */
 data class ThumbPlate(
-   override val referencePoint: Point3d,
-   override val bottomVector: Vector3d,
    override val frontVector: Vector3d,
-   val radius: Size
+   override val bottomVector: Vector3d,
+   override val referencePoint: Point3d
 ) : Transformable<ThumbPlate> {
    companion object {
       val KEY_PLATE_SIZE = Size2d(17.5.mm, 17.5.mm)
@@ -24,8 +21,7 @@ data class ThumbPlate(
       operator fun invoke() = ThumbPlate(
          referencePoint = Point3d.ORIGIN,
          bottomVector = -Vector3d.Z_UNIT_VECTOR,
-         frontVector = -Vector3d.Y_UNIT_VECTOR,
-         radius = 16.mm
+         frontVector = -Vector3d.Y_UNIT_VECTOR
       )
    }
 
@@ -36,10 +32,8 @@ data class ThumbPlate(
     * columnではなくrowでは？ というのは気にしない方針で
     */
    val column: List<KeySwitch> get() {
-      val alignmentAxis = Line3d(referencePoint, frontVector)
-
       val row2 = KeySwitch(
-            referencePoint.translate(bottomVector, radius),
+            referencePoint,
             KeySwitch.LayoutSize(1.0, 1.3),
             bottomVector, frontVector
          )
@@ -47,50 +41,37 @@ data class ThumbPlate(
 
       val row1 = row2
          .let { row1 ->
-            row1.rotate(
-               alignmentAxis,
-               angle = atan(keyPitch.x * -row2.layoutSize.x / 2, radius)
-                     + atan(keyPitch.x * -row1.layoutSize.x / 2, radius)
-            )
+            row1
+               .translate(leftVector, KEY_PLATE_SIZE.x * row2.layoutSize.x / 2)
+               .translate(leftVector, KEY_PLATE_SIZE.x * row1.layoutSize.x / 2)
          }
+         .rotate(
+            Line3d(
+               referencePoint.translate(leftVector, KEY_PLATE_SIZE.x * row2.layoutSize.x / 2),
+               backVector
+            ),
+            80.deg
+         )
 
       val row3 = row2
          .let { row3 ->
-            row3.rotate(
-               alignmentAxis,
-               angle = atan(keyPitch.x * row2.layoutSize.x / 2, radius)
-                     + atan(keyPitch.x * row3.layoutSize.x / 2, radius)
-            )
+            row3
+               .translate(rightVector, KEY_PLATE_SIZE.x * row2.layoutSize.x / 2)
+               .translate(rightVector, KEY_PLATE_SIZE.x * row3.layoutSize.x / 2)
          }
+         .rotate(
+            Line3d(
+               referencePoint.translate(rightVector, KEY_PLATE_SIZE.x * row2.layoutSize.x / 2),
+               frontVector
+            ),
+            80.deg
+         )
 
       return listOf(row1, row2, row3)
    }
 
-   /**
-    * 親指の先、奥にあるキー。
-    */
-   val backKey: KeySwitch get() {
-      val columnCenterKey = column[column.size / 2]
-
-      return columnCenterKey
-         .copy(layoutSize = KeySwitch.LayoutSize(1.0, 1.0))
-         .let { backKey ->
-            backKey.translate(
-               backVector,
-               distance = KEY_PLATE_SIZE.y * columnCenterKey.layoutSize.y / 2
-                        + KEY_PLATE_SIZE.y * backKey        .layoutSize.y / 2
-            )
-         }
-         .rotate(
-            Line3d(referencePoint, rightVector)
-               .translate(bottomVector, radius)
-               .translate(backVector, KEY_PLATE_SIZE.y * columnCenterKey.layoutSize.y / 2),
-            80.deg
-         )
-   }
-
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
-         = ThumbPlate(referencePoint, bottomVector, frontVector, radius)
+         = ThumbPlate(frontVector, bottomVector, referencePoint)
 }
 
 // =============================================================================
@@ -102,12 +83,12 @@ fun ScadParentObject.thumbPlate(thumbPlate: ThumbPlate): ScadObject {
          hullThumbPlate(thumbPlate, KeySwitch.BOTTOM_HEIGHT,          1.5.mm,      1.5.mm)
          hullThumbPlate(thumbPlate,                    0.mm,         20.0.mm,     20.0.mm)
 
-         for (k in thumbPlate.column + thumbPlate.backKey) {
+         for (k in thumbPlate.column) {
             switchHole(k)
          }
       }
 
-      for (k in thumbPlate.column + thumbPlate.backKey) {
+      for (k in thumbPlate.column) {
          switchSideHolder(k)
       }
    }
@@ -130,8 +111,6 @@ fun ScadParentObject.hullThumbPlate(
 ): ScadObject {
    val columnSwitches = thumbPlate.column.map { it.translate(it.bottomVector, layerOffset) }
    val columnPlates = columnSwitches.map { it.plate(ThumbPlate.KEY_PLATE_SIZE) }
-   val backKeySwitch = thumbPlate.backKey.translate(thumbPlate.backKey.bottomVector, layerOffset)
-   val backKeyPlate = backKeySwitch.plate(ThumbPlate.KEY_PLATE_SIZE)
 
    val frontWallPlane = Plane3d(
          thumbPlate.referencePoint
@@ -143,7 +122,15 @@ fun ScadParentObject.hullThumbPlate(
       )
       .let { it.translate(it.normalVector, frontOffset) }
 
-   val backWallPlane = Plane3d(backKeySwitch.referencePoint, backKeySwitch.topVector)
+   val backWallPlane = Plane3d(
+         thumbPlate.referencePoint
+            .translate(
+               thumbPlate.backVector,
+               ThumbPlate.KEY_PLATE_SIZE.y * columnSwitches.maxOf { it.layoutSize.y } / 2
+            ),
+         thumbPlate.backVector
+      )
+      .let { it.translate(it.normalVector, layerOffset) }
 
    val leftmostPlate  = columnPlates.first()
    val rightmostPlate = columnPlates.last()
@@ -167,18 +154,7 @@ fun ScadParentObject.hullThumbPlate(
          )
       }
 
-   val backPlatePoints = backKeyPlate.points
-      .flatMap { point ->
-         listOf(
-            point,
-            point.translate(backKeyPlate.topVector, layerOffset),
-         )
-      }
-
-   return hullPoints(
-      *columnPoints.toTypedArray(),
-      *backPlatePoints.toTypedArray(),
-   )
+   return hullPoints(columnPoints)
 }
 
 private fun columnBoundaryLines(columnPlates: List<KeyPlate>): List<Line3d> {

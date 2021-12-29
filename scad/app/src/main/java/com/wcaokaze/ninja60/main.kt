@@ -18,9 +18,13 @@ fun main(vararg args: String) {
       val case = Case()
       case(case)
 
-      (case.alphanumericPlate.columns.flatMap { it.keySwitches }
-            + case.thumbPlate.column + case.thumbPlate.backKey)
-         .map { it.plate(Size2d(16.mm, 16.mm)) }
+      (
+            case.alphanumericPlate.columns
+               .flatMap { it.keySwitches }
+               .map { it.plate(AlphanumericPlate.KEY_PLATE_SIZE) }
+            + case.thumbPlate.column
+               .map { it.plate(ThumbPlate.KEY_PLATE_SIZE) }
+         )
          .map { it.translate(it.topVector, KeySwitch.TOP_HEIGHT + KeySwitch.STEM_HEIGHT + Keycap.THICKNESS) }
          .forEach { hullPoints(it.points) }
 

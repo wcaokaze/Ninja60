@@ -18,7 +18,7 @@ data class Case(
                .rotate(Line3d.Y_AXIS, 69.deg)
                .rotate(Line3d.X_AXIS, (-7).deg)
                .rotate(Line3d.Z_AXIS, (-8).deg)
-               .translate(x = 66.mm, y = 0.mm, z = 53.mm)
+               .translate(x = 40.mm, y = 18.mm, z = 49.mm)
          )
       }
    }
