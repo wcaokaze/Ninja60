@@ -23,7 +23,7 @@ data class Case(
       }
    }
 
-   val frontRotaryEncoderKnob get() = FrontRotaryEncoderKnob(alphanumericPlate)
+   val frontRotaryEncoderKnob get() = FrontRotaryEncoderKnob(alphanumericPlate, thumbPlate)
    val backRotaryEncoderKnob get() = BackRotaryEncoderKnob(alphanumericPlate)
    val backRotaryEncoderGear get() = BackRotaryEncoderGear(alphanumericPlate, velocityRatio = 1.0)
    val leftOuterRotaryEncoderKnob get() = LeftOuterRotaryEncoderKnob(alphanumericPlate)
@@ -33,7 +33,7 @@ data class Case(
 fun ScadParentObject.case(case: Case): ScadObject {
    return (
       union {
-         alphanumericFrontCase(case.alphanumericPlate)
+         alphanumericFrontCase(case.alphanumericPlate, case.thumbPlate)
          thumbCase(case.thumbPlate)
       }
       - union {
@@ -47,7 +47,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
       - backRotaryEncoderKnobCave(case)
 
       - hullAlphanumericPlate(case.alphanumericPlate, HullAlphanumericConfig())
-      - alphanumericBottomCave(case.alphanumericPlate)
+      - alphanumericBottomCave(case.alphanumericPlate, case.thumbPlate)
 
       + difference {
          alphanumericPlate(case.alphanumericPlate)
@@ -234,20 +234,20 @@ fun alphanumericBackPlane(alphanumericPlate: AlphanumericPlate, offset: Size): P
       .translate(Vector3d.Y_UNIT_VECTOR, offset)
 }
 
-fun alphanumericFrontPlane(offset: Size): Plane3d {
-   return Plane3d.ZX_PLANE
-      .translate(Vector3d.Y_UNIT_VECTOR, 9.mm)
-      .translate(Vector3d.Y_UNIT_VECTOR, -offset)
-}
+fun alphanumericFrontPlane(thumbPlate: ThumbPlate, offset: Size): Plane3d
+      = thumbPlate.frontPlane.translate(Vector3d.Y_UNIT_VECTOR, -offset)
 
-private fun ScadParentObject.alphanumericFrontCase(alphanumericPlate: AlphanumericPlate): ScadObject {
+private fun ScadParentObject.alphanumericFrontCase(
+   alphanumericPlate: AlphanumericPlate,
+   thumbPlate: ThumbPlate
+): ScadObject {
    val topPlane = alphanumericTopPlane(alphanumericPlate, 3.mm)
    val bottomPlane = alphanumericBottomPlane(0.mm)
    val leftPlane = alphanumericLeftPlane(alphanumericPlate, 1.5.mm)
    val rightPlane = alphanumericRightPlane(alphanumericPlate, 1.5.mm)
    val backSlopePlane = alphanumericBackSlopePlane(alphanumericPlate, 1.5.mm)
    val backPlane = alphanumericBackPlane(alphanumericPlate, 1.5.mm)
-   val frontPlane = alphanumericFrontPlane(1.5.mm)
+   val frontPlane = alphanumericFrontPlane(thumbPlate, 1.5.mm)
 
    return intersection {
       distortedCube(topPlane, leftPlane, backPlane, rightPlane, frontPlane, bottomPlane)
@@ -270,7 +270,10 @@ private fun ScadParentObject.alphanumericTopCave(alphanumericPlate: Alphanumeric
    }
 }
 
-private fun ScadParentObject.alphanumericBottomCave(alphanumericPlate: AlphanumericPlate): ScadObject {
+private fun ScadParentObject.alphanumericBottomCave(
+   alphanumericPlate: AlphanumericPlate,
+   thumbPlate: ThumbPlate
+): ScadObject {
    return intersection {
       hullAlphanumericPlate(
          alphanumericPlate,
@@ -282,7 +285,7 @@ private fun ScadParentObject.alphanumericBottomCave(alphanumericPlate: Alphanume
          alphanumericLeftPlane(alphanumericPlate, 0.mm),
          alphanumericBackPlane(alphanumericPlate, 0.mm),
          alphanumericRightPlane(alphanumericPlate, 0.mm),
-         alphanumericFrontPlane(0.mm),
+         alphanumericFrontPlane(thumbPlate, 0.mm),
          alphanumericBottomPlane(1.mm)
       )
    }
@@ -291,21 +294,7 @@ private fun ScadParentObject.alphanumericBottomCave(alphanumericPlate: Alphanume
 // =============================================================================
 
 private fun ScadParentObject.thumbCase(plate: ThumbPlate): ScadObject {
-   /*
-   translate(66.mm, 0.mm, 0.mm) {
-      rotate(z = (-8).deg) {
-         rotate(x = (-7).deg) {
-            rotate(y = 69.deg) {
-               translate(y = 14.mm, z = 32.mm) {
-                  cube(68.mm, 54.mm, 42.mm, center = true)
-               }
-            }
-         }
-      }
-   }
-   */
-
-   return hullThumbPlate(plate, layerOffset = 12.mm, leftRightOffset = 5.mm, frontOffset = 2.mm)
+   return hullThumbPlate(plate, layerOffset = 12.mm, leftRightOffset = 7.mm, frontOffset = 1.5.mm)
 }
 
 private fun ScadParentObject.thumbCave(plate: ThumbPlate): ScadObject {

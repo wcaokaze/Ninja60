@@ -112,24 +112,10 @@ fun ScadParentObject.hullThumbPlate(
    val columnSwitches = thumbPlate.column.map { it.translate(it.bottomVector, layerOffset) }
    val columnPlates = columnSwitches.map { it.plate(ThumbPlate.KEY_PLATE_SIZE) }
 
-   val frontWallPlane = Plane3d(
-         thumbPlate.referencePoint
-            .translate(
-               thumbPlate.frontVector,
-               ThumbPlate.KEY_PLATE_SIZE.y * columnSwitches.maxOf { it.layoutSize.y } / 2
-            ),
-         thumbPlate.frontVector
-      )
+   val frontWallPlane = thumbPlate.frontPlane
       .let { it.translate(it.normalVector, frontOffset) }
 
-   val backWallPlane = Plane3d(
-         thumbPlate.referencePoint
-            .translate(
-               thumbPlate.backVector,
-               ThumbPlate.KEY_PLATE_SIZE.y * columnSwitches.maxOf { it.layoutSize.y } / 2
-            ),
-         thumbPlate.backVector
-      )
+   val backWallPlane = thumbPlate.backPlane
       .let { it.translate(it.normalVector, layerOffset) }
 
    val leftmostPlate  = columnPlates.first()
@@ -173,4 +159,26 @@ private fun columnBoundaryLines(columnPlates: List<KeyPlate>): List<Line3d> {
    lines += Line3d(rightmostPlate.backRight, rightmostPlate.frontRight)
 
    return lines
+}
+
+val ThumbPlate.frontPlane: Plane3d get() {
+   return Plane3d(
+      referencePoint
+         .translate(
+            frontVector,
+            ThumbPlate.KEY_PLATE_SIZE.y * column.maxOf { it.layoutSize.y } / 2
+         ),
+      frontVector
+   )
+}
+
+val ThumbPlate.backPlane: Plane3d get() {
+   return Plane3d(
+      referencePoint
+         .translate(
+            backVector,
+            ThumbPlate.KEY_PLATE_SIZE.y * column.maxOf { it.layoutSize.y } / 2
+         ),
+      backVector
+   )
 }
