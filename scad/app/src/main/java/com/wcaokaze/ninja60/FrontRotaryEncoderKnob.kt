@@ -17,12 +17,8 @@ class FrontRotaryEncoderKnob(
       val HEIGHT = 14.mm
       val HOLE_HEIGHT = HEIGHT - 2.mm
 
-      operator fun invoke(
-         alphanumericPlate: AlphanumericPlate,
-         thumbPlate: ThumbPlate
-      ): FrontRotaryEncoderKnob {
+      operator fun invoke(alphanumericPlate: AlphanumericPlate): FrontRotaryEncoderKnob {
          val caseTopPlane = alphanumericTopPlane(alphanumericPlate, 0.mm)
-         val caseFrontPlane = alphanumericFrontPlane(thumbPlate, 0.mm)
 
          val column = alphanumericPlate.columns[COLUMN_INDEX]
          val columnPlane = Plane3d(column.referencePoint, column.rightVector)
@@ -44,7 +40,7 @@ class FrontRotaryEncoderKnob(
             )
 
          return FrontRotaryEncoderKnob(
-            caseFrontPlane.normalVector vectorProduct caseTopPlane.normalVector,
+            column.frontVector vectorProduct caseTopPlane.normalVector,
             -caseTopPlane.normalVector,
             knobCenter
          )

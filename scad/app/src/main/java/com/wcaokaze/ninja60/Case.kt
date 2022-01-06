@@ -23,7 +23,7 @@ data class Case(
       }
    }
 
-   val frontRotaryEncoderKnob get() = FrontRotaryEncoderKnob(alphanumericPlate, thumbPlate)
+   val frontRotaryEncoderKnob get() = FrontRotaryEncoderKnob(alphanumericPlate)
    val backRotaryEncoderKnob get() = BackRotaryEncoderKnob(alphanumericPlate)
    val backRotaryEncoderGear get() = BackRotaryEncoderGear(alphanumericPlate, velocityRatio = 1.0)
    val leftOuterRotaryEncoderKnob get() = LeftOuterRotaryEncoderKnob(alphanumericPlate)
