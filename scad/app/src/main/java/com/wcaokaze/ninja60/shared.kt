@@ -71,8 +71,23 @@ operator fun Plane3d.compareTo(another: Plane3d): Int {
  * 法線ベクトルの向きを正としたとき、より大きい位置にある平面を返します
  * 2つの平面の法線ベクトルは同じ向きである必要があります
  */
-private fun max(a: Plane3d, b: Plane3d): Plane3d {
+fun max(a: Plane3d, b: Plane3d): Plane3d {
    return if (a < b) {
+      b
+   } else {
+      a
+   }
+}
+
+/** 指定したベクトルの向きを正として2点を比較するComparator。 */
+class PointOnVectorComparator(val vector: Vector3d) : Comparator<Point3d> {
+   override fun compare(o1: Point3d, o2: Point3d): Int
+         = Plane3d(o1, vector).compareTo(Plane3d(o2, vector))
+}
+
+/** 指定したベクトルの向きを正としたとき、より大きい位置にある点を返します */
+fun max(vector: Vector3d, a: Point3d, b: Point3d): Point3d {
+   return if (Plane3d(a, vector) < Plane3d(b, vector)) {
       b
    } else {
       a

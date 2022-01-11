@@ -17,12 +17,6 @@ data class ThumbPlate(
 ) : Transformable<ThumbPlate> {
    companion object {
       val KEY_PLATE_SIZE = Size2d(17.5.mm, 17.5.mm)
-
-      operator fun invoke() = ThumbPlate(
-         referencePoint = Point3d.ORIGIN,
-         bottomVector = -Vector3d.Z_UNIT_VECTOR,
-         frontVector = -Vector3d.Y_UNIT_VECTOR
-      )
    }
 
    /**

@@ -31,7 +31,9 @@ class LeftOuterRotaryEncoderKnob(
       val SKIDPROOF_COUNT = 14
       val SKIDPROOF_RADIUS = 0.75.mm
 
-      operator fun invoke(alphanumericPlate: AlphanumericPlate): LeftOuterRotaryEncoderKnob {
+      operator fun invoke(case: Case): LeftOuterRotaryEncoderKnob {
+         val alphanumericPlate = case.alphanumericPlate
+
          val leftmostColumn = alphanumericPlate.columns.first()
          val keySwitch = leftmostColumn.keySwitches[ROW_INDEX]
 
@@ -44,8 +46,8 @@ class LeftOuterRotaryEncoderKnob(
 
          return LeftOuterRotaryEncoderKnob(
                -alphanumericPlate.leftmostPlane.normalVector
-                     vectorProduct -Vector3d.Z_UNIT_VECTOR,
-               -Vector3d.Z_UNIT_VECTOR,
+                     vectorProduct case.bottomVector,
+               case.bottomVector,
                tangencyPoint
             )
             .let { it.translate(it.leftVector, RADIUS + 2.mm) }
