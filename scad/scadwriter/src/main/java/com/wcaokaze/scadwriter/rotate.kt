@@ -8,7 +8,11 @@ data class Rotate(
    val z: Angle = 0.0.rad
 ) : ScadParentObject() {
    override fun writeScad(scadWriter: ScadWriter) {
-      writeChildren(scadWriter, "rotate([$x, $y, $z])")
+      val xScad = x.toScadRepresentation()
+      val yScad = y.toScadRepresentation()
+      val zScad = z.toScadRepresentation()
+
+      writeChildren(scadWriter, "rotate([$xScad, $yScad, $zScad])")
    }
 }
 
@@ -29,7 +33,10 @@ data class RotateWithAxis(
    val v: Point3d
 ) : ScadParentObject() {
    override fun writeScad(scadWriter: ScadWriter) {
-      writeChildren(scadWriter, "rotate($a, $v)")
+      val aScad = a.toScadRepresentation()
+      val vScad = v.toScadRepresentation()
+
+      writeChildren(scadWriter, "rotate($aScad, $vScad)")
    }
 }
 

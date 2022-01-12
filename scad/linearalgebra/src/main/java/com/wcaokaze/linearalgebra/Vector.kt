@@ -19,7 +19,7 @@ data class Vector2d(val x: Size, val y: Size) {
    constructor(size2d: Size2d) : this(size2d.x, size2d.y)
    constructor(from: Point2d, to: Point2d) : this(to - from)
 
-   override fun toString() = "Vector(${x.numberAsMilliMeter}mm, ${y.numberAsMilliMeter}mm)"
+   override fun toString() = "Vector($x, $y)"
 
    operator fun plus (vector: Vector2d) = Vector2d(x + vector.x, y + vector.y)
    operator fun minus(vector: Vector2d) = Vector2d(x - vector.x, y - vector.y)
@@ -73,7 +73,7 @@ data class Vector3d(val x: Size, val y: Size, val z: Size) {
    constructor(size3d: Size3d) : this(size3d.x, size3d.y, size3d.z)
    constructor(from: Point3d, to: Point3d) : this(to - from)
 
-   override fun toString() = "Vector(${x.numberAsMilliMeter}mm, ${y.numberAsMilliMeter}mm, ${z.numberAsMilliMeter}mm)"
+   override fun toString() = "Vector($x, $y, $z)"
 
    operator fun plus (vector: Vector3d) = Vector3d(x + vector.x, y + vector.y, z + vector.z)
    operator fun minus(vector: Vector3d) = Vector3d(x - vector.x, y - vector.y, z - vector.z)

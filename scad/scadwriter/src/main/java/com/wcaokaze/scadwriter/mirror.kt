@@ -6,7 +6,8 @@ data class Mirror(
    val normalVector: Size3d
 ) : ScadParentObject() {
    override fun writeScad(scadWriter: ScadWriter) {
-      writeChildren(scadWriter, "mirror($normalVector)")
+      val normalVectorScad = normalVector.toScadRepresentation()
+      writeChildren(scadWriter, "mirror($normalVectorScad)")
    }
 }
 

@@ -12,7 +12,8 @@ data class Translate(
    ) : this(Size3d(x, y, z))
 
    override fun writeScad(scadWriter: ScadWriter) {
-      writeChildren(scadWriter, "translate($distance)")
+      val distanceScad = distance.toScadRepresentation()
+      writeChildren(scadWriter, "translate($distanceScad)")
    }
 }
 
