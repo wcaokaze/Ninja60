@@ -7,8 +7,7 @@ data class LinearExtrude(
    val center: Boolean = false
 ) : ScadParentObject() {
    override fun writeScad(scadWriter: ScadWriter) {
-      val heightScad = height.toScadRepresentation()
-      writeChildren(scadWriter, "linear_extrude($heightScad, center = $center)")
+      writeChildren(scadWriter, "linear_extrude(${height.scad}, center = $center)")
    }
 }
 

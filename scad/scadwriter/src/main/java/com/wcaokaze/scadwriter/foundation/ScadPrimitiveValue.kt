@@ -15,3 +15,6 @@ sealed class ScadPrimitiveValue {
       scadWriter.write(toScadRepresentation())
    }
 }
+
+internal val ScadPrimitiveValue.scad: String
+   get() = toScadRepresentation()

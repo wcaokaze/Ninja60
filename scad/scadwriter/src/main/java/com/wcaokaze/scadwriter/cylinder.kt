@@ -17,12 +17,8 @@ data class Pillar(
    ) : this(height, radius, center = false, fa)
 
    override fun writeScad(scadWriter: ScadWriter) {
-      val heightScad = height.toScadRepresentation()
-      val radiusScad = radius.toScadRepresentation()
-      val faScad = fa.toScadRepresentation()
-
       scadWriter.writeln(
-         "cylinder(h = $heightScad, r = $radiusScad, center = $center, \$fa = $faScad);"
+         "cylinder(h = ${height.scad}, r = ${radius.scad}, center = $center, \$fa = ${fa.scad});"
       )
    }
 }
@@ -42,13 +38,8 @@ data class Cone(
    ) : this(height, bottomRadius, topRadius, center = false, fa)
 
    override fun writeScad(scadWriter: ScadWriter) {
-      val heightScad = height.toScadRepresentation()
-      val bottomRadiusScad = bottomRadius.toScadRepresentation()
-      val topRadiusScad = topRadius.toScadRepresentation()
-      val faScad = fa.toScadRepresentation()
-
       scadWriter.writeln(
-         "cylinder(h = $heightScad, $bottomRadiusScad, $topRadiusScad, center = $center, \$fa = $faScad);"
+         "cylinder(h = ${height.scad}, ${bottomRadius.scad}, ${topRadius.scad}, center = $center, \$fa = ${fa.scad});"
       )
    }
 }

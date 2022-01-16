@@ -10,8 +10,7 @@ data class Cube(
          : this(Size3d(x, y, z), center)
 
    override fun writeScad(scadWriter: ScadWriter) {
-      val sizeScad = size.toScadRepresentation()
-      scadWriter.writeln("cube($sizeScad, center = $center);")
+      scadWriter.writeln("cube(${size.scad}, center = $center);")
    }
 }
 
