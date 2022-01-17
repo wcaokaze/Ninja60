@@ -14,6 +14,5 @@ inline fun writeScad(writer: Writer, scad: TopLevelScadObject.() -> Unit) {
    val topLevelScadObject = TopLevelScadObject()
    topLevelScadObject.scad()
 
-   val scadWriter = ScadWriter(writer)
-   topLevelScadObject.writeScad(scadWriter)
+   topLevelScadObject.writeScad(writer)
 }

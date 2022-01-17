@@ -1,6 +1,7 @@
 package com.wcaokaze.scadwriter
 
 import com.wcaokaze.scadwriter.foundation.*
+import java.io.*
 
 /**
  * OpenSCADのコードとして出力される物体。
@@ -17,17 +18,9 @@ import com.wcaokaze.scadwriter.foundation.*
  * 演算の結果が改めて親に追加されるような動きになる。
  */
 sealed class ScadObject : ScadValue() {
-   override fun writeScad(scadWriter: ScadWriter) {
-      val indent = buildString {
-         repeat (scadWriter.indent) {
-            append("  ")
-         }
-      }
-
-      val indentedScad = toScadRepresentation().prependIndent(indent)
-      scadWriter.write(indentedScad)
-
-      scadWriter.writeln()
+   override fun writeScad(writer: Writer) {
+      writer.write(toScadRepresentation())
+      writer.write('\n'.code)
    }
 }
 
@@ -42,14 +35,6 @@ abstract class ScadParentObject : ScadObject() {
 
    protected fun buildChildrenScad(scad: String): String {
       return "$scad ${buildScadBlock(children)}"
-   }
-
-   protected fun writeChildren(scadWriter: ScadWriter, scad: String) {
-      scadWriter.writeBlock(scad) {
-         for (c in children) {
-            c.writeScad(scadWriter)
-         }
-      }
    }
 
    /** [union]の略記。 */
