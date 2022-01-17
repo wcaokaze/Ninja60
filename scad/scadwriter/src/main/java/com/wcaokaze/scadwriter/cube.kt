@@ -9,9 +9,7 @@ data class Cube(
    constructor(x: Size, y: Size, z: Size, center: Boolean = false)
          : this(Size3d(x, y, z), center)
 
-   override fun writeScad(scadWriter: ScadWriter) {
-      scadWriter.writeln("cube(${size.scad}, center = $center);")
-   }
+   override fun toScadRepresentation() = "cube(${size.scad}, center = $center);"
 }
 
 fun ScadParentObject.cube(x: Size, y: Size, z: Size, center: Boolean = false): Cube

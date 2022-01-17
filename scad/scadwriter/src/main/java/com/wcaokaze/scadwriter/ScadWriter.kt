@@ -1,6 +1,6 @@
 package com.wcaokaze.scadwriter
 
-import com.wcaokaze.scadwriter.foundation.ScadPrimitiveValue
+import com.wcaokaze.scadwriter.foundation.*
 import java.io.*
 
 class ScadWriter(@PublishedApi internal val writer: Writer) {
@@ -33,7 +33,7 @@ internal fun ScadWriter.writeln(str: String) {
 }
 
 @PublishedApi
-internal fun ScadWriter.writeArray(array: List<ScadPrimitiveValue>) {
+internal fun ScadWriter.writeArray(array: List<ScadValue>) {
    write("[")
    writeln()
    indent++

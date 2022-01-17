@@ -1,9 +1,7 @@
 package com.wcaokaze.scadwriter
 
 class Difference : ScadParentObject() {
-   override fun writeScad(scadWriter: ScadWriter) {
-      writeChildren(scadWriter, "difference()")
-   }
+   override fun toScadRepresentation() = buildChildrenScad("difference()")
 }
 
 inline fun ScadParentObject.difference(children: Difference.() -> Unit): Difference {

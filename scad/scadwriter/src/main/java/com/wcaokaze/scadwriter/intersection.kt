@@ -1,9 +1,7 @@
 package com.wcaokaze.scadwriter
 
 class Intersection : ScadParentObject() {
-   override fun writeScad(scadWriter: ScadWriter) {
-      writeChildren(scadWriter, "intersection()")
-   }
+   override fun toScadRepresentation() = buildChildrenScad("intersection()")
 }
 
 inline fun ScadParentObject.intersection(children: Intersection.() -> Unit): Intersection {

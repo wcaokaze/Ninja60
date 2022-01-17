@@ -1,7 +1,7 @@
 package com.wcaokaze.scadwriter.foundation
 
 data class Point(val distanceFromOrigin: Size)
-   : ScadPrimitiveValue(), Comparable<Point>
+   : ScadValue(), Comparable<Point>
 {
    companion object {
       val ORIGIN = Point(0.mm)
@@ -38,7 +38,7 @@ data class PointRange(override val start: Point,
    }
 }
 
-data class Point2d(val x: Point, val y: Point) : ScadPrimitiveValue() {
+data class Point2d(val x: Point, val y: Point) : ScadValue() {
    companion object {
       /** 原点 */
       val ORIGIN = Point2d(Point.ORIGIN, Point.ORIGIN)
@@ -54,7 +54,7 @@ data class Point2d(val x: Point, val y: Point) : ScadPrimitiveValue() {
    operator fun minus(point: Point2d) = Size2d(x - point.x, y - point.y)
 }
 
-data class Point3d(val x: Point, val y: Point, val z: Point) : ScadPrimitiveValue() {
+data class Point3d(val x: Point, val y: Point, val z: Point) : ScadValue() {
    companion object {
       /** 原点 */
       val ORIGIN = Point3d(Point.ORIGIN, Point.ORIGIN, Point.ORIGIN)

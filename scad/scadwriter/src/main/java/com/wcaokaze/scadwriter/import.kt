@@ -5,9 +5,7 @@ import java.io.*
 data class Import(
    val file: File
 ) : ScadPrimitiveObject() {
-   override fun writeScad(scadWriter: ScadWriter) {
-      scadWriter.writeln("import(\"${file.absolutePath}\");")
-   }
+   override fun toScadRepresentation() = "import(\"${file.absolutePath}\");"
 }
 
 fun ScadParentObject.import(file: File): Import {
@@ -19,9 +17,7 @@ fun ScadParentObject.import(file: File): Import {
 data class Include(
    val file: File
 ) : ScadPrimitiveObject() {
-   override fun writeScad(scadWriter: ScadWriter) {
-      scadWriter.writeln("include <${file.absolutePath}>;")
-   }
+   override fun toScadRepresentation() = "include <${file.absolutePath}>;"
 }
 
 fun ScadParentObject.include(file: File): Include {
@@ -33,9 +29,7 @@ fun ScadParentObject.include(file: File): Include {
 data class Use(
    val file: File
 ) : ScadPrimitiveObject() {
-   override fun writeScad(scadWriter: ScadWriter) {
-      scadWriter.writeln("use <${file.absolutePath}>;")
-   }
+   override fun toScadRepresentation() = "use <${file.absolutePath}>;"
 }
 
 fun ScadParentObject.use(file: File): Use {

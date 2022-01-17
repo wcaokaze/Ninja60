@@ -1,9 +1,7 @@
 package com.wcaokaze.scadwriter
 
 class Union : ScadParentObject() {
-   override fun writeScad(scadWriter: ScadWriter) {
-      writeChildren(scadWriter, "union()")
-   }
+   override fun toScadRepresentation() = buildChildrenScad("union()")
 }
 
 inline fun ScadParentObject.union(children: Union.() -> Unit): Union {

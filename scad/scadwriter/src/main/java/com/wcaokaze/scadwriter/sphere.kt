@@ -6,9 +6,8 @@ data class Sphere(
    val radius: Size,
    val fa: Angle
 ) : ScadParentObject() {
-   override fun writeScad(scadWriter: ScadWriter) {
-      scadWriter.writeln("sphere(${radius.scad}, \$fa = ${fa.scad});")
-   }
+   override fun toScadRepresentation()
+         = "sphere(${radius.scad}, \$fa = ${fa.scad});"
 }
 
 fun ScadParentObject.sphere(radius: Size, fa: Angle): Sphere {

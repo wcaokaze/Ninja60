@@ -1,7 +1,7 @@
 package com.wcaokaze.scadwriter.foundation
 
 data class Size(val numberAsMilliMeter: Double)
-   : ScadPrimitiveValue(), Comparable<Size>
+   : ScadValue(), Comparable<Size>
 {
    override fun toString() = "%.3fmm".format(numberAsMilliMeter)
    override fun toScadRepresentation() = numberAsMilliMeter.toString()
@@ -49,7 +49,7 @@ inline val Double.mm get() = Size(this)
 inline val Int   .cm get() = (this * 10).mm
 inline val Double.cm get() = (this * 10).mm
 
-data class Size2d(val x: Size, val y: Size) : ScadPrimitiveValue() {
+data class Size2d(val x: Size, val y: Size) : ScadValue() {
    override fun toString() = "($x, $y)"
 
    override fun toScadRepresentation()
@@ -67,7 +67,7 @@ data class Size2d(val x: Size, val y: Size) : ScadPrimitiveValue() {
    operator fun unaryPlus () = Size2d(+x, +y)
 }
 
-data class Size3d(val x: Size, val y: Size, val z: Size) : ScadPrimitiveValue() {
+data class Size3d(val x: Size, val y: Size, val z: Size) : ScadValue() {
    override fun toString() = "($x, $y, $z)"
 
    override fun toScadRepresentation()

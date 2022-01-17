@@ -5,13 +5,7 @@ import com.wcaokaze.scadwriter.foundation.*
 data class Polygon(
    val points: List<Point2d>
 ) : ScadPrimitiveObject() {
-   override fun writeScad(scadWriter: ScadWriter) {
-      scadWriter.writeIndent()
-      scadWriter.write("polygon(")
-      scadWriter.writeArray(points)
-      scadWriter.write(");")
-      scadWriter.writeln()
-   }
+   override fun toScadRepresentation() = "polygon(${buildScadArray(points)});"
 }
 
 fun ScadParentObject.polygon(points: List<Point2d>): Polygon {

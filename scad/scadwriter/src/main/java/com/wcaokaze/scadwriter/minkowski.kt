@@ -1,9 +1,7 @@
 package com.wcaokaze.scadwriter
 
 class Minkowski : ScadParentObject() {
-   override fun writeScad(scadWriter: ScadWriter) {
-      writeChildren(scadWriter, "minkowski()")
-   }
+   override fun toScadRepresentation() = buildChildrenScad("minkowski()")
 }
 
 inline fun ScadParentObject.minkowski(children: Minkowski.() -> Unit): Minkowski {

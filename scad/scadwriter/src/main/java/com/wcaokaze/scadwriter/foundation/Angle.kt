@@ -3,7 +3,7 @@ package com.wcaokaze.scadwriter.foundation
 import java.lang.StrictMath.*
 
 data class Angle(val numberAsRadian: Double)
-   : ScadPrimitiveValue(), Comparable<Angle>
+   : ScadValue(), Comparable<Angle>
 {
    companion object {
       val PI: Angle = StrictMath.PI.rad

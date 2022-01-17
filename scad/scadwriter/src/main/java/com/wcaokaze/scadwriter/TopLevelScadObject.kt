@@ -3,11 +3,7 @@ package com.wcaokaze.scadwriter
 import java.io.*
 
 class TopLevelScadObject : ScadParentObject() {
-   public override fun writeScad(scadWriter: ScadWriter) {
-      for (c in children) {
-         c.writeScad(scadWriter)
-      }
-   }
+   override fun toScadRepresentation() = buildChildrenScad("")
 }
 
 inline fun writeScad(outputFile: File, scad: TopLevelScadObject.() -> Unit) {

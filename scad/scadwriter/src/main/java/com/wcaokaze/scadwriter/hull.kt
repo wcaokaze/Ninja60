@@ -1,9 +1,7 @@
 package com.wcaokaze.scadwriter
 
 class Hull : ScadParentObject() {
-   override fun writeScad(scadWriter: ScadWriter) {
-      writeChildren(scadWriter, "hull()")
-   }
+   override fun toScadRepresentation() = buildChildrenScad("hull()")
 }
 
 inline fun ScadParentObject.hull(children: Hull.() -> Unit): Hull {

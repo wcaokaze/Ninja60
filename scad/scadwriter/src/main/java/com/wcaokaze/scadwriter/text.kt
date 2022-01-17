@@ -10,11 +10,9 @@ data class Text(
    val vAlign: VAlign = VAlign.BASELINE,
    val direction: Direction = Direction.LEFT_TO_RIGHT
 ) : ScadPrimitiveObject() {
-   override fun writeScad(scadWriter: ScadWriter) {
-      scadWriter.writeln(
-         "text(\"$text\", size = $size, font = \"$fontName\", halign = \"$hAlign\"," +
-               "valign = \"$vAlign\", direction = \"$direction\");"
-      )
+   override fun toScadRepresentation(): String {
+      return "text(\"$text\", size = $size, font = \"$fontName\", halign = \"$hAlign\"," +
+            "valign = \"$vAlign\", direction = \"$direction\");"
    }
 }
 
