@@ -16,25 +16,25 @@ import com.wcaokaze.scadwriter.foundation.*
  * オペランドとなるScadObject2つが親から除去されたのちに
  * 演算の結果が改めて親に追加されるような動きになる。
  */
-sealed class ScadObject {
-   internal abstract fun writeScad(scadWriter: ScadWriter)
-}
+sealed class ScadObject : ScadValue()
 
-sealed class ScadPrimitiveObject : ScadObject()
+abstract class ScadPrimitiveObject : ScadObject()
 
-sealed class ScadParentObject : ScadObject() {
-   internal val children = ArrayList<ScadObject>()
+abstract class ScadParentObject : ScadObject() {
+   private val children = ArrayList<ScadObject>()
+
+   /**
+    * [addChild]と違いこのScadParentObjectではなくファイルの先頭に追加する。
+    * [use]とかそういうやつですよね
+    */
+   abstract fun addHeader(headerObject: ScadObject)
 
    fun addChild(child: ScadObject) {
       children += child
    }
 
-   internal fun writeChildren(scadWriter: ScadWriter, scad: String) {
-      scadWriter.writeBlock(scad) {
-         for (c in children) {
-            c.writeScad(scadWriter)
-         }
-      }
+   protected fun buildChildrenScad(scad: String): String {
+      return "$scad ${buildScadBlock(children)}"
    }
 
    /** [union]の略記。 */

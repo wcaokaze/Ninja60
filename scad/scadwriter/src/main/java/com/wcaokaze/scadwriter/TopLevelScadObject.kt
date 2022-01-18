@@ -3,9 +3,19 @@ package com.wcaokaze.scadwriter
 import java.io.*
 
 class TopLevelScadObject : ScadParentObject() {
-   public override fun writeScad(scadWriter: ScadWriter) {
-      for (c in children) {
-         c.writeScad(scadWriter)
+   private val headerObjects = ArrayList<ScadObject>()
+
+   override fun addHeader(headerObject: ScadObject) {
+      headerObjects += headerObject
+   }
+
+   override fun toScadRepresentation(): String {
+      return buildString {
+         for (h in headerObjects) {
+            appendLine(h.toScadRepresentation())
+         }
+
+         append(buildChildrenScad(""))
       }
    }
 }
@@ -18,6 +28,5 @@ inline fun writeScad(writer: Writer, scad: TopLevelScadObject.() -> Unit) {
    val topLevelScadObject = TopLevelScadObject()
    topLevelScadObject.scad()
 
-   val scadWriter = ScadWriter(writer)
-   topLevelScadObject.writeScad(scadWriter)
+   writer.write(topLevelScadObject.toScadRepresentation() + '\n')
 }

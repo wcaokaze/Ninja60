@@ -2,6 +2,7 @@ package com.wcaokaze.ninja60
 
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
+import java.io.*
 
 val enableOnlyOuter = true
 val enableLegends = false
@@ -454,7 +455,7 @@ fun ScadParentObject.keycap(
       }
    }
 
-   fun ScadParentObject.outer(children: ScadWriter.() -> Unit): ScadObject {
+   fun ScadParentObject.outer(children: Writer.() -> Unit): ScadObject {
       fun ScadParentObject.roundRectPyramid(): ScadObject {
          fun dishPosition(x: Point, y: Point): Point3d {
             return rotatePointForTilt(Point3d(
@@ -577,7 +578,7 @@ fun ScadParentObject.keycap(
       }
    }
 
-   fun ScadParentObject.pillar(children: ScadWriter.() -> Unit): ScadObject {
+   fun ScadParentObject.pillar(children: Writer.() -> Unit): ScadObject {
       return intersection {
          union {
             translate((-16).mm, (- 1.5).mm, 2.5.mm) { cube(32.mm,  3.mm, 24.mm) }

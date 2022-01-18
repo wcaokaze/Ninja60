@@ -16,11 +16,8 @@ data class Pillar(
       fa: Angle
    ) : this(height, radius, center = false, fa)
 
-   override fun writeScad(scadWriter: ScadWriter) {
-      scadWriter.writeln(
-         "cylinder(h = $height, r = $radius, center = $center, \$fa = $fa);"
-      )
-   }
+   override fun toScadRepresentation(): String
+         = "cylinder(h = ${height.scad}, r = ${radius.scad}, center = $center, \$fa = ${fa.scad});"
 }
 
 data class Cone(
@@ -37,11 +34,8 @@ data class Cone(
       fa: Angle
    ) : this(height, bottomRadius, topRadius, center = false, fa)
 
-   override fun writeScad(scadWriter: ScadWriter) {
-      scadWriter.writeln(
-         "cylinder(h = $height, $bottomRadius, $topRadius, center = $center, \$fa = fa);"
-      )
-   }
+   override fun toScadRepresentation(): String
+         = "cylinder(h = ${height.scad}, ${bottomRadius.scad}, ${topRadius.scad}, center = $center, \$fa = ${fa.scad});"
 }
 
 fun ScadParentObject.cylinder(
