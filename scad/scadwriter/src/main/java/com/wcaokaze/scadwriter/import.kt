@@ -34,6 +34,6 @@ data class Use(
 
 fun ScadParentObject.use(file: File): Use {
    val use = Use(file)
-   addChild(use)
+   addHeader(use)
    return use
 }

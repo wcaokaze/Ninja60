@@ -29,6 +29,12 @@ abstract class ScadPrimitiveObject : ScadObject()
 abstract class ScadParentObject : ScadObject() {
    private val children = ArrayList<ScadObject>()
 
+   /**
+    * [addChild]と違いこのScadParentObjectではなくファイルの先頭に追加する。
+    * [use]とかそういうやつですよね
+    */
+   abstract fun addHeader(headerObject: ScadObject)
+
    fun addChild(child: ScadObject) {
       children += child
    }

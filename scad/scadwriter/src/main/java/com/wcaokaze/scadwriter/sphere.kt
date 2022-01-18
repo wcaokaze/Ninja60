@@ -5,7 +5,7 @@ import com.wcaokaze.scadwriter.foundation.*
 data class Sphere(
    val radius: Size,
    val fa: Angle
-) : ScadParentObject() {
+) : ScadPrimitiveObject() {
    override fun toScadRepresentation()
          = "sphere(${radius.scad}, \$fa = ${fa.scad});"
 }
