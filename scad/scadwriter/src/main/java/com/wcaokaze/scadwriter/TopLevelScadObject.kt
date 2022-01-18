@@ -15,7 +15,7 @@ class TopLevelScadObject : ScadParentObject() {
             appendLine(h.toScadRepresentation())
          }
 
-         appendLine(buildChildrenScad(""))
+         append(buildChildrenScad(""))
       }
    }
 }
@@ -28,5 +28,5 @@ inline fun writeScad(writer: Writer, scad: TopLevelScadObject.() -> Unit) {
    val topLevelScadObject = TopLevelScadObject()
    topLevelScadObject.scad()
 
-   topLevelScadObject.writeScad(writer)
+   writer.write(topLevelScadObject.toScadRepresentation() + '\n')
 }

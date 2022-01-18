@@ -1,7 +1,6 @@
 package com.wcaokaze.scadwriter
 
 import com.wcaokaze.scadwriter.foundation.*
-import java.io.*
 
 /**
  * OpenSCADのコードとして出力される物体。
@@ -17,12 +16,7 @@ import java.io.*
  * オペランドとなるScadObject2つが親から除去されたのちに
  * 演算の結果が改めて親に追加されるような動きになる。
  */
-sealed class ScadObject : ScadValue() {
-   override fun writeScad(writer: Writer) {
-      writer.write(toScadRepresentation())
-      writer.write('\n'.code)
-   }
-}
+sealed class ScadObject : ScadValue()
 
 abstract class ScadPrimitiveObject : ScadObject()
 
