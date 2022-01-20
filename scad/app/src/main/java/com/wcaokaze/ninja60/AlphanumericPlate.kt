@@ -66,31 +66,6 @@ data class AlphanumericPlate(
 
 // =============================================================================
 
-fun ScadParentObject.alphanumericPlate(alphanumericPlate: AlphanumericPlate): ScadObject {
-   return union {
-      difference {
-         //                                                            layerOffset, frontBackOffset, leftRightOffset, columnOffset
-         val outerHullPlateConfig = HullAlphanumericConfig(KeySwitch.BOTTOM_HEIGHT,          1.5.mm,          0.5.mm,         1.mm)
-         val innerHullPlateConfig = HullAlphanumericConfig(                   0.mm,         20.0.mm,          3.0.mm,         0.mm)
-
-         hullAlphanumericPlate(alphanumericPlate, outerHullPlateConfig)
-         hullAlphanumericPlate(alphanumericPlate, innerHullPlateConfig)
-
-         for (c in alphanumericPlate.columns) {
-            for (k in c.keySwitches) {
-               switchHole(k)
-            }
-         }
-      }
-
-      for (c in alphanumericPlate.columns) {
-         for (k in c.keySwitches) {
-            switchSideHolder(k)
-         }
-      }
-   }
-}
-
 data class HullAlphanumericConfig(
    /** 各KeyPlateの位置が[KeySwitch.bottomVector]方向へ移動する */
    val layerOffset: Size = 0.mm,

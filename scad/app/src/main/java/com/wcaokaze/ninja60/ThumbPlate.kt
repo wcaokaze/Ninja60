@@ -70,24 +70,6 @@ data class ThumbPlate(
 
 // =============================================================================
 
-fun ScadParentObject.thumbPlate(thumbPlate: ThumbPlate): ScadObject {
-   return union {
-      difference {
-         //                                     layerOffset, leftRightOffset, frontOffset
-         hullThumbPlate(thumbPlate, KeySwitch.BOTTOM_HEIGHT,          1.5.mm,      1.5.mm)
-         hullThumbPlate(thumbPlate,                    0.mm,         20.0.mm,     20.0.mm)
-
-         for (k in thumbPlate.column) {
-            switchHole(k)
-         }
-      }
-
-      for (k in thumbPlate.column) {
-         switchSideHolder(k)
-      }
-   }
-}
-
 /**
  * @param layerOffset
  * 各KeyPlateの位置が[KeySwitch.bottomVector]方向へ移動する
