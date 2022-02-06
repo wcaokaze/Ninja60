@@ -43,8 +43,10 @@ fun ScadParentObject.gear(gear: Gear): ScadObject {
       ) {
          (
             union {
+               val tooth = memoize { tooth(gear) }
+
                for (i in 0 until gear.toothCount) {
-                  tooth(gear).rotate(z = 360.deg / gear.toothCount * i)
+                  tooth().rotate(z = 360.deg / gear.toothCount * i)
                }
             }
             + cylinder(gear.thickness, gear.bottomDiameter / 2, `$fa`)
