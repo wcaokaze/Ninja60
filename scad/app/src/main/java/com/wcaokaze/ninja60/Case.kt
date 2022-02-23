@@ -62,19 +62,21 @@ fun ScadParentObject.case(case: Case): ScadObject {
       }
    }
 
+   /*
    scad = baseCase()
 
    scad -= union {
       alphanumericCase(case, bottomOffset = 1.5.mm)
       thumbCase(case)
    }
+   */
 
 
    // ==== alphanumericのプレート部 ============================================
 
    // キースイッチの底の高さでhull。alphanumericCaseに確実に引っ付けるために
    // 前後左右広めに生成してalphanumericCaseとのintersectionをとります
-   scad += intersection {
+   scad = intersection {
       baseCase()
       hullAlphanumericPlate(
          case.alphanumericPlate,
