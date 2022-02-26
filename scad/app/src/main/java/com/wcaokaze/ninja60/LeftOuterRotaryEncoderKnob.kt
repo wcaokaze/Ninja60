@@ -248,7 +248,5 @@ fun ScadParentObject.leftOuterRotaryEncoderGear(
    }
 }
 
-private fun gearToothCount(module: Size, diameter: Size) = (
-   (diameter - module * 2).numberAsMilliMeter
-      / module.numberAsMilliMeter
-).toInt()
+private fun gearToothCount(module: Size, diameter: Size)
+      = ((diameter - module * 2) / module).toInt()

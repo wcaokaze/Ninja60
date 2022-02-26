@@ -22,7 +22,8 @@ fun main(vararg args: String) {
             case.alphanumericPlate.columns
                .flatMap { it.keySwitches }
                .map { it.plate(AlphanumericPlate.KEY_PLATE_SIZE) }
-            + case.thumbPlate.column
+            + case.thumbHomeKey.plate(ThumbPlate.KEY_PLATE_SIZE)
+            + case.thumbPlate.keySwitches
                .map { it.plate(ThumbPlate.KEY_PLATE_SIZE) }
          )
          .map { it.translate(it.topVector, KeySwitch.TOP_HEIGHT + KeySwitch.STEM_HEIGHT + Keycap.THICKNESS) }

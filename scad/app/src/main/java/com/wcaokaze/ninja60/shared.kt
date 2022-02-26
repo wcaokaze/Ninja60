@@ -120,8 +120,8 @@ infix fun Point.leaveOrigin(d: Size): Point {
  * a, bの2点を通る直線の高さzにおける座標
  */
 fun zPointOnLine(a: Point3d, b: Point3d, z: Point) = Point3d(
-   a.x + (z - a.z) * ((b.x - a.x).numberAsMilliMeter / (b.z - a.z).numberAsMilliMeter),
-   a.y + (z - a.z) * ((b.y - a.y).numberAsMilliMeter / (b.z - a.z).numberAsMilliMeter),
+   a.x + (z - a.z) * ((b.x - a.x) / (b.z - a.z)),
+   a.y + (z - a.z) * ((b.y - a.y) / (b.z - a.z)),
    z
 )
 

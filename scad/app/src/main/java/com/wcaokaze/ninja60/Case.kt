@@ -15,6 +15,10 @@ data class Case(
       Point3d.ORIGIN
    )
 
+   companion object {
+      private val THUMB_KEY_PITCH = 19.2.mm
+   }
+
    /** [Transformable.referencePoint]を通る[axis]向きの直線を軸として回転する */
    private fun <T : Transformable<T>>
          T.rotate(axis: (T) -> Vector3d, angle: Angle): T
@@ -25,6 +29,15 @@ data class Case(
       )
    }
 
+   private fun <T : Transformable<T>>
+         T.translate(direction: (T) -> Vector3d, distance: Size): T
+   {
+      return translate(
+         direction(this),
+         distance
+      )
+   }
+
    val alphanumericPlate: AlphanumericPlate get() {
       return AlphanumericPlate(frontVector, bottomVector, referencePoint)
          .rotate(AlphanumericPlate::frontVector, 15.deg)
@@ -32,14 +45,38 @@ data class Case(
          .translate(topVector, 85.mm)
    }
 
-   val thumbPlate: ThumbPlate get() {
-      return ThumbPlate(frontVector, bottomVector, referencePoint)
-         .rotate(ThumbPlate::backVector, 69.deg)
-         .rotate(ThumbPlate::leftVector, 7.deg)
-         .rotate(ThumbPlate::bottomVector, 8.deg)
+   val thumbHomeKey: KeySwitch get() {
+      return KeySwitch(referencePoint, bottomVector, frontVector)
+         .rotate(KeySwitch::backVector, 69.deg)
+         .rotate(KeySwitch::leftVector, 1.deg)
+         .rotate(KeySwitch::bottomVector, 10.deg)
          .translate(rightVector, 40.mm)
          .translate(backVector, 18.mm)
          .translate(topVector, 49.mm)
+   }
+
+   val thumbPlate: ThumbPlate get() {
+      val leftmostKey = thumbHomeKey
+         .translate(
+            rightVector,
+            distance = THUMB_KEY_PITCH * thumbHomeKey.layoutSize.x
+         )
+         .let { key ->
+            key.rotate(
+               Line3d(
+                  key.referencePoint
+                     .translate(key.topVector, KeySwitch.TOP_HEIGHT + KeySwitch.STEM_HEIGHT + Keycap.THICKNESS)
+                     .translate(key.rightVector, THUMB_KEY_PITCH * key.layoutSize.x / 2),
+                  key.frontVector
+               ),
+               80.deg
+            )
+         }
+
+      return ThumbPlate(
+         leftmostKey.referencePoint, layoutRadius = 60.mm, THUMB_KEY_PITCH,
+         leftmostKey.frontVector, leftmostKey.bottomVector
+      )
    }
 
    val frontRotaryEncoderKnob get() = FrontRotaryEncoderKnob(alphanumericPlate)
@@ -58,7 +95,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
    val baseCase = memoize {
       union {
          alphanumericCase(case, otherOffsets = 1.5.mm)
-         thumbCase(case, offsets = 1.5.mm)
+         //thumbCase(case, offsets = 1.5.mm)
       }
    }
 
@@ -67,7 +104,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
 
    scad -= union {
       alphanumericCase(case, bottomOffset = 1.5.mm)
-      thumbCase(case)
+      //thumbCase(case)
    }
    */
 
@@ -113,6 +150,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
 
    // ==== thumbのプレート部 ===================================================
 
+   /*
    // alphanumericと同じ手法でやりましょうね
    scad += intersection {
       baseCase()
@@ -137,6 +175,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
    }
 
    scad -= thumbHollow()
+   */
 
 
    // ==== 奥側ロータリーエンコーダ ============================================
@@ -194,7 +233,8 @@ fun ScadParentObject.case(case: Case): ScadObject {
 
    // ==== スイッチ穴 ==========================================================
 
-   val allSwitches = case.alphanumericPlate.columns.flatMap { it.keySwitches } + case.thumbPlate.column
+   val allSwitches = case.alphanumericPlate.columns.flatMap { it.keySwitches } +
+         case.thumbHomeKey + case.thumbPlate.keySwitches
 
    scad -= union {
       for (s in allSwitches) {
@@ -408,11 +448,15 @@ fun alphanumericBackPlane(case: Case, offset: Size): Plane3d {
       .translate(case.backVector, offset)
 }
 
-fun alphanumericFrontPlane(thumbPlate: ThumbPlate, offset: Size): Plane3d
-      = thumbPlate.frontPlane.translate(Vector3d.Y_UNIT_VECTOR, -offset)
+fun alphanumericFrontPlane(thumbPlate: ThumbPlate, offset: Size): Plane3d {
+   return Plane3d.ZX_PLANE
+      .translate(Vector3d.Y_UNIT_VECTOR, 9.mm)
+      .translate(Vector3d.Y_UNIT_VECTOR, -offset)
+}
 
 // =============================================================================
 
+/*
 private fun ScadParentObject.thumbCase(
    case: Case,
    offsets: Size = 0.mm
@@ -424,6 +468,7 @@ private fun ScadParentObject.thumbCase(
       frontOffset = offsets
    )
 }
+*/
 
 // =============================================================================
 

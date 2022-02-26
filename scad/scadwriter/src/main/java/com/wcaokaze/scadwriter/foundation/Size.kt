@@ -9,6 +9,8 @@ data class Size(val numberAsMilliMeter: Double)
    operator fun plus (another: Size) = Size(numberAsMilliMeter + another.numberAsMilliMeter)
    operator fun minus(another: Size) = Size(numberAsMilliMeter - another.numberAsMilliMeter)
 
+   operator fun div(another: Size): Double = numberAsMilliMeter / another.numberAsMilliMeter
+
    operator fun times(n: Int)    = Size(numberAsMilliMeter * n)
    operator fun times(n: Double) = Size(numberAsMilliMeter * n)
    operator fun div  (n: Int)    = Size(numberAsMilliMeter / n)

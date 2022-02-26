@@ -49,7 +49,7 @@ data class BackRotaryEncoderKnob(
       val module = BackRotaryEncoderGear.MODULE
       val diameter = RADIUS * 2 - module * 2
 
-      val toothCount = (diameter.numberAsMilliMeter/ module.numberAsMilliMeter).toInt()
+      val toothCount = (diameter / module).toInt()
 
       return Gear(
          BackRotaryEncoderGear.MODULE,

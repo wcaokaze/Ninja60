@@ -28,8 +28,6 @@ class Keycap {
    }
 }
 
-fun arcLengthToAngle(arcR: Size, length: Size) = Angle(length.numberAsMilliMeter / arcR.numberAsMilliMeter)
-
 /**
  * 親指用キーキャップ。
  * 底が扇型で皿部分は通常のキーキャップと同様長方形にシリンドリカルのカーブ。
@@ -64,8 +62,8 @@ fun ScadParentObject.thumbKeycap(
    val bottomCenterR = arcR - h / 2
    val bottomOuterR  = arcR         - 0.375.mm
 
-   val bottomArcStartA = arcStartA + arcLengthToAngle(bottomInnerR, 0.375.mm)
-   val bottomArcEndA   = arcEndA   - arcLengthToAngle(bottomInnerR, 0.375.mm)
+   val bottomArcStartA = arcStartA + Angle(0.375.mm / bottomInnerR)
+   val bottomArcEndA   = arcEndA   - Angle(0.375.mm / bottomInnerR)
 
    val dishPositionZ = Point(dishOffset * sin(-acos(dishOffset, dishR)))
    val bottomZ = Point(0.mm)
@@ -98,15 +96,15 @@ fun ScadParentObject.thumbKeycap(
          listOf(startA, endA)
             .map { angle ->
                Point2d(
-                  bottomInnerX(angle) + (topInnerX   - bottomInnerX(angle)) * (z.distanceFromOrigin.numberAsMilliMeter / topZ.distanceFromOrigin.numberAsMilliMeter),
-                  bottomInnerY(angle) + (topY(angle) - bottomInnerY(angle)) * (z.distanceFromOrigin.numberAsMilliMeter / topZ.distanceFromOrigin.numberAsMilliMeter)
+                  bottomInnerX(angle) + (topInnerX   - bottomInnerX(angle)) * (z.distanceFromOrigin / topZ.distanceFromOrigin),
+                  bottomInnerY(angle) + (topY(angle) - bottomInnerY(angle)) * (z.distanceFromOrigin / topZ.distanceFromOrigin)
                )
             },
          (endA..startA step (startA - endA) / 16)
             .map { angle ->
                Point2d(
-                  bottomOuterX(angle) + (topOuterX   - bottomOuterX(angle)) * (z.distanceFromOrigin.numberAsMilliMeter / topZ.distanceFromOrigin.numberAsMilliMeter),
-                  bottomOuterY(angle) + (topY(angle) - bottomOuterY(angle)) * (z.distanceFromOrigin.numberAsMilliMeter / topZ.distanceFromOrigin.numberAsMilliMeter)
+                  bottomOuterX(angle) + (topOuterX   - bottomOuterX(angle)) * (z.distanceFromOrigin / topZ.distanceFromOrigin),
+                  bottomOuterY(angle) + (topY(angle) - bottomOuterY(angle)) * (z.distanceFromOrigin / topZ.distanceFromOrigin)
                )
             }
       )
@@ -130,8 +128,8 @@ fun ScadParentObject.thumbKeycap(
          arc(
             outerR - roundR,
             innerR + roundR,
-            startA + arcLengthToAngle(innerR, roundR),
-            endA   - arcLengthToAngle(innerR, roundR),
+            startA + Angle(roundR / innerR),
+            endA   - Angle(roundR / innerR),
             topW - roundR * 2,
             topH - roundR * 2,
             z
@@ -146,7 +144,7 @@ fun ScadParentObject.thumbKeycap(
       val topR = 3.mm
 
       fun rAt(z: Point): Size {
-         val rate = (z - bottomZ).numberAsMilliMeter / (topZ - bottomZ).numberAsMilliMeter
+         val rate = (z - bottomZ) / (topZ - bottomZ)
          return bottomR + (topR - bottomR) * rate
       }
 
@@ -198,8 +196,8 @@ fun ScadParentObject.thumbKeycap(
             arc(
                bottomOuterR - Keycap.THICKNESS,
                bottomInnerR + Keycap.THICKNESS,
-               bottomArcStartA + arcLengthToAngle(bottomInnerR, Keycap.THICKNESS),
-               bottomArcEndA   - arcLengthToAngle(bottomInnerR, Keycap.THICKNESS),
+               bottomArcStartA + Angle(Keycap.THICKNESS / bottomInnerR),
+               bottomArcEndA   - Angle(Keycap.THICKNESS / bottomInnerR),
                topW, topH,
                z = Point(0.mm)
             )
@@ -500,7 +498,7 @@ fun ScadParentObject.keycap(
             dishPosition(Point(-topW / 2), Point(-topH / 2)).z
          )
 
-         fun getRate(z: Point) = (z - bottomZ).numberAsMilliMeter / (topZ - bottomZ).numberAsMilliMeter
+         fun getRate(z: Point) = (z - bottomZ) / (topZ - bottomZ)
          fun rAt(z: Point) = bottomR + (topR - bottomR) * getRate(z)
 
          return union {

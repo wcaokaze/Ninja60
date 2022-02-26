@@ -1,75 +1,43 @@
 package com.wcaokaze.ninja60
 
 import com.wcaokaze.linearalgebra.*
-import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
 /**
- * 親指で押すキースイッチを挿すためのプレート。
+ * 親指で押すキーのうち、指の側面で押す方の扇形に並んだキースイッチを挿すためのプレート。
+ * 指の腹で押す方のキーはこのプレートに含まれない
  *
- * @param bottomVector 下向きの方向を表すベクトル。
- * @param frontVector 手前方向を表すベクトル。
+ * [referencePoint]は親指のホームポジションのキーの位置、
+ * [frontVector]は[referencePoint]から扇形の中心方向。
  */
 data class ThumbPlate(
+   override val referencePoint: Point3d,
+   val layoutRadius: Size,
+   val keyPitch: Size,
    override val frontVector: Vector3d,
-   override val bottomVector: Vector3d,
-   override val referencePoint: Point3d
+   override val bottomVector: Vector3d
 ) : Transformable<ThumbPlate> {
    companion object {
       val KEY_PLATE_SIZE = Size2d(17.5.mm, 17.5.mm)
    }
 
-   /**
-    * 左右方向に並ぶキーのリスト。左から右の順。
-    * 凹面を作ることは問題ないが、一周して円にすることはできないものとする。
-    *
-    * columnではなくrowでは？ というのは気にしない方針で
-    */
-   val column: List<KeySwitch> get() {
-      val row2 = KeySwitch(
-            referencePoint,
-            KeySwitch.LayoutSize(1.0, 1.3),
-            bottomVector, frontVector
-         )
-         .translate(bottomVector, Keycap.THICKNESS + KeySwitch.STEM_HEIGHT + KeySwitch.TOP_HEIGHT)
+   val keySwitches: List<KeySwitch> get() {
+      val arcCenter = referencePoint.translate(frontVector, layoutRadius)
+      val axis = Line3d(arcCenter, topVector)
 
-      val row1 = row2
-         .let { row1 ->
-            row1
-               .translate(leftVector, KEY_PLATE_SIZE.x * row2.layoutSize.x / 2)
-               .translate(leftVector, KEY_PLATE_SIZE.x * row1.layoutSize.x / 2)
-         }
-         .rotate(
-            Line3d(
-               referencePoint.translate(leftVector, KEY_PLATE_SIZE.x * row2.layoutSize.x / 2),
-               backVector
-            ),
-            80.deg
-         )
+      val referenceKeySwitch = KeySwitch(referencePoint, bottomVector, frontVector)
+      val a = Angle(keyPitch / layoutRadius)
 
-      val row3 = row2
-         .let { row3 ->
-            row3
-               .translate(rightVector, KEY_PLATE_SIZE.x * row2.layoutSize.x / 2)
-               .translate(rightVector, KEY_PLATE_SIZE.x * row3.layoutSize.x / 2)
-         }
-         .rotate(
-            Line3d(
-               referencePoint.translate(rightVector, KEY_PLATE_SIZE.x * row2.layoutSize.x / 2),
-               frontVector
-            ),
-            80.deg
-         )
-
-      return listOf(row1, row2, row3)
+      return List(3) { referenceKeySwitch.rotate(axis, a * -it) }
    }
 
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
-         = ThumbPlate(frontVector, bottomVector, referencePoint)
+         = ThumbPlate(referencePoint, layoutRadius, keyPitch, frontVector, bottomVector)
 }
 
 // =============================================================================
 
+/*
 /**
  * @param layerOffset
  * 各KeyPlateの位置が[KeySwitch.bottomVector]方向へ移動する
@@ -158,3 +126,4 @@ val ThumbPlate.backPlane: Plane3d get() {
       backVector
    )
 }
+*/
