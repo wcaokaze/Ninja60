@@ -85,6 +85,8 @@ data class Case(
    val leftOuterRotaryEncoderKnob get() = LeftOuterRotaryEncoderKnob(this)
    val leftInnerRotaryEncoderKnob get() = LeftInnerRotaryEncoderKnob(leftOuterRotaryEncoderKnob)
 
+   val frontRotaryEncoderKey get() = FrontRotaryEncoderKey(frontRotaryEncoderKnob)
+
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
          = Case(frontVector, bottomVector, referencePoint)
 }
@@ -234,7 +236,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
    // ==== スイッチ穴 ==========================================================
 
    val allSwitches = case.alphanumericPlate.columns.flatMap { it.keySwitches } +
-         case.thumbHomeKey + case.thumbPlate.keySwitches
+         case.thumbHomeKey + case.thumbPlate.keySwitches + case.frontRotaryEncoderKey.switch
 
    scad -= union {
       for (s in allSwitches) {

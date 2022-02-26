@@ -25,6 +25,8 @@ fun main(vararg args: String) {
             + case.thumbHomeKey.plate(ThumbPlate.KEY_PLATE_SIZE)
             + case.thumbPlate.keySwitches
                .map { it.plate(ThumbPlate.KEY_PLATE_SIZE) }
+            + case.frontRotaryEncoderKey.switch
+               .plate(ThumbPlate.KEY_PLATE_SIZE)
          )
          .map { it.translate(it.topVector, KeySwitch.TOP_HEIGHT + KeySwitch.STEM_HEIGHT + Keycap.THICKNESS) }
          .forEach { hullPoints(it.points) }
