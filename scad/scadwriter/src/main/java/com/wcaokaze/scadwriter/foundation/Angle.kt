@@ -35,7 +35,7 @@ data class AngleRange(override val start: Angle,
 
    infix fun step(step: Angle) = Iterable {
       object : Iterator<Angle> {
-         private val precision = step / 2.0
+         private val precision = step / 16.0
          private var nextIndex = 0
 
          override fun hasNext() = if (step > 0.0.rad) {

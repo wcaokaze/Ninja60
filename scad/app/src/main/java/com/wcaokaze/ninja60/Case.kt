@@ -202,8 +202,19 @@ fun ScadParentObject.case(case: Case): ScadObject {
             bottomOffset = 1.5.mm, radiusOffset = 1.5.mm)
          frontRotaryEncoderHole(case.frontRotaryEncoderKnob.rotaryEncoder,
             bottomOffset = 1.6.mm, otherOffsets = 1.5.mm)
+         frontRotaryEncoderKeyHole(case.frontRotaryEncoderKey,
+            height = KeySwitch.TRAVEL,
+            bottomOffset = KeySwitch.BOTTOM_HEIGHT,
+            otherOffsets = 1.5.mm)
       }
-      intersection baseCase()
+      intersection distortedCube(
+         topPlane = alphanumericTopPlane(case.alphanumericPlate, offset = 1.5.mm),
+         bottomPlane = Plane3d.XY_PLANE.translate(z = (-100).mm),
+         rightPlane  = Plane3d.YZ_PLANE.translate(x =   100 .mm),
+         leftPlane   = Plane3d.YZ_PLANE.translate(x = (-100).mm),
+         backPlane   = Plane3d.ZX_PLANE.translate(y =   100 .mm),
+         frontPlane  = Plane3d.ZX_PLANE.translate(y = (-100).mm)
+      )
 
       // 手前側ロータリーエンコーダは意図的にalphanumericとカブる位置に配置されてます
       // alphanumeric部分にはみ出た分を削ります
@@ -213,6 +224,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
    scad -= union {
       frontRotaryEncoderKnobHole(case.frontRotaryEncoderKnob)
       frontRotaryEncoderHole(case.frontRotaryEncoderKnob.rotaryEncoder)
+      frontRotaryEncoderKeyHole(case.frontRotaryEncoderKey, height = 100.mm, otherOffsets = 0.1.mm)
       rotaryEncoderMountHole(case.frontRotaryEncoderKnob.rotaryEncoder, 2.mm)
    }
 
@@ -723,4 +735,47 @@ private fun ScadParentObject.frontRotaryEncoderHole(
       rotaryEncoder.frontVector,
       rotaryEncoder.bottomVector
    ))
+}
+
+fun ScadParentObject.frontRotaryEncoderKeyHole(
+   key: FrontRotaryEncoderKey,
+   height: Size,
+   bottomOffset: Size = 0.mm,
+   otherOffsets: Size = 0.mm
+): ScadObject {
+   var rotationReference = FrontRotaryEncoderKey(
+      -Vector3d.Y_UNIT_VECTOR, -Vector3d.Z_UNIT_VECTOR, Point3d.ORIGIN)
+
+   var hole: ScadObject = difference {
+      val outerRadius = FrontRotaryEncoderKey.RADIUS + FrontRotaryEncoderKey.KEY_WIDTH / 2
+      val innerRadius = FrontRotaryEncoderKey.RADIUS - FrontRotaryEncoderKey.KEY_WIDTH / 2
+
+      val frontAngle = -Angle.PI / 2
+      val offsetAngle = Angle(otherOffsets / innerRadius)
+
+      val startAngle = frontAngle - FrontRotaryEncoderKey.ARC_ANGLE / 2
+      val endAngle   = frontAngle + FrontRotaryEncoderKey.ARC_ANGLE / 2
+
+      arcCylinder(radius = outerRadius + otherOffsets, height + bottomOffset,
+         startAngle - offsetAngle, endAngle + offsetAngle, `$fa`)
+
+      arcCylinder(radius = innerRadius - otherOffsets, height + bottomOffset,
+         startAngle - offsetAngle, endAngle + offsetAngle, `$fa`)
+   }
+
+   hole = hole.translate(z = -bottomOffset)
+
+   var axis = rotationReference.topVector vectorProduct key.topVector
+   var angle = rotationReference.topVector angleWith key.topVector
+
+   hole = hole.rotate(angle, Point3d.ORIGIN.translate(axis))
+   rotationReference = rotationReference.rotate(Line3d(rotationReference.referencePoint, axis), angle)
+
+   axis = rotationReference.frontVector vectorProduct key.frontVector
+   angle = rotationReference.frontVector angleWith key.frontVector
+
+   hole = hole.rotate(angle, Point3d.ORIGIN.translate(axis))
+   rotationReference = rotationReference.rotate(Line3d(rotationReference.referencePoint, axis), angle)
+
+   return hole.translate(key.referencePoint - rotationReference.referencePoint)
 }
