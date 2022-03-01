@@ -58,13 +58,8 @@ class FrontRotaryEncoderKnob(
 
 fun ScadParentObject.frontRotaryEncoderKnob(knob: FrontRotaryEncoderKnob): ScadObject {
    return (
-      locale(knob.referencePoint) {
-         rotate(
-            Vector3d.Z_UNIT_VECTOR angleWith     knob.topVector,
-            Vector3d.Z_UNIT_VECTOR vectorProduct knob.topVector
-         ) {
-            cylinder(FrontRotaryEncoderKnob.HEIGHT, FrontRotaryEncoderKnob.RADIUS, `$fa`)
-         }
+      place(knob) {
+         cylinder(FrontRotaryEncoderKnob.HEIGHT, FrontRotaryEncoderKnob.RADIUS, `$fa`)
       }
       - rotaryEncoderKnobHole(knob.rotaryEncoder)
    )

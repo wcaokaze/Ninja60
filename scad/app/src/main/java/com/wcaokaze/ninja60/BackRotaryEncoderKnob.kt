@@ -84,21 +84,16 @@ fun ScadParentObject.backRotaryEncoderKnob(knob: BackRotaryEncoderKnob): ScadObj
 
    return (
       gear(knob.gear)
-      + locale(knob.referencePoint) {
-         rotate(
-            -Vector3d.Z_UNIT_VECTOR angleWith knob.bottomVector,
-            -Vector3d.Z_UNIT_VECTOR vectorProduct knob.bottomVector,
-         ) {
-            (
-               cylinder(BackRotaryEncoderKnob.HEIGHT, BackRotaryEncoderKnob.RADIUS, `$fa`)
-               + skidproof()
-               - cylinder(
-                  BackRotaryEncoderKnob.HEIGHT * 3,
-                  BackRotaryEncoderKnob.SHAFT_HOLE_RADIUS,
-                  center = true, `$fa`
-               )
+      + place(knob) {
+         (
+            cylinder(BackRotaryEncoderKnob.HEIGHT, BackRotaryEncoderKnob.RADIUS, `$fa`)
+            + skidproof()
+            - cylinder(
+               BackRotaryEncoderKnob.HEIGHT * 3,
+               BackRotaryEncoderKnob.SHAFT_HOLE_RADIUS,
+               center = true, `$fa`
             )
-         }
+         )
       }
    )
 }
@@ -314,13 +309,8 @@ data class BackRotaryEncoderGear(
 
 fun ScadParentObject.backRotaryEncoderGear(gear: BackRotaryEncoderGear): ScadObject {
    return (
-      locale(gear.referencePoint) {
-         rotate(
-            -Vector3d.Z_UNIT_VECTOR angleWith gear.bottomVector,
-            -Vector3d.Z_UNIT_VECTOR vectorProduct gear.bottomVector,
-         ) {
-            cylinder(BackRotaryEncoderGear.SHAFT_HEIGHT, BackRotaryEncoderGear.SHAFT_RADIUS, `$fa`)
-         }
+      place(gear) {
+         cylinder(BackRotaryEncoderGear.SHAFT_HEIGHT, BackRotaryEncoderGear.SHAFT_RADIUS, `$fa`)
       }
       + gear(gear.gear)
       - rotaryEncoderKnobHole(gear.rotaryEncoder)

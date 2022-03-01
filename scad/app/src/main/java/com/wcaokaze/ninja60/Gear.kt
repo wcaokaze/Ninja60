@@ -36,23 +36,18 @@ infix fun Gear.distance(another: Gear): Size {
 }
 
 fun ScadParentObject.gear(gear: Gear): ScadObject {
-   return locale(gear.referencePoint) {
-      rotate(
-         -Vector3d.Z_UNIT_VECTOR angleWith gear.bottomVector,
-         -Vector3d.Z_UNIT_VECTOR vectorProduct gear.bottomVector,
-      ) {
-         (
-            union {
-               val tooth = memoize { tooth(gear) }
+   return place(gear) {
+      (
+         union {
+            val tooth = memoize { tooth(gear) }
 
-               for (i in 0 until gear.toothCount) {
-                  tooth().rotate(z = 360.deg / gear.toothCount * i)
-               }
+            for (i in 0 until gear.toothCount) {
+               tooth().rotate(z = 360.deg / gear.toothCount * i)
             }
-            + cylinder(gear.thickness, gear.bottomDiameter / 2, `$fa`)
-            intersection cylinder(gear.thickness, gear.addendumDiameter / 2, `$fa`)
-         )
-      }
+         }
+         + cylinder(gear.thickness, gear.bottomDiameter / 2, `$fa`)
+         intersection cylinder(gear.thickness, gear.addendumDiameter / 2, `$fa`)
+      )
    }
 }
 

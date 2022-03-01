@@ -663,14 +663,8 @@ fun ScadParentObject.backRotaryEncoderKnobHolder(case: Case): ScadObject {
 fun ScadParentObject.backRotaryEncoderKnobCave(case: Case): ScadObject {
    val knob = case.backRotaryEncoderKnob
 
-   return locale(
-      knob.referencePoint
-         .translate(knob.bottomVector, BackRotaryEncoderKnob.GEAR_THICKNESS)
-   ) {
-      rotate(
-         -Vector3d.Z_UNIT_VECTOR angleWith knob.bottomVector,
-         -Vector3d.Z_UNIT_VECTOR vectorProduct knob.bottomVector,
-      ) {
+   return place(knob) {
+      translate(z = -BackRotaryEncoderKnob.GEAR_THICKNESS) {
          translate(z = (-0.6).mm) {
             cylinder(
                BackRotaryEncoderKnob.HEIGHT
@@ -701,18 +695,13 @@ private fun ScadParentObject.frontRotaryEncoderKnobHole(
    bottomOffset: Size = 0.mm,
    radiusOffset: Size = 0.mm
 ): ScadObject {
-   return locale(knob.referencePoint) {
-      rotate(
-         Vector3d.Z_UNIT_VECTOR angleWith knob.topVector,
-         Vector3d.Z_UNIT_VECTOR vectorProduct knob.topVector
-      ) {
-         translate(z = (-1.5).mm - bottomOffset) {
-            cylinder(
-               FrontRotaryEncoderKnob.HEIGHT * 2,
-               FrontRotaryEncoderKnob.RADIUS + 0.7.mm + radiusOffset,
-               `$fa`
-            )
-         }
+   return place(knob) {
+      translate(z = (-1.5).mm - bottomOffset) {
+         cylinder(
+            FrontRotaryEncoderKnob.HEIGHT * 2,
+            FrontRotaryEncoderKnob.RADIUS + 0.7.mm + radiusOffset,
+            `$fa`
+         )
       }
    }
 }
@@ -743,39 +732,24 @@ fun ScadParentObject.frontRotaryEncoderKeyHole(
    bottomOffset: Size = 0.mm,
    otherOffsets: Size = 0.mm
 ): ScadObject {
-   var rotationReference = FrontRotaryEncoderKey(
-      -Vector3d.Y_UNIT_VECTOR, -Vector3d.Z_UNIT_VECTOR, Point3d.ORIGIN)
+   return place(key) {
+      translate(z = -bottomOffset) {
+         difference {
+            val outerRadius = FrontRotaryEncoderKey.RADIUS + FrontRotaryEncoderKey.KEY_WIDTH / 2
+            val innerRadius = FrontRotaryEncoderKey.RADIUS - FrontRotaryEncoderKey.KEY_WIDTH / 2
 
-   var hole: ScadObject = difference {
-      val outerRadius = FrontRotaryEncoderKey.RADIUS + FrontRotaryEncoderKey.KEY_WIDTH / 2
-      val innerRadius = FrontRotaryEncoderKey.RADIUS - FrontRotaryEncoderKey.KEY_WIDTH / 2
+            val frontAngle = -Angle.PI / 2
+            val offsetAngle = Angle(otherOffsets / innerRadius)
 
-      val frontAngle = -Angle.PI / 2
-      val offsetAngle = Angle(otherOffsets / innerRadius)
+            val startAngle = frontAngle - FrontRotaryEncoderKey.ARC_ANGLE / 2
+            val endAngle   = frontAngle + FrontRotaryEncoderKey.ARC_ANGLE / 2
 
-      val startAngle = frontAngle - FrontRotaryEncoderKey.ARC_ANGLE / 2
-      val endAngle   = frontAngle + FrontRotaryEncoderKey.ARC_ANGLE / 2
+            arcCylinder(radius = outerRadius + otherOffsets, height + bottomOffset,
+               startAngle - offsetAngle, endAngle + offsetAngle, `$fa`)
 
-      arcCylinder(radius = outerRadius + otherOffsets, height + bottomOffset,
-         startAngle - offsetAngle, endAngle + offsetAngle, `$fa`)
-
-      arcCylinder(radius = innerRadius - otherOffsets, height + bottomOffset,
-         startAngle - offsetAngle, endAngle + offsetAngle, `$fa`)
+            arcCylinder(radius = innerRadius - otherOffsets, height + bottomOffset,
+               startAngle - offsetAngle, endAngle + offsetAngle, `$fa`)
+         }
+      }
    }
-
-   hole = hole.translate(z = -bottomOffset)
-
-   var axis = rotationReference.topVector vectorProduct key.topVector
-   var angle = rotationReference.topVector angleWith key.topVector
-
-   hole = hole.rotate(angle, Point3d.ORIGIN.translate(axis))
-   rotationReference = rotationReference.rotate(Line3d(rotationReference.referencePoint, axis), angle)
-
-   axis = rotationReference.frontVector vectorProduct key.frontVector
-   angle = rotationReference.frontVector angleWith key.frontVector
-
-   hole = hole.rotate(angle, Point3d.ORIGIN.translate(axis))
-   rotationReference = rotationReference.rotate(Line3d(rotationReference.referencePoint, axis), angle)
-
-   return hole.translate(key.referencePoint - rotationReference.referencePoint)
 }

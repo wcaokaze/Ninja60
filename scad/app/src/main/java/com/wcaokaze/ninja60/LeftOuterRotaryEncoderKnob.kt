@@ -165,20 +165,15 @@ fun ScadParentObject.leftOuterRotaryEncoderKnob(
    }
 
    return (
-      locale(leftOuterRotaryEncoderKnob.referencePoint) {
-         rotate(
-            -Vector3d.Z_UNIT_VECTOR angleWith leftOuterRotaryEncoderKnob.bottomVector,
-            -Vector3d.Z_UNIT_VECTOR vectorProduct leftOuterRotaryEncoderKnob.bottomVector
-         ) {
-            (
-               mainBody()
-               - innerKnobHole()
-               - innerRotaryEncoderShaftHole()
-               - internalCave()
-               + protuberance()
-               + skidproof()
-            )
-         }
+      place(leftOuterRotaryEncoderKnob) {
+         (
+            mainBody()
+            - innerKnobHole()
+            - innerRotaryEncoderShaftHole()
+            - internalCave()
+            + protuberance()
+            + skidproof()
+         )
       }
       - internalGear(leftOuterRotaryEncoderKnob.internalGear)
    )

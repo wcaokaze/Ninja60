@@ -87,54 +87,33 @@ fun ScadParentObject.switchHole(keySwitch: KeySwitch): ScadObject {
  * まずプレートから[switchHole]を[difference]して穴を開けたあとコイツをつけるといい
  */
 fun ScadParentObject.switchSideHolder(keySwitch: KeySwitch): ScadObject {
-   fun Point3d.dx(dx: Size) = translate(keySwitch.rightVector, dx)
-   fun Point3d.dy(dy: Size) = translate(keySwitch.frontVector, dy)
-   fun Point3d.dz(dz: Size) = translate(keySwitch.bottomVector, dz)
-
    val ySize = 3.6.mm
    val zSize = 3.7.mm
    val cylinderRadius = 1.mm
 
-   fun ScadParentObject.pillar(dx: Size): ScadObject {
-      val pillarCenter = keySwitch.referencePoint.dx(dx)
-
-      val points = ArrayList<Point3d>()
-
-      for (x in listOf(0.75.mm, (-0.75).mm)) {
-         for (y in listOf(ySize / 2, -ySize / 2)) {
-            for (z in listOf(0.mm, zSize)) {
-               points += pillarCenter.dx(x).dy(y).dz(z)
-            }
+   fun ScadParentObject.holder(): ScadObject {
+      return union {
+         translate(7.25.mm, -ySize / 2, -zSize) {
+            cube(1.5.mm, ySize, zSize)
          }
-      }
 
-      return hullPoints(points)
-   }
-
-   fun ScadParentObject.point(dx: Size, dy: Size, dz: Size): ScadObject {
-      return locale(keySwitch.referencePoint.dx(dx).dy(dy).dz(dz)) {
-         cube(0.01.mm, 0.01.mm, 0.01.mm, center = true)
-      }
-   }
-
-   return union {
-      pillar(  8 .mm)
-      pillar((-8).mm)
-
-      for (dx in listOf((-7.25).mm, 7.25.mm)) {
          hull {
-            point(dx,  ySize / 2, 1.5.mm)
-            point(dx, -ySize / 2, 1.5.mm)
+            translate(7.25.mm,  ySize / 2, (-1.5).mm) { cube(0.01.mm, 0.01.mm, 0.01.mm, center = true) }
+            translate(7.25.mm, -ySize / 2, (-1.5).mm) { cube(0.01.mm, 0.01.mm, 0.01.mm, center = true) }
 
-            locale(keySwitch.referencePoint.dx(dx).dz(zSize - cylinderRadius)) {
-               rotate(
-                  Vector3d.Z_UNIT_VECTOR angleWith keySwitch.frontVector,
-                  Vector3d.Z_UNIT_VECTOR vectorProduct keySwitch.frontVector
-               ) {
+            translate(x = 7.25.mm, z = -(zSize - cylinderRadius)) {
+               rotate(x = 90.deg) {
                   cylinder(height = ySize, cylinderRadius, center = true, fa = `$fa`)
                }
             }
          }
+      }
+   }
+
+   return union {
+      place(keySwitch) {
+         holder()
+         mirror(x = 1.mm, y = 0.mm, z = 0.mm) { holder() }
       }
    }
 }

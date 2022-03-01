@@ -45,17 +45,12 @@ fun ScadParentObject.leftInnerRotaryEncoderKnob(
    leftInnerRotaryEncoderKnob: LeftInnerRotaryEncoderKnob
 ): ScadObject {
    return (
-      locale(leftInnerRotaryEncoderKnob.referencePoint) {
-         rotate(
-            -Vector3d.Z_UNIT_VECTOR angleWith leftInnerRotaryEncoderKnob.bottomVector,
-            -Vector3d.Z_UNIT_VECTOR vectorProduct leftInnerRotaryEncoderKnob.bottomVector
-         ) {
-            cylinder(
-               LeftInnerRotaryEncoderKnob.HEIGHT,
-               LeftInnerRotaryEncoderKnob.RADIUS,
-               `$fa`
-            )
-         }
+      place(leftInnerRotaryEncoderKnob) {
+         cylinder(
+            LeftInnerRotaryEncoderKnob.HEIGHT,
+            LeftInnerRotaryEncoderKnob.RADIUS,
+            `$fa`
+         )
       }
       - rotaryEncoderKnobHole(leftInnerRotaryEncoderKnob.rotaryEncoder)
    )

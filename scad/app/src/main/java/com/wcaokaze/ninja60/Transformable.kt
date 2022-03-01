@@ -1,6 +1,7 @@
 package com.wcaokaze.ninja60
 
 import com.wcaokaze.linearalgebra.*
+import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
 /**
@@ -44,3 +45,39 @@ val Transformable<*>.topVector:   Vector3d get() = -bottomVector
 val Transformable<*>.backVector:  Vector3d get() = -frontVector
 val Transformable<*>.rightVector: Vector3d get() = frontVector vectorProduct bottomVector
 val Transformable<*>.leftVector:  Vector3d get() = -rightVector
+
+/**
+ * [Y軸][Vector3d.Y_UNIT_VECTOR]の負の方向が[Transformable.frontVector]、
+ * [Z軸][Vector3d.Z_UNIT_VECTOR]の負の方向が[Transformable.bottomVector]
+ * を向くように[children]を回転し、
+ * [原点][Point3d.ORIGIN]が[Transformable.referencePoint]になるように移動します
+ */
+fun ScadParentObject.place(
+   transformable: Transformable<*>,
+   children: ScadParentObject.() -> Unit
+): ScadObject {
+   var rotationReference = transformable
+      .copy(Point3d.ORIGIN, -Vector3d.Y_UNIT_VECTOR, -Vector3d.Z_UNIT_VECTOR)
+
+   var c: ScadObject = union(children)
+
+   var axis = rotationReference.topVector vectorProduct transformable.topVector
+   var angle = rotationReference.topVector angleWith transformable.topVector
+
+   if (axis.norm > 0.mm) {
+      c = c.rotate(angle, Point3d.ORIGIN.translate(axis))
+      rotationReference = rotationReference
+         .rotate(Line3d(rotationReference.referencePoint, axis), angle)
+   }
+
+   axis = rotationReference.frontVector vectorProduct transformable.frontVector
+   angle = rotationReference.frontVector angleWith transformable.frontVector
+
+   if (axis.norm > 0.mm) {
+      c = c.rotate(angle, Point3d.ORIGIN.translate(axis))
+      rotationReference = rotationReference
+         .rotate(Line3d(rotationReference.referencePoint, axis), angle)
+   }
+
+   return c.translate(transformable.referencePoint - rotationReference.referencePoint)
+}
