@@ -58,26 +58,19 @@ fun KeySwitch.plate(size: Size2d) = KeyPlate(
    frontVector
 )
 
-fun ScadParentObject.switchHole(keySwitch: KeySwitch): ScadObject {
-   fun KeySwitch.keyPlate(size: Size2d)
-         = KeyPlate(referencePoint, size, bottomVector, frontVector)
-
-   /* ボトムハウジングの突起部分にハメる穴。本来1.5mmのプレートを使うところ */
-   val mountPlateHole = keySwitch.keyPlate(Size2d(14.5.mm, 14.5.mm))
-
-   /* スイッチが入る穴。 */
-   val switchHole = keySwitch.keyPlate(Size2d(16.mm, 16.mm))
+fun ScadParentObject.switchHole(): ScadObject {
+   val plateHoleSize = 14.5.mm
+   val plateThickness = 1.5.mm
+   val caveSize = 16.mm
 
    return union {
-      hullPoints(
-         mountPlateHole.translate(keySwitch.bottomVector, -(0.5).mm).points +
-         mountPlateHole.translate(keySwitch.bottomVector,   2.0 .mm).points
-      )
+      translate(-caveSize / 2, -caveSize / 2, -(KeySwitch.BOTTOM_HEIGHT + 0.5.mm)) {
+         cube(caveSize, caveSize, KeySwitch.BOTTOM_HEIGHT + 0.5.mm - plateThickness)
+      }
 
-      hullPoints(
-         switchHole.translate(keySwitch.bottomVector,                           1.5.mm).points +
-         switchHole.translate(keySwitch.bottomVector, KeySwitch.BOTTOM_HEIGHT + 0.5.mm).points
-      )
+      translate(-plateHoleSize / 2, -plateHoleSize / 2, -(1.5.mm + 0.5.mm)) {
+         cube(plateHoleSize, plateHoleSize, 2.0.mm)
+      }
    }
 }
 
@@ -86,7 +79,7 @@ fun ScadParentObject.switchHole(keySwitch: KeySwitch): ScadObject {
  *
  * まずプレートから[switchHole]を[difference]して穴を開けたあとコイツをつけるといい
  */
-fun ScadParentObject.switchSideHolder(keySwitch: KeySwitch): ScadObject {
+fun ScadParentObject.switchSideHolder(): ScadObject {
    val ySize = 3.6.mm
    val zSize = 3.7.mm
    val cylinderRadius = 1.mm
@@ -111,9 +104,7 @@ fun ScadParentObject.switchSideHolder(keySwitch: KeySwitch): ScadObject {
    }
 
    return union {
-      place(keySwitch) {
-         holder()
-         mirror(x = 1.mm, y = 0.mm, z = 0.mm) { holder() }
-      }
+      holder()
+      mirror(x = 1.mm, y = 0.mm, z = 0.mm) { holder() }
    }
 }

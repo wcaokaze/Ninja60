@@ -250,15 +250,18 @@ fun ScadParentObject.case(case: Case): ScadObject {
    val allSwitches = case.alphanumericPlate.columns.flatMap { it.keySwitches } +
          case.thumbHomeKey + case.thumbPlate.keySwitches + case.frontRotaryEncoderKey.switch
 
+   val switchHole = memoize { switchHole() }
+   val switchSideHolder = memoize { switchSideHolder() }
+
    scad -= union {
       for (s in allSwitches) {
-         switchHole(s)
+         place(s) { switchHole() }
       }
    }
 
    scad += union {
       for (s in allSwitches) {
-         switchSideHolder(s)
+         place(s) { switchSideHolder() }
       }
    }
 
