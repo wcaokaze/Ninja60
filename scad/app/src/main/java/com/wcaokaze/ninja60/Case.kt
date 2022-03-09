@@ -152,6 +152,11 @@ fun ScadParentObject.case(case: Case): ScadObject {
 
    // ==== thumbのプレート部 ===================================================
 
+   scad += thumbPlateCase(case.thumbPlate,
+      height = KeySwitch.TRAVEL,
+      bottomOffset = KeySwitch.BOTTOM_HEIGHT,
+      otherOffsets = 1.5.mm)
+   scad -= thumbPlateCase(case.thumbPlate, height = 100.mm)
    /*
    // alphanumericと同じ手法でやりましょうね
    scad += intersection {
@@ -248,7 +253,8 @@ fun ScadParentObject.case(case: Case): ScadObject {
    // ==== スイッチ穴 ==========================================================
 
    val allSwitches = case.alphanumericPlate.columns.flatMap { it.keySwitches } +
-         case.thumbHomeKey + case.thumbPlate.keySwitches + case.frontRotaryEncoderKey.switch
+         case.thumbHomeKey +
+         case.thumbPlate.keySwitches + case.frontRotaryEncoderKey.switch
 
    val switchHole = memoize { switchHole() }
    val switchSideHolder = memoize { switchSideHolder() }
@@ -486,6 +492,34 @@ private fun ScadParentObject.thumbCase(
    )
 }
 */
+
+private fun ScadParentObject.thumbPlateCase(
+   thumbPlate: ThumbPlate,
+   height: Size,
+   bottomOffset: Size = 0.mm,
+   otherOffsets: Size = 0.mm
+): ScadObject {
+   val keyLength = thumbPlate.keySwitches.maxOf { thumbPlate.keyPitch * it.layoutSize.y }
+   val outerRadius = thumbPlate.layoutRadius + keyLength / 2
+   val innerRadius = thumbPlate.layoutRadius - keyLength / 2
+
+   val backAngle = Angle.PI / 2
+   val offsetAngle = Angle(otherOffsets / innerRadius)
+
+   val startAngle = backAngle - thumbPlate.keyAngle * (thumbPlate.keySwitches.size - 0.5)
+   val endAngle = backAngle + thumbPlate.keyAngle / 2
+
+   return place(thumbPlate) {
+      translate(y = -thumbPlate.layoutRadius, z = -bottomOffset) {
+         difference {
+            arcCylinder(radius = outerRadius + otherOffsets, height + bottomOffset,
+               startAngle - offsetAngle, endAngle + offsetAngle, `$fa`)
+            arcCylinder(radius = innerRadius - otherOffsets, height + bottomOffset,
+               startAngle - offsetAngle, endAngle + offsetAngle, `$fa`)
+         }
+      }
+   }
+}
 
 // =============================================================================
 
