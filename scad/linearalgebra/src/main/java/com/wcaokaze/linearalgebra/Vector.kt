@@ -121,6 +121,9 @@ data class Vector3d(val x: Size, val y: Size, val z: Size) {
    )
 }
 
+infix fun Point2d.distance(another: Point2d): Size = Vector2d(this, another).norm
+infix fun Point3d.distance(another: Point3d): Size = Vector3d(this, another).norm
+
 fun Iterable<Vector2d>.sum(): Vector2d {
    var sum = Vector2d(0.mm, 0.mm)
    for (v in this) {
