@@ -27,7 +27,7 @@ data class Gear(
  * 中心距離。[Gear.referencePoint]には関係なく
  * この2つの歯車が配置されるべき理想的な中心距離を返す。
  */
-infix fun Gear.distance(another: Gear): Size {
+infix fun Gear.idealDistance(another: Gear): Size {
    require(module == another.module) {
       "Attempt to get the distance even though their modules unmatching"
    }

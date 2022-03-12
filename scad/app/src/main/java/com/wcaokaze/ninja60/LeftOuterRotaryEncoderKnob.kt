@@ -72,7 +72,7 @@ class LeftOuterRotaryEncoderKnob(
             .translate(topVector, HEIGHT - INNER_KNOB_DEPTH - THICKNESS - LeftOuterRotaryEncoderGear.HEIGHT - 0.5.mm)
       )
 
-      return gear.translate(rightVector, internalGear distance gear.gear)
+      return gear.translate(rightVector, internalGear idealDistance gear.gear)
    }
 
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)

@@ -257,7 +257,7 @@ data class BackRotaryEncoderGear(
          operator fun Size.times(another: Size) = Size(numberAsMilliMeter * another.numberAsMilliMeter)
          fun Size.square() = this * this
 
-         val ac = knob.gear distance gear
+         val ac = knob.gear idealDistance gear
          val bc = gear.addendumRadius
          val abVector = Vector3d(knob.gear.referencePoint, mostBackPoint)
          val ab = abVector.norm

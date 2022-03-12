@@ -19,7 +19,7 @@ data class InternalGear(
          = InternalGear(module, toothCount, thickness, referencePoint, frontVector, bottomVector)
 }
 
-infix fun InternalGear.distance(gear: Gear): Size {
+infix fun InternalGear.idealDistance(gear: Gear): Size {
    require(module == gear.module) {
       "Attempt to get the distance even though their modules unmatching"
    }
