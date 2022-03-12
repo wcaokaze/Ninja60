@@ -46,6 +46,10 @@ val Transformable<*>.backVector:  Vector3d get() = -frontVector
 val Transformable<*>.rightVector: Vector3d get() = frontVector vectorProduct bottomVector
 val Transformable<*>.leftVector:  Vector3d get() = -rightVector
 
+val Transformable<*>.btLine get() = Line3d(referencePoint, topVector)
+val Transformable<*>.lrLine get() = Line3d(referencePoint, rightVector)
+val Transformable<*>.fbLine get() = Line3d(referencePoint, backVector)
+
 /**
  * [Y軸][Vector3d.Y_UNIT_VECTOR]の負の方向が[Transformable.frontVector]、
  * [Z軸][Vector3d.Z_UNIT_VECTOR]の負の方向が[Transformable.bottomVector]
