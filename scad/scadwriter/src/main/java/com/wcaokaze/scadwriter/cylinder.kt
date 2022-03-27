@@ -35,7 +35,7 @@ data class Cone(
    ) : this(height, bottomRadius, topRadius, center = false, fa)
 
    override fun toScadRepresentation(): String
-         = "cylinder(h = ${height.scad}, ${bottomRadius.scad}, ${topRadius.scad}, center = $center, \$fa = ${fa.scad});"
+         = "cylinder(h = ${height.scad}, r1 = ${bottomRadius.scad}, r2 = ${topRadius.scad}, center = $center, \$fa = ${fa.scad});"
 }
 
 fun ScadParentObject.cylinder(
