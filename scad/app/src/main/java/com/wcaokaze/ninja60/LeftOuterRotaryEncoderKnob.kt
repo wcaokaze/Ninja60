@@ -113,10 +113,8 @@ fun ScadParentObject.leftOuterRotaryEncoderKnob(
 
    fun ScadParentObject.internalCave(): ScadObject {
       return cylinder(
-         Vector3d(
-            leftOuterRotaryEncoderKnob.referencePoint,
-            leftOuterRotaryEncoderKnob.internalGear.referencePoint
-         ).norm,
+         leftOuterRotaryEncoderKnob.referencePoint
+               distance leftOuterRotaryEncoderKnob.internalGear.referencePoint,
          LeftOuterRotaryEncoderKnob.RADIUS - LeftOuterRotaryEncoderKnob.THICKNESS,
          `$fa`
       )

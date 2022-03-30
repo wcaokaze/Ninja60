@@ -81,7 +81,8 @@ data class Case(
 
    val frontRotaryEncoderKnob get() = FrontRotaryEncoderKnob(alphanumericPlate)
    val backRotaryEncoderKnob get() = BackRotaryEncoderKnob(alphanumericPlate)
-   val backRotaryEncoderGear get() = BackRotaryEncoderGear(alphanumericPlate, velocityRatio = 1.0)
+   val backRotaryEncoderMediationGear get() = BackRotaryEncoderMediationGear(alphanumericPlate, alphanumericBackSlopePlane(alphanumericPlate, offset = 1.7.mm))
+   val backRotaryEncoderGear get() = BackRotaryEncoderGear(backRotaryEncoderMediationGear, alphanumericBackSlopePlane(alphanumericPlate, offset = 1.7.mm))
    val leftOuterRotaryEncoderKnob get() = LeftOuterRotaryEncoderKnob(this)
    val leftInnerRotaryEncoderKnob get() = LeftInnerRotaryEncoderKnob(leftOuterRotaryEncoderKnob)
 
@@ -187,6 +188,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
 
    // ==== 奥側ロータリーエンコーダ ============================================
 
+   /*
    scad += (
       backRotaryEncoderCase(case, otherOffsets = 1.5.mm)
       - backRotaryEncoderCase(case, bottomOffset = 1.5.mm, frontOffset = (-1.5).mm)
@@ -197,6 +199,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
 
    scad -= backRotaryEncoderInsertionHole(case)
    scad += backRotaryEncoderMountPlate(case)
+   */
 
 
    // ==== 手前側ロータリーエンコーダ ==========================================
@@ -535,11 +538,12 @@ private fun Plane3d.translateTangential(gear: Gear): Plane3d {
    )
 }
 
+/*
 fun backRotaryEncoderCaseTopPlane(
    case: Case,
    offset: Size
 ): Plane3d {
-   val gear = case.backRotaryEncoderGear.gear
+   val gear = case.backRotaryEncoderGear.spurGear
 
    return Plane3d(
          gear.referencePoint,
@@ -556,14 +560,14 @@ fun backRotaryEncoderCaseLeftPlane(alphanumericPlate: AlphanumericPlate, offset:
    val column = alphanumericPlate.columns[BackRotaryEncoderKnob.COLUMN_INDEX]
 
    return Plane3d(column.referencePoint, column.leftVector)
-      .translate(column.leftVector, BackRotaryEncoderGear.CASE_WIDTH / 2 + offset)
+      .translate(column.leftVector, BackRotaryEncoderMediationGear.CASE_WIDTH / 2 + offset)
 }
 
 fun backRotaryEncoderCaseRightPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
    val column = alphanumericPlate.columns[BackRotaryEncoderKnob.COLUMN_INDEX]
 
    return Plane3d(column.referencePoint, column.rightVector)
-      .translate(column.rightVector, BackRotaryEncoderGear.CASE_WIDTH / 2 + offset)
+      .translate(column.rightVector, BackRotaryEncoderMediationGear.CASE_WIDTH / 2 + offset)
 }
 
 fun backRotaryEncoderCaseSlopePlane(
@@ -724,6 +728,7 @@ fun ScadParentObject.backRotaryEncoderKnobCave(case: Case): ScadObject {
       }
    }
 }
+*/
 
 // =============================================================================
 

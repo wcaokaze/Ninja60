@@ -36,7 +36,9 @@ fun main(vararg args: String) {
       frontRotaryEncoderKnob(case.frontRotaryEncoderKnob)
       backRotaryEncoderKnob(case.backRotaryEncoderKnob)
 
+      backRotaryEncoderMediationGear(case.backRotaryEncoderMediationGear)
       backRotaryEncoderGear(case.backRotaryEncoderGear)
+      rotaryEncoderMountHole(case.backRotaryEncoderGear.rotaryEncoder, 1.6.mm)
 
       // ----
 

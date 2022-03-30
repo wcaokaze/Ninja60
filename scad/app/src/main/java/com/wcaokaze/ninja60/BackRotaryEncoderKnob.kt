@@ -7,7 +7,8 @@ import com.wcaokaze.scadwriter.foundation.*
 /**
  * 奥側のロータリーエンコーダのノブ。
  * ここのノブは直接ロータリーエンコーダに挿しておらず、
- * さらに奥にあるロータリーエンコーダに歯車で伝達する仕組みであることに注意
+ * [BackRotaryEncoderMediationGear]と[BackRotaryEncoderGear]を経由して
+ * ロータリーエンコーダに回転が伝わる。
  */
 data class BackRotaryEncoderKnob(
    override val frontVector: Vector3d,
@@ -19,8 +20,8 @@ data class BackRotaryEncoderKnob(
       val COLUMN_INDEX = 3
 
       val RADIUS = 10.mm
-      val HEIGHT = 14.mm
-      val SHAFT_HOLE_RADIUS = 1.6.mm
+      val HEIGHT = 15.mm
+      val SHAFT_HOLE_RADIUS = 1.mm
       val GEAR_THICKNESS = 2.mm
 
       val SKIDPROOF_COUNT = 32
@@ -46,13 +47,13 @@ data class BackRotaryEncoderKnob(
    }
 
    val gear: Gear get() {
-      val module = BackRotaryEncoderGear.MODULE
+      val module = BackRotaryEncoderMediationGear.SpurGear.MODULE
       val diameter = RADIUS * 2 - module * 2
 
       val toothCount = (diameter / module).toInt()
 
       return Gear(
-         BackRotaryEncoderGear.MODULE,
+         BackRotaryEncoderMediationGear.SpurGear.MODULE,
          toothCount,
          GEAR_THICKNESS,
          referencePoint.translate(bottomVector, GEAR_THICKNESS),
@@ -88,11 +89,139 @@ fun ScadParentObject.backRotaryEncoderKnob(knob: BackRotaryEncoderKnob): ScadObj
          (
             cylinder(BackRotaryEncoderKnob.HEIGHT, BackRotaryEncoderKnob.RADIUS, `$fa`)
             + skidproof()
-            - cylinder(
-               BackRotaryEncoderKnob.HEIGHT * 3,
-               BackRotaryEncoderKnob.SHAFT_HOLE_RADIUS,
-               center = true, `$fa`
+         )
+      }
+      - place(knob) {
+         cylinder(
+            BackRotaryEncoderKnob.HEIGHT * 3,
+            BackRotaryEncoderKnob.SHAFT_HOLE_RADIUS,
+            center = true, `$fa`
+         )
+      }
+   )
+}
+
+// =============================================================================
+
+data class BackRotaryEncoderMediationGear(
+   override val frontVector: Vector3d,
+   override val bottomVector: Vector3d,
+   override val referencePoint: Point3d
+) : Transformable<BackRotaryEncoderMediationGear> {
+   object SpurGear {
+      val MODULE = 1.mm
+      val TOOTH_COUNT = 16
+      val THICKNESS = 2.mm
+   }
+
+   object BevelGear {
+      val MODULE = 1.mm
+      val OPERATING_ANGLE = 90.deg
+      val TOOTH_COUNT = 10
+      val THICKNESS = 2.mm
+
+      fun createPair(): Pair<com.wcaokaze.ninja60.BevelGear, com.wcaokaze.ninja60.BevelGear> {
+         return com.wcaokaze.ninja60.BevelGear.createPair(
+            MODULE,
+            OPERATING_ANGLE,
+            TOOTH_COUNT,
+            BackRotaryEncoderGear.Gear.TOOTH_COUNT,
+            THICKNESS
+         )
+      }
+   }
+
+   companion object {
+      val SHAFT_HOLE_RADIUS = 1.mm
+
+      operator fun invoke(
+         alphanumericPlate: AlphanumericPlate,
+         alphanumericCasePlane: Plane3d
+      ): BackRotaryEncoderMediationGear {
+         val knob = BackRotaryEncoderKnob(alphanumericPlate)
+
+         val gear = Gear(
+            SpurGear.MODULE,
+            SpurGear.TOOTH_COUNT,
+            SpurGear.THICKNESS,
+            knob.gear.referencePoint,
+            knob.gear.frontVector,
+            knob.gear.bottomVector
+         )
+
+         // 歯車を配置する平面
+         val gearPlane = Plane3d(knob.gear.referencePoint, knob.gear.topVector)
+
+         // ケースの壁とgearPlaneとの交線
+         val caseLine = alphanumericCasePlane intersection gearPlane
+
+         // caseLineを歯車の半径分並行移動した直線。
+         // この直線上に歯車の中心を配置すると歯車とケースが接することになる
+         val gearLine = caseLine.translate(
+            gearPlane.normalVector vectorProduct caseLine.vector,
+            gear.addendumRadius
+         )
+
+         // gearLine上にあってknobからの距離が適切な点
+         // すなわち半径idealDistanceの円との交点が歯車の中心となる
+         /*
+         val p = Circle3d(
+               knob.referencePoint,
+               normalVector = knob.topVector,
+               radius = knob.gear idealDistance gear
             )
+            .intersection(gearLine)
+            .minByOrNull { it.z }
+         */
+         // のだけど、さすがに三次元空間の円の計算はしんどすぎるので
+         // ここは計算機のパワーを借りて力技でいきます
+
+         val distance = knob.gear idealDistance gear
+
+         val startZ = gear.referencePoint.translate(gearLine.vector, distance * 1.5).z
+         val endZ = knob.gear.referencePoint.z
+         val p = (startZ..endZ step 0.05.mm).asSequence()
+            .map { Plane3d(Point3d.ORIGIN.copy(z = it), Vector3d.Z_UNIT_VECTOR) }
+            .map { it intersection gearLine }
+            .takeWhile { it distance knob.gear.referencePoint > distance }
+            .last()
+
+         return BackRotaryEncoderMediationGear(
+            gear.frontVector, gear.bottomVector, p)
+      }
+   }
+
+   val spurGear get() = Gear(
+      SpurGear.MODULE,
+      SpurGear.TOOTH_COUNT,
+      SpurGear.THICKNESS,
+      referencePoint,
+      frontVector,
+      bottomVector
+   )
+
+   val bevelGear: com.wcaokaze.ninja60.BevelGear get() {
+      val (bevelGear, _) = BevelGear.createPair()
+      return bevelGear.copy(
+         referencePoint.translate(topVector, SpurGear.THICKNESS),
+         frontVector,
+         bottomVector
+      )
+   }
+
+   override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
+         = BackRotaryEncoderMediationGear(frontVector, bottomVector, referencePoint)
+}
+
+fun ScadParentObject.backRotaryEncoderMediationGear(gear: BackRotaryEncoderMediationGear): ScadObject {
+   return (
+      gear(gear.spurGear)
+      + bevelGear(gear.bevelGear)
+      - place(gear) {
+         cylinder(
+            BackRotaryEncoderKnob.HEIGHT * 3,
+            BackRotaryEncoderMediationGear.SHAFT_HOLE_RADIUS,
+            center = true, `$fa`
          )
       }
    )
@@ -101,35 +230,30 @@ fun ScadParentObject.backRotaryEncoderKnob(knob: BackRotaryEncoderKnob): ScadObj
 // =============================================================================
 
 /**
- * 奥側のロータリーエンコーダにつける歯車
- *
- * ロータリーエンコーダに挿すシャフト部分に1枚歯車がついた形状。
+ * ロータリーエンコーダに挿すシャフト部分に1枚[BevelGear]がついた形状。
  */
 data class BackRotaryEncoderGear(
-   override val referencePoint: Point3d,
-   /** 底面([referencePoint])から歯車までの距離 */
-   val gearPosition: Size,
-   val toothCount: Int,
    override val frontVector: Vector3d,
-   override val bottomVector: Vector3d
+   override val bottomVector: Vector3d,
+   override val referencePoint: Point3d
 ) : Transformable<BackRotaryEncoderGear> {
-   companion object {
-      val MODULE = 1.mm
+   object Gear {
+      val TOOTH_COUNT = 13
+   }
 
-      /** 歯車の暑さ */
-      val GEAR_THICKNESS = 2.mm
+   object Shaft {
+      val HEIGHT = RotaryEncoder.SHAFT_HEIGHT - 5.5.mm
+      val HOLE_HEIGHT = HEIGHT
+      val RADIUS = RotaryEncoder.SHAFT_RADIUS + 1.mm
 
-      /** ロータリーエンコーダに挿す部分の高さ */
-      val SHAFT_HEIGHT = RotaryEncoder.SHAFT_HEIGHT - 5.5.mm
-
-      /** ロータリーエンコーダに挿す部分の穴の高さ */
-      val SHAFT_HOLE_HEIGHT = SHAFT_HEIGHT
-
-      /** ロータリーエンコーダに挿す部分の半径 */
-      val SHAFT_RADIUS = RotaryEncoder.SHAFT_RADIUS + 2.mm
+      /**
+       * 歯車の位置。[referencePoint]から[topVector]方向の距離
+       */
+      val GEAR_POSITION = HEIGHT - 4.mm
 
       /** ロータリーエンコーダを入れる際にケースに必要な穴の高さ */
-      val INSERTION_HEIGHT = RotaryEncoder.LEG_HEIGHT + RotaryEncoder.HEIGHT + 0.5.mm
+      val INSERTION_HEIGHT =
+         RotaryEncoder.LEG_HEIGHT + RotaryEncoder.HEIGHT + 0.5.mm
 
       /**
        * ロータリーエンコーダを入れる部分のケースの幅
@@ -138,181 +262,80 @@ data class BackRotaryEncoderGear(
        * ケースの幅はロータリーエンコーダの高さの向きになっていることに注意
        */
       val CASE_WIDTH = INSERTION_HEIGHT + RotaryEncoder.LEG_HEIGHT + 1.mm
+   }
 
-      operator fun invoke(alphanumericPlate: AlphanumericPlate, velocityRatio: Double): BackRotaryEncoderGear {
-         val gear = gear(alphanumericPlate, velocityRatio)
-         val gearAxis = Line3d(gear.referencePoint, gear.topVector)
-         val caseLeftPlane = backRotaryEncoderCaseLeftPlane(alphanumericPlate, 0.mm)
-         val caseSlopePlane = backRotaryEncoderCaseSlopePlane(alphanumericPlate, gear, 0.mm)
+   companion object {
+      operator fun invoke(
+         mediationGear: BackRotaryEncoderMediationGear,
+         alphanumericCasePlane: Plane3d
+      ): BackRotaryEncoderGear {
+         var (mediationGearPositionRef, gear) =
+            BackRotaryEncoderMediationGear.BevelGear.createPair()
 
-         val mountPlatePlane = caseLeftPlane
-            .translate(-caseLeftPlane.normalVector, INSERTION_HEIGHT)
+         run {
+            val d = mediationGear.bevelGear.referencePoint - mediationGearPositionRef.referencePoint
+            mediationGearPositionRef = mediationGearPositionRef.translate(d)
+            gear = gear.translate(d)
+         }
 
-         val rotaryEncoder = RotaryEncoder(
-            caseSlopePlane.normalVector vectorProduct mountPlatePlane.normalVector,
-            -mountPlatePlane.normalVector,
-            mountPlatePlane intersection gearAxis
-         )
+         run {
+            val a = mediationGearPositionRef.topVector angleWith mediationGear.bevelGear.topVector
+            val v = Line3d(
+               mediationGearPositionRef.referencePoint,
+               mediationGearPositionRef.topVector vectorProduct mediationGear.bevelGear.topVector
+            )
+            mediationGearPositionRef = mediationGearPositionRef.rotate(v, a)
+            gear = gear.rotate(v, a)
+         }
 
-         val shaftBottom = rotaryEncoder.referencePoint
-            .translate(rotaryEncoder.topVector, RotaryEncoder.HEIGHT)
-            .translate(rotaryEncoder.bottomVector, SHAFT_HOLE_HEIGHT)
+         run {
+            val alphanumericCaseLine
+               = Plane3d(gear.referencePoint, mediationGear.bevelGear.topVector)
+               .intersection(alphanumericCasePlane)
+            val a = gear.topVector angleWith alphanumericCaseLine.vector
+            val v = mediationGearPositionRef.btLine
+            mediationGearPositionRef = mediationGearPositionRef.rotate(v, a)
+            gear = gear.rotate(v, a)
+         }
 
          return BackRotaryEncoderGear(
-            shaftBottom,
-            Vector3d(shaftBottom, gear.referencePoint).norm,
-            gear.toothCount,
-            rotaryEncoder.frontVector,
-            rotaryEncoder.bottomVector
+            gear.frontVector,
+            gear.bottomVector,
+            gear.referencePoint.translate(gear.bottomVector, Shaft.GEAR_POSITION)
          )
-      }
-
-      private fun gear(alphanumericPlate: AlphanumericPlate, velocityRatio: Double): Gear {
-         val knob = BackRotaryEncoderKnob(alphanumericPlate)
-
-         val gear = Gear(
-            MODULE,
-            toothCount = (velocityRatio * knob.gear.toothCount).toInt(),
-            GEAR_THICKNESS,
-            knob.gear.referencePoint,
-            knob.gear.frontVector,
-            knob.gear.bottomVector
-         )
-
-         val column = alphanumericPlate.columns[BackRotaryEncoderKnob.COLUMN_INDEX]
-         val mostBackKey = column.keySwitches.first()
-         val mostBackKeyLine = Line3d(mostBackKey.referencePoint, mostBackKey.rightVector)
-            .translate(mostBackKey.topVector, KeySwitch.TRAVEL)
-            .translate(mostBackKey.backVector, AlphanumericPlate.KEY_PLATE_SIZE.y / 2)
-         val mostBackPoint = Plane3d(knob.gear.referencePoint, knob.gear.topVector)
-            .intersection(mostBackKeyLine)
-
-         /*
-          * キーに干渉しないぎりぎり低い位置、
-          * つまりgearの歯先円がmostBackKeyPointと接し、
-          * gearの基準円がknob.gearの基準円と接するように配置する
-          *
-          *
-          *     ケースの左側から
-          *     見た図                 knob.gear
-          *                                a
-          *
-          *                                +
-          *                               /|
-          *                              /α|
-          *                             /  |
-          *                            /   |
-          *                           /    |
-          *                          /     |
-          *                         /      |
-          *                        /       |
-          *                       /        |
-          *               gear   /         |
-          *                  c  +----------|
-          *                       --       |
-          *                         --     |
-          *                           --   |
-          *                             --β|
-          *                               -+
-          *
-          *                                b
-          *                          mostBackPoint
-          *
-          * いろいろ解法はあろうかと思いますがここでは
-          *
-          *     ac sin α = bc sin β                   (1)
-          *
-          *     ab = ac cos α + bc cos β              (2)
-          *
-          * を利用します。
-          *
-          * (1)より
-          *
-          *     ac²sin²α = bc²sin²β
-          *
-          *     ac²sin²α = bc²(1 - cos²β)
-          *
-          *     bc²cos²β = bc² - ac²sin²α             (3)
-          *
-          * (2)より
-          *
-          *     ab - ac cos α = bc cos β
-          *
-          *     (ab - ac cos α)² = bc²cos²β           (4)
-          *
-          * (3), (4)より
-          *
-          *     (ab - ac cos α)² = bc² - ac²sin²α
-          *
-          * この方程式を解くと
-          *
-          *                ac² - bc² + ab²
-          *     α = cos⁻¹ -----------------
-          *                    2 ab ac
-          *
-          * が得られる。
-          */
-
-         operator fun Int.times(size: Size) = size * this
-         operator fun Size.times(another: Size) = Size(numberAsMilliMeter * another.numberAsMilliMeter)
-         fun Size.square() = this * this
-
-         val ac = knob.gear idealDistance gear
-         val bc = gear.addendumRadius
-         val abVector = Vector3d(knob.gear.referencePoint, mostBackPoint)
-         val ab = abVector.norm
-
-         val acVector = abVector.rotate(
-            knob.gear.topVector,
-            acos(
-               ac.square() - bc.square() + ab.square(),
-               2 * ab * ac
-            )
-         )
-
-         // knobの歯車とここで必要な歯車は向きが逆なので裏返します
-         // (Gearは実は点対称ではなく底面にreferencePointがある)
-         return gear
-            .translate(acVector, ac)
-            .let {
-               it.rotate(
-                  axis = Line3d(
-                     it.referencePoint.translate(it.topVector, it.thickness / 2),
-                     it.frontVector
-                  ),
-                  angle = Angle.PI
-               )
-            }
       }
    }
 
-   val rotaryEncoder get() = RotaryEncoder(
-      frontVector,
-      bottomVector,
-      referencePoint
-         .translate(topVector, SHAFT_HOLE_HEIGHT)
-         .translate(bottomVector, RotaryEncoder.HEIGHT)
-   )
+   val gear: BevelGear get() {
+      val (_, gear) = BackRotaryEncoderMediationGear.BevelGear.createPair()
+      return gear.copy(
+         referencePoint.translate(topVector, Shaft.GEAR_POSITION),
+         frontVector,
+         bottomVector
+      )
+   }
 
-   val gear get() = Gear(
-      MODULE,
-      toothCount,
-      GEAR_THICKNESS,
-      referencePoint.translate(topVector, gearPosition),
-      frontVector,
-      bottomVector
-   )
+   val rotaryEncoder get(): RotaryEncoder {
+      val e = RotaryEncoder(
+         frontVector,
+         bottomVector,
+         referencePoint
+            .translate(topVector, Shaft.HOLE_HEIGHT)
+            .translate(bottomVector, RotaryEncoder.HEIGHT)
+      )
+      return e.rotate(Line3d(e.referencePoint, e.topVector), 90.deg)
+   }
 
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
-         = BackRotaryEncoderGear(referencePoint, gearPosition, toothCount, frontVector, bottomVector)
+         = BackRotaryEncoderGear(frontVector, bottomVector, referencePoint)
 }
 
 fun ScadParentObject.backRotaryEncoderGear(gear: BackRotaryEncoderGear): ScadObject {
    return (
       place(gear) {
-         cylinder(BackRotaryEncoderGear.SHAFT_HEIGHT, BackRotaryEncoderGear.SHAFT_RADIUS, `$fa`)
+         cylinder(BackRotaryEncoderGear.Shaft.HEIGHT, BackRotaryEncoderGear.Shaft.RADIUS, `$fa`)
       }
-      + gear(gear.gear)
+      + bevelGear(gear.gear)
       - rotaryEncoderKnobHole(gear.rotaryEncoder)
    )
 }
