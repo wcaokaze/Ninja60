@@ -38,13 +38,17 @@ data class AngleRange(override val start: Angle,
          private val precision = step / 16.0
          private var nextIndex = 0
 
-         override fun hasNext() = if (step > 0.0.rad) {
+         override fun hasNext() = if (start < endInclusive) {
             start + step * nextIndex <= endInclusive + precision
          } else {
-            start + step * nextIndex >= endInclusive - precision
+            start - step * nextIndex >= endInclusive - precision
          }
 
-         override fun next() = start + step * nextIndex++
+         override fun next() = if (start < endInclusive) {
+            start + step * nextIndex++
+         } else {
+            start - step * nextIndex++
+         }
       }
    }
 }

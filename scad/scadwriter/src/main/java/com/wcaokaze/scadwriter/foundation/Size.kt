@@ -31,16 +31,20 @@ data class SizeRange(override val start: Size,
 
    infix fun step(step: Size) = Iterable {
       object : Iterator<Size> {
-         private val precision = step / 2.0
+         private val precision = step / 16.0
          private var nextIndex = 0
 
-         override fun hasNext() = if (step > 0.mm) {
+         override fun hasNext() = if (start < endInclusive) {
             start + step * nextIndex <= endInclusive + precision
          } else {
-            start + step * nextIndex >= endInclusive - precision
+            start - step * nextIndex >= endInclusive - precision
          }
 
-         override fun next() = start + step * nextIndex++
+         override fun next() = if (start < endInclusive) {
+            start + step * nextIndex++
+         } else {
+            start - step * nextIndex++
+         }
       }
    }
 }
