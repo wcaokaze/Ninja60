@@ -176,15 +176,16 @@ data class BackRotaryEncoderMediationGear(
          // のだけど、さすがに三次元空間の円の計算はしんどすぎるので
          // ここは計算機のパワーを借りて力技でいきます
 
-         val distance = knob.gear idealDistance gear
+         val idealDistance = knob.gear idealDistance gear
 
-         val startZ = gear.referencePoint.translate(gearLine.vector, distance * 1.5).z
-         val endZ = knob.gear.referencePoint.z
-         val p = (startZ..endZ step 0.05.mm).asSequence()
-            .map { Plane3d(Point3d.ORIGIN.copy(z = it), Vector3d.Z_UNIT_VECTOR) }
-            .map { it intersection gearLine }
-            .takeWhile { it distance knob.gear.referencePoint > distance }
-            .last()
+         val startPoint = Plane3d(knob.gear.referencePoint, gearLine.vector)
+            .intersection(gearLine)
+
+         val p = (
+               startPoint..startPoint.translate(gearLine.vector, idealDistance * 1.5)
+               step 0.05.mm
+            )
+            .first { it distance knob.gear.referencePoint > idealDistance }
 
          return BackRotaryEncoderMediationGear(
             gear.frontVector, gear.bottomVector, p)
