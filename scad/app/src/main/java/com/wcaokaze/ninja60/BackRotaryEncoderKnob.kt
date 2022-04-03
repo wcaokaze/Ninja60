@@ -21,7 +21,7 @@ data class BackRotaryEncoderKnob(
 
       val RADIUS = 10.mm
       val HEIGHT = 15.mm
-      val SHAFT_HOLE_RADIUS = 1.mm
+      val SHAFT_HOLE_RADIUS = 1.1.mm
       val GEAR_THICKNESS = 2.mm
 
       val SKIDPROOF_COUNT = 32
@@ -109,16 +109,16 @@ data class BackRotaryEncoderMediationGear(
    override val referencePoint: Point3d
 ) : Transformable<BackRotaryEncoderMediationGear> {
    object SpurGear {
-      val MODULE = 1.mm
+      val MODULE = 1.5.mm
       val TOOTH_COUNT = 16
       val THICKNESS = 2.mm
    }
 
    object BevelGear {
-      val MODULE = 1.mm
+      val MODULE = 1.5.mm
       val OPERATING_ANGLE = 90.deg
       val TOOTH_COUNT = 10
-      val THICKNESS = 2.mm
+      val THICKNESS = 4.mm
 
       fun createPair(): Pair<com.wcaokaze.ninja60.BevelGear, com.wcaokaze.ninja60.BevelGear> {
          return com.wcaokaze.ninja60.BevelGear.createPair(
@@ -132,7 +132,7 @@ data class BackRotaryEncoderMediationGear(
    }
 
    companion object {
-      val SHAFT_HOLE_RADIUS = 1.mm
+      val SHAFT_HOLE_RADIUS = 1.1.mm
 
       operator fun invoke(
          alphanumericPlate: AlphanumericPlate,
@@ -239,18 +239,18 @@ data class BackRotaryEncoderGear(
    override val referencePoint: Point3d
 ) : Transformable<BackRotaryEncoderGear> {
    object Gear {
-      val TOOTH_COUNT = 13
+      val TOOTH_COUNT = 14
    }
 
    object Shaft {
-      val HEIGHT = RotaryEncoder.SHAFT_HEIGHT - 5.5.mm
+      val HEIGHT = RotaryEncoder.SHAFT_HEIGHT - 2.mm
       val HOLE_HEIGHT = HEIGHT
-      val RADIUS = RotaryEncoder.SHAFT_RADIUS + 1.mm
+      val RADIUS = RotaryEncoder.SHAFT_RADIUS + 1.5.mm
 
       /**
        * 歯車の位置。[referencePoint]から[topVector]方向の距離
        */
-      val GEAR_POSITION = HEIGHT - 4.mm
+      val GEAR_POSITION = 0.mm
 
       /** ロータリーエンコーダを入れる際にケースに必要な穴の高さ */
       val INSERTION_HEIGHT =

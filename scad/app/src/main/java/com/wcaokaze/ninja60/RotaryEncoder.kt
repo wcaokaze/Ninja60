@@ -13,7 +13,7 @@ data class RotaryEncoder(
       val HEIGHT = 22.3.mm
       val BODY_SIZE = Size3d(13.4.mm, 22.3.mm, 6.2.mm)
       val SHAFT_HEIGHT = HEIGHT - BODY_SIZE.z
-      val SHAFT_RADIUS = 3.4.mm
+      val SHAFT_RADIUS = 3.5.mm
 
       /** 基板に取り付ける用の足の高さ */
       val LEG_HEIGHT = 3.2.mm
@@ -91,7 +91,7 @@ fun ScadParentObject.rotaryEncoderKnobHole(
             }
          }
 
-         cylinder(RotaryEncoder.HEIGHT - 3.mm, RotaryEncoder.SHAFT_RADIUS, `$fa`)
+         cylinder(RotaryEncoder.HEIGHT - 3.mm, RotaryEncoder.SHAFT_RADIUS + 0.1.mm, `$fa`)
       }
    }
 }
