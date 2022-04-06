@@ -1,10 +1,6 @@
 package com.wcaokaze.scadwriter
 
-class Union(private val parent: ScadParentObject) : ScadParentObject() {
-   override fun addHeader(headerObject: ScadObject) {
-      parent.addHeader(headerObject)
-   }
-
+class Union(override val parent: ScadParentObject) : ScadParentObject() {
    override fun toScadRepresentation() = buildChildrenScad("union()")
 }
 

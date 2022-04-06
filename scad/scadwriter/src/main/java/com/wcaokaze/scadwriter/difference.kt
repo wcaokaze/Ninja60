@@ -1,10 +1,6 @@
 package com.wcaokaze.scadwriter
 
-class Difference(private val parent: ScadParentObject) : ScadParentObject() {
-   override fun addHeader(headerObject: ScadObject) {
-      parent.addHeader(headerObject)
-   }
-
+class Difference(override val parent: ScadParentObject) : ScadParentObject() {
    override fun toScadRepresentation() = buildChildrenScad("difference()")
 }
 

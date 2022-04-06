@@ -2,7 +2,7 @@ package com.wcaokaze.scadwriter
 
 class Module
    private constructor(
-      private val parent: ScadParentObject,
+      override val parent: ScadParentObject,
       private val moduleName: String
    )
    : ScadParentObject()
@@ -12,10 +12,6 @@ class Module
    }
 
    constructor(parent: ScadParentObject) : this(parent, "module${moduleCount++}")
-
-   override fun addHeader(headerObject: ScadObject) {
-      parent.addHeader(headerObject)
-   }
 
    override fun toScadRepresentation()= buildChildrenScad("module $moduleName()")
 

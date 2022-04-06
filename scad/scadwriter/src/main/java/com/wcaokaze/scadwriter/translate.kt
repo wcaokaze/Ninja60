@@ -3,7 +3,7 @@ package com.wcaokaze.scadwriter
 import com.wcaokaze.scadwriter.foundation.*
 
 data class Translate(
-   private val parent: ScadParentObject,
+   override val parent: ScadParentObject,
    val distance: Size3d
 ) : ScadParentObject() {
    constructor(
@@ -12,10 +12,6 @@ data class Translate(
       y: Size = 0.mm,
       z: Size = 0.mm
    ) : this(parent, Size3d(x, y, z))
-
-   override fun addHeader(headerObject: ScadObject) {
-      parent.addHeader(headerObject)
-   }
 
    override fun toScadRepresentation()
          = buildChildrenScad("translate(${distance.scad})")

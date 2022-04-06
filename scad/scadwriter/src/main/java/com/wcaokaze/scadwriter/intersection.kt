@@ -1,10 +1,6 @@
 package com.wcaokaze.scadwriter
 
-class Intersection(private val parent: ScadParentObject) : ScadParentObject() {
-   override fun addHeader(headerObject: ScadObject) {
-      parent.addHeader(headerObject)
-   }
-
+class Intersection(override val parent: ScadParentObject) : ScadParentObject() {
    override fun toScadRepresentation() = buildChildrenScad("intersection()")
 }
 

@@ -5,6 +5,12 @@ import java.io.*
 class TopLevelScadObject : ScadParentObject() {
    private val headerObjects = ArrayList<ScadObject>()
 
+   override val parent: ScadParentObject
+      get() = throw NoSuchElementException("TopLevelScadObject has no parent.")
+
+   override val propagatedValues: PropagatedValues
+      get() = PropagatedValues()
+
    override fun addHeader(headerObject: ScadObject) {
       headerObjects += headerObject
    }

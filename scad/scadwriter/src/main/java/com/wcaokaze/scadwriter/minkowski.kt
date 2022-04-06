@@ -1,10 +1,6 @@
 package com.wcaokaze.scadwriter
 
-class Minkowski(private val parent: ScadParentObject) : ScadParentObject() {
-   override fun addHeader(headerObject: ScadObject) {
-      parent.addHeader(headerObject)
-   }
-
+class Minkowski(override val parent: ScadParentObject) : ScadParentObject() {
    override fun toScadRepresentation() = buildChildrenScad("minkowski()")
 }
 

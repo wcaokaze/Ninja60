@@ -1,10 +1,6 @@
 package com.wcaokaze.scadwriter
 
-class Hull(private val parent: ScadParentObject) : ScadParentObject() {
-   override fun addHeader(headerObject: ScadObject) {
-      parent.addHeader(headerObject)
-   }
-
+class Hull(override val parent: ScadParentObject) : ScadParentObject() {
    override fun toScadRepresentation() = buildChildrenScad("hull()")
 }
 

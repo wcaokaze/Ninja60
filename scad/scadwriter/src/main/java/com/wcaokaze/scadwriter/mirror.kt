@@ -3,13 +3,9 @@ package com.wcaokaze.scadwriter
 import com.wcaokaze.scadwriter.foundation.*
 
 data class Mirror(
-   private val parent: ScadParentObject,
+   override val parent: ScadParentObject,
    val normalVector: Size3d
 ) : ScadParentObject() {
-   override fun addHeader(headerObject: ScadObject) {
-      parent.addHeader(headerObject)
-   }
-
    override fun toScadRepresentation()
          = buildChildrenScad("mirror(${normalVector.scad})")
 }

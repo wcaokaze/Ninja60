@@ -23,11 +23,38 @@ abstract class ScadPrimitiveObject : ScadObject()
 abstract class ScadParentObject : ScadObject() {
    private val children = ArrayList<ScadObject>()
 
+   protected abstract val parent: ScadParentObject
+
+   open val propagatedValues: PropagatedValues
+      get() = parent.propagatedValues
+
+   val <T> PropagatedValue<T>.value: T
+      get() = propagatedValues[this]
+
+   private class PropagatedValueProviderScadObject(
+      override val parent: ScadParentObject,
+      override val propagatedValues: PropagatedValues
+   ) : ScadParentObject() {
+      override fun toScadRepresentation() = ""
+   }
+
+   fun provideValue(vararg value: ProvidingPropagatedValue<*>,
+                    children: ScadParentObject.() -> Unit): ScadParentObject
+   {
+      val propagatedValueProviderScadObject
+            = PropagatedValueProviderScadObject(this, propagatedValues + value)
+      addChild(propagatedValueProviderScadObject)
+      propagatedValueProviderScadObject.children()
+      return propagatedValueProviderScadObject
+   }
+
    /**
     * [addChild]と違いこのScadParentObjectではなくファイルの先頭に追加する。
     * [use]とかそういうやつですよね
     */
-   abstract fun addHeader(headerObject: ScadObject)
+   open fun addHeader(headerObject: ScadObject) {
+      parent.addHeader(headerObject)
+   }
 
    fun addChild(child: ScadObject) {
       children += child
