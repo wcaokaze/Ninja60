@@ -15,11 +15,14 @@ class Module
 
    override fun toScadRepresentation()= buildChildrenScad("module $moduleName()")
 
-   val call get() = ModuleCall(moduleName)
+   val call get() = ModuleCall(this, moduleName)
 }
 
 class ModuleCall
-   internal constructor(private val moduleName: String)
+   internal constructor(
+      override val parent: ScadParentObject,
+      private val moduleName: String
+   )
    : ScadObject()
 {
    override fun toScadRepresentation() = "$moduleName();"

@@ -3,6 +3,7 @@ package com.wcaokaze.scadwriter
 import com.wcaokaze.scadwriter.foundation.*
 
 data class Sphere(
+   override val parent: ScadParentObject,
    val radius: Size,
    val fa: Angle
 ) : ScadPrimitiveObject() {
@@ -11,7 +12,7 @@ data class Sphere(
 }
 
 fun ScadParentObject.sphere(radius: Size, fa: Angle): Sphere {
-   val sphere = Sphere(radius, fa)
+   val sphere = Sphere(this, radius, fa)
    addChild(sphere)
    return sphere
 }

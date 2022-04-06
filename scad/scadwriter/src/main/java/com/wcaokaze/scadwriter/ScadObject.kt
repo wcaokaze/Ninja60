@@ -16,13 +16,7 @@ import com.wcaokaze.scadwriter.foundation.*
  * オペランドとなるScadObject2つが親から除去されたのちに
  * 演算の結果が改めて親に追加されるような動きになる。
  */
-sealed class ScadObject : ScadValue()
-
-abstract class ScadPrimitiveObject : ScadObject()
-
-abstract class ScadParentObject : ScadObject() {
-   private val children = ArrayList<ScadObject>()
-
+sealed class ScadObject : ScadValue() {
    protected abstract val parent: ScadParentObject
 
    open val propagatedValues: PropagatedValues
@@ -30,6 +24,12 @@ abstract class ScadParentObject : ScadObject() {
 
    val <T> PropagatedValue<T>.value: T
       get() = propagatedValues[this]
+}
+
+abstract class ScadPrimitiveObject : ScadObject()
+
+abstract class ScadParentObject : ScadObject() {
+   private val children = ArrayList<ScadObject>()
 
    private class PropagatedValueProviderScadObject(
       override val parent: ScadParentObject,

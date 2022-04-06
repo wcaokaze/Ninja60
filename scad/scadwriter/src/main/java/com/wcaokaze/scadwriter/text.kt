@@ -3,6 +3,7 @@ package com.wcaokaze.scadwriter
 import com.wcaokaze.scadwriter.foundation.*
 
 data class Text(
+   override val parent: ScadParentObject,
    val text: String,
    val size: Size,
    val fontName: String,
@@ -50,7 +51,7 @@ fun ScadParentObject.text(
    vAlign: VAlign = VAlign.BASELINE,
    direction: Direction = Direction.LEFT_TO_RIGHT
 ): Text {
-   val text = Text(text, size, fontName, hAlign, vAlign, direction)
+   val text = Text(this, text, size, fontName, hAlign, vAlign, direction)
    addChild(text)
    return text
 }
