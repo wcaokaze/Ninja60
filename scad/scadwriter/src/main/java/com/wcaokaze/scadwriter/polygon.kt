@@ -6,7 +6,7 @@ data class Polygon(
    override val parent: ScadParentObject,
    val points: List<Point2d>
 ) : ScadPrimitiveObject() {
-   override fun toScadRepresentation() = "polygon(${buildScadArray(points)});"
+   override fun toScadRepresentation() = "polygon(${buildScadArray(points)}, \$fs = ${fs.value.scad});"
 }
 
 fun ScadParentObject.polygon(points: List<Point2d>): Polygon {

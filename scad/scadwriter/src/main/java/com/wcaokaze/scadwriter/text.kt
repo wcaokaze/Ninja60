@@ -13,7 +13,7 @@ data class Text(
 ) : ScadPrimitiveObject() {
    override fun toScadRepresentation(): String {
       return "text(\"$text\", size = $size, font = \"$fontName\", halign = \"$hAlign\"," +
-            "valign = \"$vAlign\", direction = \"$direction\");"
+            "valign = \"$vAlign\", direction = \"$direction\", \$fs = ${fs.value.scad});"
    }
 }
 

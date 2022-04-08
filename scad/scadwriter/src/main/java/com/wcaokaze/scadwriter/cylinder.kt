@@ -17,7 +17,7 @@ data class Pillar(
    ) : this(parent, height, radius, center = false)
 
    override fun toScadRepresentation(): String
-         = "cylinder(h = ${height.scad}, r = ${radius.scad}, center = $center, \$fa = ${fa.value.scad});"
+         = "cylinder(h = ${height.scad}, r = ${radius.scad}, center = $center, \$fa = ${fa.value.scad}, \$fs = ${fs.value.scad});"
 }
 
 data class Cone(
@@ -35,7 +35,7 @@ data class Cone(
    ) : this(parent, height, bottomRadius, topRadius, center = false)
 
    override fun toScadRepresentation(): String
-         = "cylinder(h = ${height.scad}, r1 = ${bottomRadius.scad}, r2 = ${topRadius.scad}, center = $center, \$fa = ${fa.value.scad});"
+         = "cylinder(h = ${height.scad}, r1 = ${bottomRadius.scad}, r2 = ${topRadius.scad}, center = $center, \$fa = ${fa.value.scad}, \$fs = ${fs.value.scad});"
 }
 
 fun ScadParentObject.cylinder(

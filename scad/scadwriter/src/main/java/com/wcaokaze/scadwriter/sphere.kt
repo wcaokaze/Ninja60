@@ -7,7 +7,7 @@ data class Sphere(
    val radius: Size
 ) : ScadPrimitiveObject() {
    override fun toScadRepresentation()
-         = "sphere(${radius.scad}, \$fa = ${fa.value.scad});"
+         = "sphere(${radius.scad}, \$fa = ${fa.value.scad}, \$fs = ${fs.value.scad});"
 }
 
 fun ScadParentObject.sphere(radius: Size): Sphere {
