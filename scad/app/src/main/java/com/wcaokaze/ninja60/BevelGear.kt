@@ -172,7 +172,7 @@ private fun ScadParentObject.tooth(gear: BevelGear): ScadObject {
 
    return intersection {
       val half = rotate(z = -involuteHalfThicknessAngle) {
-         (gear.innerConeDistance..gear.outerConeDistance step `$fs`)
+         (gear.innerConeDistance..gear.outerConeDistance step fs.value)
             .plus(gear.outerConeDistance)
             .zipWithNext { a, b ->
                hull {
