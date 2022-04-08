@@ -29,13 +29,15 @@ sealed class ScadObject : ScadValue() {
 abstract class ScadPrimitiveObject : ScadObject()
 
 abstract class ScadParentObject : ScadObject() {
-   private val children = ArrayList<ScadObject>()
+   private val _children = ArrayList<ScadObject>()
+   protected val children: List<ScadObject> get() = _children
 
    private class PropagatedValueProviderScadObject(
       override val parent: ScadParentObject,
       override val propagatedValues: PropagatedValues
    ) : ScadParentObject() {
-      override fun toScadRepresentation() = ""
+      override fun toScadRepresentation()
+            = children.joinToString("\n") { it.toScadRepresentation() }
    }
 
    fun provideValue(vararg value: ProvidingPropagatedValue<*>,
@@ -57,7 +59,7 @@ abstract class ScadParentObject : ScadObject() {
    }
 
    fun addChild(child: ScadObject) {
-      children += child
+      _children += child
    }
 
    protected fun buildChildrenScad(scad: String): String {
@@ -66,8 +68,8 @@ abstract class ScadParentObject : ScadObject() {
 
    /** [union]の略記。 */
    operator fun ScadObject.plus(another: ScadObject): Union {
-      children -= this
-      children -= another
+      _children -= this
+      _children -= another
 
       return union {
          addChild(this@plus)
@@ -77,8 +79,8 @@ abstract class ScadParentObject : ScadObject() {
 
    /** [difference]の略記。 */
    operator fun ScadObject.minus(another: ScadObject): Difference {
-      children -= this
-      children -= another
+      _children -= this
+      _children -= another
 
       return difference {
          addChild(this@minus)
@@ -87,8 +89,8 @@ abstract class ScadParentObject : ScadObject() {
    }
 
    infix fun ScadObject.hull(another: ScadObject): Hull {
-      children -= this
-      children -= another
+      _children -= this
+      _children -= another
 
       return hull {
          addChild(this@hull)
@@ -97,8 +99,8 @@ abstract class ScadParentObject : ScadObject() {
    }
 
    infix fun ScadObject.intersection(another: ScadObject): Intersection {
-      children -= this
-      children -= another
+      _children -= this
+      _children -= another
 
       return intersection {
          addChild(this@intersection)
@@ -111,7 +113,7 @@ abstract class ScadParentObject : ScadObject() {
       y: Angle = 0.0.rad,
       z: Angle = 0.0.rad
    ): Rotate {
-      children -= this
+      _children -= this
 
       return rotate(x, y, z) {
          addChild(this@rotate)
@@ -119,7 +121,7 @@ abstract class ScadParentObject : ScadObject() {
    }
 
    fun ScadObject.rotate(a: Angle, v: Point3d): RotateWithAxis {
-      children -= this
+      _children -= this
 
       return rotate(a, v) {
          addChild(this@rotate)
@@ -131,7 +133,7 @@ abstract class ScadParentObject : ScadObject() {
       y: Size = 0.mm,
       z: Size = 0.mm
    ): ScadObject {
-      children -= this
+      _children -= this
 
       return translate(x, y, z) {
          addChild(this@translate)
@@ -139,7 +141,7 @@ abstract class ScadParentObject : ScadObject() {
    }
 
    fun ScadObject.translate(distance: Size3d): Translate {
-      children -= this
+      _children -= this
 
       return translate(distance) {
          addChild(this@translate)
@@ -151,7 +153,7 @@ abstract class ScadParentObject : ScadObject() {
       y: Point = Point.ORIGIN,
       z: Point = Point.ORIGIN
    ): Translate {
-      children -= this
+      _children -= this
 
       return locale(x, y, z) {
          addChild(this@locale)
@@ -159,7 +161,7 @@ abstract class ScadParentObject : ScadObject() {
    }
 
    fun ScadObject.locale(point: Point3d): Translate {
-      children -= this
+      _children -= this
 
       return locale(point) {
          addChild(this@locale)
