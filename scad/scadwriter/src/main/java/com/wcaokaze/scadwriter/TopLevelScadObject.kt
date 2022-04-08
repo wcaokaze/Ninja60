@@ -21,7 +21,9 @@ class TopLevelScadObject : ScadParentObject() {
             appendLine(h.toScadRepresentation())
          }
 
-         append(buildChildrenScad(""))
+         for (c in children) {
+            appendLine(c.toScadRepresentation())
+         }
       }
    }
 }
