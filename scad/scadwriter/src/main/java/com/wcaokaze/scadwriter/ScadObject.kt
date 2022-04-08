@@ -16,31 +16,60 @@ import com.wcaokaze.scadwriter.foundation.*
  * オペランドとなるScadObject2つが親から除去されたのちに
  * 演算の結果が改めて親に追加されるような動きになる。
  */
-sealed class ScadObject {
-   internal abstract fun writeScad(scadWriter: ScadWriter)
+sealed class ScadObject : ScadValue() {
+   protected abstract val parent: ScadParentObject
+
+   open val propagatedValues: PropagatedValues
+      get() = parent.propagatedValues
+
+   val <T> PropagatedValue<T>.value: T
+      get() = propagatedValues[this]
 }
 
-sealed class ScadPrimitiveObject : ScadObject()
+abstract class ScadPrimitiveObject : ScadObject()
 
-sealed class ScadParentObject : ScadObject() {
-   internal val children = ArrayList<ScadObject>()
+abstract class ScadParentObject : ScadObject() {
+   private val _children = ArrayList<ScadObject>()
+   protected val children: List<ScadObject> get() = _children
 
-   fun addChild(child: ScadObject) {
-      children += child
+   private class PropagatedValueProviderScadObject(
+      override val parent: ScadParentObject,
+      override val propagatedValues: PropagatedValues
+   ) : ScadParentObject() {
+      override fun toScadRepresentation()
+            = children.joinToString("\n") { it.toScadRepresentation() }
    }
 
-   internal fun writeChildren(scadWriter: ScadWriter, scad: String) {
-      scadWriter.writeBlock(scad) {
-         for (c in children) {
-            c.writeScad(scadWriter)
-         }
-      }
+   fun provideValue(vararg value: ProvidingPropagatedValue<*>,
+                    children: ScadParentObject.() -> Unit): ScadParentObject
+   {
+      val propagatedValueProviderScadObject
+            = PropagatedValueProviderScadObject(this, propagatedValues + value)
+      addChild(propagatedValueProviderScadObject)
+      propagatedValueProviderScadObject.children()
+      return propagatedValueProviderScadObject
+   }
+
+   /**
+    * [addChild]と違いこのScadParentObjectではなくファイルの先頭に追加する。
+    * [use]とかそういうやつですよね
+    */
+   open fun addHeader(headerObject: ScadObject) {
+      parent.addHeader(headerObject)
+   }
+
+   fun addChild(child: ScadObject) {
+      _children += child
+   }
+
+   protected fun buildChildrenScad(scad: String): String {
+      return "$scad ${buildScadBlock(children)}"
    }
 
    /** [union]の略記。 */
    operator fun ScadObject.plus(another: ScadObject): Union {
-      children -= this
-      children -= another
+      _children -= this
+      _children -= another
 
       return union {
          addChild(this@plus)
@@ -50,8 +79,8 @@ sealed class ScadParentObject : ScadObject() {
 
    /** [difference]の略記。 */
    operator fun ScadObject.minus(another: ScadObject): Difference {
-      children -= this
-      children -= another
+      _children -= this
+      _children -= another
 
       return difference {
          addChild(this@minus)
@@ -60,8 +89,8 @@ sealed class ScadParentObject : ScadObject() {
    }
 
    infix fun ScadObject.hull(another: ScadObject): Hull {
-      children -= this
-      children -= another
+      _children -= this
+      _children -= another
 
       return hull {
          addChild(this@hull)
@@ -70,8 +99,8 @@ sealed class ScadParentObject : ScadObject() {
    }
 
    infix fun ScadObject.intersection(another: ScadObject): Intersection {
-      children -= this
-      children -= another
+      _children -= this
+      _children -= another
 
       return intersection {
          addChild(this@intersection)
@@ -84,7 +113,7 @@ sealed class ScadParentObject : ScadObject() {
       y: Angle = 0.0.rad,
       z: Angle = 0.0.rad
    ): Rotate {
-      children -= this
+      _children -= this
 
       return rotate(x, y, z) {
          addChild(this@rotate)
@@ -92,7 +121,7 @@ sealed class ScadParentObject : ScadObject() {
    }
 
    fun ScadObject.rotate(a: Angle, v: Point3d): RotateWithAxis {
-      children -= this
+      _children -= this
 
       return rotate(a, v) {
          addChild(this@rotate)
@@ -104,7 +133,7 @@ sealed class ScadParentObject : ScadObject() {
       y: Size = 0.mm,
       z: Size = 0.mm
    ): ScadObject {
-      children -= this
+      _children -= this
 
       return translate(x, y, z) {
          addChild(this@translate)
@@ -112,7 +141,7 @@ sealed class ScadParentObject : ScadObject() {
    }
 
    fun ScadObject.translate(distance: Size3d): Translate {
-      children -= this
+      _children -= this
 
       return translate(distance) {
          addChild(this@translate)
@@ -124,7 +153,7 @@ sealed class ScadParentObject : ScadObject() {
       y: Point = Point.ORIGIN,
       z: Point = Point.ORIGIN
    ): Translate {
-      children -= this
+      _children -= this
 
       return locale(x, y, z) {
          addChild(this@locale)
@@ -132,7 +161,7 @@ sealed class ScadParentObject : ScadObject() {
    }
 
    fun ScadObject.locale(point: Point3d): Translate {
-      children -= this
+      _children -= this
 
       return locale(point) {
          addChild(this@locale)

@@ -13,7 +13,10 @@ data class RotaryEncoder(
       val HEIGHT = 22.3.mm
       val BODY_SIZE = Size3d(13.4.mm, 22.3.mm, 6.2.mm)
       val SHAFT_HEIGHT = HEIGHT - BODY_SIZE.z
-      val SHAFT_RADIUS = 3.4.mm
+      val SHAFT_RADIUS = 3.5.mm
+
+      /** 基板に取り付ける用の足の高さ */
+      val LEG_HEIGHT = 3.2.mm
    }
 
    init {
@@ -26,22 +29,6 @@ data class RotaryEncoder(
 
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
          = RotaryEncoder(frontVector, bottomVector, referencePoint)
-}
-
-fun ScadParentObject.rotaryEncoderKnob(
-   rotaryEncoder: RotaryEncoder, radius: Size, height: Size, shaftHoleHeight: Size
-): ScadObject {
-   val cylinderPosition = rotaryEncoder.referencePoint
-      .translate(rotaryEncoder.topVector, RotaryEncoder.HEIGHT - shaftHoleHeight)
-
-   return locale(cylinderPosition) {
-      rotate(
-         Vector3d.Z_UNIT_VECTOR angleWith     rotaryEncoder.topVector,
-         Vector3d.Z_UNIT_VECTOR vectorProduct rotaryEncoder.topVector
-      ) {
-         cylinder(height, radius, `$fa`)
-      }
-   }
 }
 
 /**
@@ -85,5 +72,26 @@ fun ScadParentObject.rotaryEncoderMountHole(
 
       hole((-2.5).mm, 7.mm, 1.mm, 1.mm)
       hole(  2.5 .mm, 7.mm, 1.mm, 1.mm)
+   }
+}
+
+/**
+ * ロータリーエンコーダのノブをシャフトに挿すとき用の穴。
+ */
+fun ScadParentObject.rotaryEncoderKnobHole(
+   rotaryEncoder: RotaryEncoder
+): ScadObject {
+   return place(rotaryEncoder) {
+      union {
+         difference {
+            cylinder(RotaryEncoder.HEIGHT + 0.1.mm, 3.mm)
+
+            translate(x = 1.45.mm, y = (-3).mm) {
+               cube(3.mm, 6.mm, RotaryEncoder.HEIGHT + 0.1.mm)
+            }
+         }
+
+         cylinder(RotaryEncoder.HEIGHT - 3.mm, RotaryEncoder.SHAFT_RADIUS + 0.1.mm)
+      }
    }
 }

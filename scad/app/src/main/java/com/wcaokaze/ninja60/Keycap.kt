@@ -2,18 +2,19 @@ package com.wcaokaze.ninja60
 
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
+import java.io.*
 
 val enableOnlyOuter = true
 val enableLegends = false
 
-val keycapInvisibleFa = 8.0
+val keycapInvisibleFa = 8.deg
 
 val keycapMargin = 0.375.mm
 val keycapHeight = 6.93.mm
-val keycapWallFa = 15.0 // 2.0
+val keycapWallFa = 15.deg // 2.deg
 
 val dishR = 15.mm
-val dishFa = 15.0 // 2.0
+val dishFa = 15.deg // 2.deg
 
 val tiltXr = 260.mm
 val tiltYr = 130.mm
@@ -26,8 +27,6 @@ class Keycap {
       val THICKNESS = 1.5.mm
    }
 }
-
-fun arcLengthToAngle(arcR: Size, length: Size) = Angle(length.numberAsMilliMeter / arcR.numberAsMilliMeter)
 
 /**
  * 親指用キーキャップ。
@@ -63,17 +62,17 @@ fun ScadParentObject.thumbKeycap(
    val bottomCenterR = arcR - h / 2
    val bottomOuterR  = arcR         - 0.375.mm
 
-   val bottomArcStartA = arcStartA + arcLengthToAngle(bottomInnerR, 0.375.mm)
-   val bottomArcEndA   = arcEndA   - arcLengthToAngle(bottomInnerR, 0.375.mm)
+   val bottomArcStartA = arcStartA + Angle(0.375.mm / bottomInnerR)
+   val bottomArcEndA   = arcEndA   - Angle(0.375.mm / bottomInnerR)
 
    val dishPositionZ = Point(dishOffset * sin(-acos(dishOffset, dishR)))
    val bottomZ = Point(0.mm)
    val topZ = dishPositionZ + keycapHeight
 
-   fun ScadParentObject.dish(fa: Double): ScadObject {
+   fun ScadParentObject.dish(): ScadObject {
       return translate(bottomCenterR, dishOffset, (topZ + dishR - 2.mm).distanceFromOrigin) {
          rotate(90.deg - thumbTiltA, 0.deg, 90.deg) {
-            cylinder(height = 32.mm, dishR, center = true, fa)
+            cylinder(height = 32.mm, dishR, center = true)
          }
       }
    }
@@ -97,15 +96,15 @@ fun ScadParentObject.thumbKeycap(
          listOf(startA, endA)
             .map { angle ->
                Point2d(
-                  bottomInnerX(angle) + (topInnerX   - bottomInnerX(angle)) * (z.distanceFromOrigin.numberAsMilliMeter / topZ.distanceFromOrigin.numberAsMilliMeter),
-                  bottomInnerY(angle) + (topY(angle) - bottomInnerY(angle)) * (z.distanceFromOrigin.numberAsMilliMeter / topZ.distanceFromOrigin.numberAsMilliMeter)
+                  bottomInnerX(angle) + (topInnerX   - bottomInnerX(angle)) * (z.distanceFromOrigin / topZ.distanceFromOrigin),
+                  bottomInnerY(angle) + (topY(angle) - bottomInnerY(angle)) * (z.distanceFromOrigin / topZ.distanceFromOrigin)
                )
             },
          (endA..startA step (startA - endA) / 16)
             .map { angle ->
                Point2d(
-                  bottomOuterX(angle) + (topOuterX   - bottomOuterX(angle)) * (z.distanceFromOrigin.numberAsMilliMeter / topZ.distanceFromOrigin.numberAsMilliMeter),
-                  bottomOuterY(angle) + (topY(angle) - bottomOuterY(angle)) * (z.distanceFromOrigin.numberAsMilliMeter / topZ.distanceFromOrigin.numberAsMilliMeter)
+                  bottomOuterX(angle) + (topOuterX   - bottomOuterX(angle)) * (z.distanceFromOrigin / topZ.distanceFromOrigin),
+                  bottomOuterY(angle) + (topY(angle) - bottomOuterY(angle)) * (z.distanceFromOrigin / topZ.distanceFromOrigin)
                )
             }
       )
@@ -122,21 +121,20 @@ fun ScadParentObject.thumbKeycap(
       startA: Angle, endA: Angle,
       topW: Size, topH: Size,
       roundR: Size,
-      z: Point,
-      fa: Double
+      z: Point
    ): ScadObject {
       return minkowski {
          arc(
             outerR - roundR,
             innerR + roundR,
-            startA + arcLengthToAngle(innerR, roundR),
-            endA   - arcLengthToAngle(innerR, roundR),
+            startA + Angle(roundR / innerR),
+            endA   - Angle(roundR / innerR),
             topW - roundR * 2,
             topH - roundR * 2,
             z
          )
 
-         cylinder(height = 0.01.mm, roundR, fa)
+         cylinder(height = 0.01.mm, roundR)
       }
    }
 
@@ -145,93 +143,94 @@ fun ScadParentObject.thumbKeycap(
       val topR = 3.mm
 
       fun rAt(z: Point): Size {
-         val rate = (z - bottomZ).numberAsMilliMeter / (topZ - bottomZ).numberAsMilliMeter
+         val rate = (z - bottomZ) / (topZ - bottomZ)
          return bottomR + (topR - bottomR) * rate
       }
 
-      return difference {
-         union {
-            val step = 0.5.mm
-            for (z in bottomZ..topZ step step) {
-               hull {
-                  roundArc(
-                     bottomOuterR,
-                     bottomInnerR,
-                     bottomArcStartA,
-                     bottomArcEndA,
-                     topW, topH,
-                     rAt(z),
-                     z,
-                     keycapWallFa
-                  )
+      return provideValue(fa provides keycapWallFa) {
+         difference {
+            union {
+               val step = 0.5.mm
+               for (z in bottomZ..topZ step step) {
+                  hull {
+                     roundArc(
+                        bottomOuterR,
+                        bottomInnerR,
+                        bottomArcStartA,
+                        bottomArcEndA,
+                        topW, topH,
+                        rAt(z),
+                        z
+                     )
 
-                  roundArc(
-                     bottomOuterR,
-                     bottomInnerR,
-                     bottomArcStartA,
-                     bottomArcEndA,
-                     topW, topH,
-                     rAt(z + step),
-                     z + step,
-                     keycapWallFa
-                  )
+                     roundArc(
+                        bottomOuterR,
+                        bottomInnerR,
+                        bottomArcStartA,
+                        bottomArcEndA,
+                        topW, topH,
+                        rAt(z + step),
+                        z + step
+                     )
+                  }
                }
             }
-         }
 
-         hull {
-            cylinder(height = 0.01.mm, radius = bottomInnerR, fa = keycapWallFa)
+            hull {
+               cylinder(height = 0.01.mm, radius = bottomInnerR)
 
-            locale(z = topZ) {
-               cube(bottomCenterR * 2 - topH, topW, 0.01.mm, center = true)
+               locale(z = topZ) {
+                  cube(bottomCenterR * 2 - topH, topW, 0.01.mm, center = true)
+               }
             }
-         }
 
-         dish(dishFa)
+            dish()
+         }
       }
    }
 
    fun ScadParentObject.inner(): ScadObject {
-      return difference {
-         hull {
-            arc(
-               bottomOuterR - Keycap.THICKNESS,
-               bottomInnerR + Keycap.THICKNESS,
-               bottomArcStartA + arcLengthToAngle(bottomInnerR, Keycap.THICKNESS),
-               bottomArcEndA   - arcLengthToAngle(bottomInnerR, Keycap.THICKNESS),
-               topW, topH,
-               z = Point(0.mm)
-            )
-
-            translate(bottomCenterR, 0.mm, topZ.distanceFromOrigin - Keycap.THICKNESS) {
-               cube(
-                  topH - Keycap.THICKNESS * 2,
-                  topW - Keycap.THICKNESS * 2,
-                  0.01.mm,
-                  center = true
+      return provideValue(fa provides keycapInvisibleFa) {
+         difference {
+            hull {
+               arc(
+                  bottomOuterR - Keycap.THICKNESS,
+                  bottomInnerR + Keycap.THICKNESS,
+                  bottomArcStartA + Angle(Keycap.THICKNESS / bottomInnerR),
+                  bottomArcEndA   - Angle(Keycap.THICKNESS / bottomInnerR),
+                  topW, topH,
+                  z = Point(0.mm)
                )
+
+               translate(bottomCenterR, 0.mm, topZ.distanceFromOrigin - Keycap.THICKNESS) {
+                  cube(
+                     topH - Keycap.THICKNESS * 2,
+                     topW - Keycap.THICKNESS * 2,
+                     0.01.mm,
+                     center = true
+                  )
+               }
             }
-         }
 
-         hull {
-            cylinder(
-               height = 0.01.mm,
-               radius = bottomInnerR + Keycap.THICKNESS,
-               keycapInvisibleFa
-            )
-
-            locale(z = topZ - Keycap.THICKNESS) {
-               cube(
-                  bottomCenterR * 2 - (topH - Keycap.THICKNESS * 2),
-                  topW - Keycap.THICKNESS * 2,
-                  0.01.mm,
-                  center = true
+            hull {
+               cylinder(
+                  height = 0.01.mm,
+                  radius = bottomInnerR + Keycap.THICKNESS
                )
-            }
-         }
 
-         translate(z = -Keycap.THICKNESS) {
-            dish(keycapInvisibleFa)
+               locale(z = topZ - Keycap.THICKNESS) {
+                  cube(
+                     bottomCenterR * 2 - (topH - Keycap.THICKNESS * 2),
+                     topW - Keycap.THICKNESS * 2,
+                     0.01.mm,
+                     center = true
+                  )
+               }
+            }
+
+            translate(z = -Keycap.THICKNESS) {
+               dish()
+            }
          }
       }
    }
@@ -241,8 +240,10 @@ fun ScadParentObject.thumbKeycap(
          union {
             translate(z = 2.5.mm) {
                difference {
-                  cylinder(height = 24.mm, radius = bottomCenterR + 1.mm, keycapInvisibleFa)
-                  cylinder(height = 24.mm, radius = bottomCenterR - 1.mm, keycapInvisibleFa)
+                  provideValue(fa provides keycapInvisibleFa) {
+                     cylinder(height = 24.mm, radius = bottomCenterR + 1.mm)
+                     cylinder(height = 24.mm, radius = bottomCenterR - 1.mm)
+                  }
                }
             }
 
@@ -391,7 +392,7 @@ fun ScadParentObject.keycap(
       Size3d(0.mm, 0.mm, tiltXr * (1 - cos(-tiltXa)) + tiltYr * (1 - cos(tiltYa)))
    }
 
-   fun ScadParentObject.dish(keycapHeight: Size, fa: Double): ScadObject {
+   fun ScadParentObject.dish(keycapHeight: Size): ScadObject {
       return if (isCylindrical) {
          minkowski {
             cube(
@@ -405,7 +406,7 @@ fun ScadParentObject.keycap(
                rotateForTilt {
                   translate(z = dishR) {
                      rotate(-tiltYa) {
-                        cylinder(height = 32.mm, radius = dishR, center = true, fa)
+                        cylinder(height = 32.mm, radius = dishR, center = true)
                      }
                   }
                }
@@ -426,7 +427,7 @@ fun ScadParentObject.keycap(
             translate(z = keycapHeight) {
                rotateForTilt {
                   translate(z = dishR) {
-                     sphere(dishR, fa)
+                     sphere(dishR)
                   }
                }
             }
@@ -450,11 +451,11 @@ fun ScadParentObject.keycap(
             }
          }
 
-         dish(keycapHeight - 0.5.mm, dishFa)
+         dish(keycapHeight - 0.5.mm)
       }
    }
 
-   fun ScadParentObject.outer(children: ScadWriter.() -> Unit): ScadObject {
+   fun ScadParentObject.outer(children: Writer.() -> Unit): ScadObject {
       fun ScadParentObject.roundRectPyramid(): ScadObject {
          fun dishPosition(x: Point, y: Point): Point3d {
             return rotatePointForTilt(Point3d(
@@ -499,32 +500,34 @@ fun ScadParentObject.keycap(
             dishPosition(Point(-topW / 2), Point(-topH / 2)).z
          )
 
-         fun getRate(z: Point) = (z - bottomZ).numberAsMilliMeter / (topZ - bottomZ).numberAsMilliMeter
+         fun getRate(z: Point) = (z - bottomZ) / (topZ - bottomZ)
          fun rAt(z: Point) = bottomR + (topR - bottomR) * getRate(z)
 
-         return union {
-            val step = 0.5.mm
-            for (z in bottomZ..topZ step step) {
-               hull {
-                  locale(z = z) {
-                     minkowski {
-                        polygonFrom3d(
-                           (bottomPoints zip topPoints)
-                              .map { (b, t) -> zPointOnLine(b, t, z) }
-                        )
+         return provideValue(fa provides keycapWallFa) {
+            union {
+               val step = 0.5.mm
+               for (z in bottomZ..topZ step step) {
+                  hull {
+                     locale(z = z) {
+                        minkowski {
+                           polygonFrom3d(
+                              (bottomPoints zip topPoints)
+                                 .map { (b, t) -> zPointOnLine(b, t, z) }
+                           )
 
-                        cylinder(height = 0.001.mm, radius = rAt(z), keycapWallFa)
+                           cylinder(height = 0.001.mm, radius = rAt(z))
+                        }
                      }
-                  }
 
-                  locale(z = z + step) {
-                     minkowski {
-                        polygonFrom3d(
-                           (bottomPoints zip topPoints)
-                              .map { (b, t) -> zPointOnLine(b, t, z + step) }
-                        )
+                     locale(z = z + step) {
+                        minkowski {
+                           polygonFrom3d(
+                              (bottomPoints zip topPoints)
+                                 .map { (b, t) -> zPointOnLine(b, t, z + step) }
+                           )
 
-                        cylinder(height = 0.001.mm, radius = rAt(z + step), keycapWallFa)
+                           cylinder(height = 0.001.mm, radius = rAt(z + step))
+                        }
                      }
                   }
                }
@@ -535,7 +538,10 @@ fun ScadParentObject.keycap(
       return intersection {
          difference {
             roundRectPyramid()
-            dish(keycapHeight, dishFa)
+
+            provideValue(fa provides dishFa) {
+               dish(keycapHeight)
+            }
          }
 
          children()
@@ -571,13 +577,15 @@ fun ScadParentObject.keycap(
          }
       }
 
-      return difference {
-         rectPyramid()
-         dish(keycapHeight - Keycap.THICKNESS, keycapInvisibleFa)
+      return provideValue(fa provides keycapInvisibleFa) {
+         difference {
+            rectPyramid()
+            dish(keycapHeight - Keycap.THICKNESS)
+         }
       }
    }
 
-   fun ScadParentObject.pillar(children: ScadWriter.() -> Unit): ScadObject {
+   fun ScadParentObject.pillar(children: Writer.() -> Unit): ScadObject {
       return intersection {
          union {
             translate((-16).mm, (- 1.5).mm, 2.5.mm) { cube(32.mm,  3.mm, 24.mm) }
@@ -602,8 +610,10 @@ fun ScadParentObject.keycap(
             outer { children() }
 
             difference {
-               translate(z = (-3).mm) { polygonPyramid(16, height = 24.mm, radius = 4.3.mm) }
-               dish(keycapHeight - Keycap.THICKNESS, keycapInvisibleFa)
+               provideValue(fa provides keycapInvisibleFa) {
+                  translate(z = (-3).mm) { polygonPyramid(16, height = 24.mm, radius = 4.3.mm) }
+                  dish(keycapHeight - Keycap.THICKNESS)
+               }
             }
          }
       }
@@ -615,7 +625,9 @@ fun ScadParentObject.keycap(
             translate((-0.5).mm, -topH / 2 + 0.15.mm, (-1.5).mm) {
                minkowski {
                   cube(1.mm, 0.001.mm, 2.75.mm)
-                  sphere(0.3.mm, fa = 12.0)
+                  provideValue(fa provides 12.deg) {
+                     sphere(0.3.mm)
+                  }
                }
             }
          }

@@ -15,29 +15,30 @@ fun main(vararg args: String) {
    }
 
    writeScad(config.outputFile) {
-      mirror(1.mm, 0.mm, 0.mm) {
-         val case = Case()
-         case(case)
-      }
+      val case = Case()
+      case(case)
 
-      /*
-      case.alphanumericPlate.columns
-         .flatMap { it.keySwitches.map { it.plate(Size2d(16.mm, 16.mm)) } }
+      (
+            case.alphanumericPlate.columns
+               .flatMap { it.keySwitches }
+               .map { it.plate(AlphanumericPlate.KEY_PLATE_SIZE) }
+            + case.thumbHomeKey.plate(ThumbPlate.KEY_PLATE_SIZE)
+            + case.thumbPlate.keySwitches
+               .map { it.plate(ThumbPlate.KEY_PLATE_SIZE) }
+            + case.frontRotaryEncoderKey.switch
+               .plate(ThumbPlate.KEY_PLATE_SIZE)
+         )
          .map { it.translate(it.topVector, KeySwitch.TOP_HEIGHT + KeySwitch.STEM_HEIGHT + Keycap.THICKNESS) }
          .forEach { hullPoints(it.points) }
 
       // ----
 
-      val caseTopPlane = alphanumericTopPlane(case.alphanumericPlate, 0.mm)
-      val frontRotaryEncoder = frontRotaryEncoder(case.alphanumericPlate)
-         .translate(caseTopPlane.normalVector, 1.mm)
+      frontRotaryEncoderKnob(case.frontRotaryEncoderKnob)
+      backRotaryEncoderKnob(case.backRotaryEncoderKnob)
 
-      rotaryEncoderKnob(
-         frontRotaryEncoder,
-         Case.FRONT_ROTARY_ENCODER_KNOB_RADIUS,
-         Case.FRONT_ROTARY_ENCODER_KNOB_HEIGHT,
-         Case.FRONT_ROTARY_ENCODER_KNOB_HOLE_HEIGHT
-      )
+      backRotaryEncoderMediationGear(case.backRotaryEncoderMediationGear)
+      backRotaryEncoderGear(case.backRotaryEncoderGear)
+      rotaryEncoderMountHole(case.backRotaryEncoderGear.rotaryEncoder, 1.6.mm)
 
       // ----
 
@@ -45,16 +46,40 @@ fun main(vararg args: String) {
          cube(102.mm, 70.mm, 80.mm)
       }
 
-      translate((-91).mm, 56.mm, 23.mm) {
-         cylinder(14.mm, 30.mm, `$fa`)
-      }
+      leftOuterRotaryEncoderKnob(case.leftOuterRotaryEncoderKnob)
+      leftInnerRotaryEncoderKnob(case.leftInnerRotaryEncoderKnob)
 
-      translate((-5).mm, 106.mm, 73.mm) {
-         rotate(y = 75.deg) {
-            cylinder(14.mm, 12.mm, `$fa`)
+      leftOuterRotaryEncoderGear(case.leftOuterRotaryEncoderKnob.gear)
+
+      locale(case.leftOuterRotaryEncoderKnob.referencePoint) {
+         translate(z = LeftOuterRotaryEncoderKnob.HEIGHT - 3.mm) {
+            circularProtuberance(
+               LeftOuterRotaryEncoderKnob.RADIUS
+                     + LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
+                     + 0.1.mm
+                     + LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS,
+               LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
+            )
+         }
+
+         translate(z = -LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS - 0.1.mm) {
+            circularProtuberance(
+               LeftOuterRotaryEncoderKnob.RADIUS
+                     - LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS,
+               LeftOuterRotaryEncoderKnob.PROTUBERANCE_RADIUS
+            )
          }
       }
-      */
+
+      rotaryEncoderMountHole(
+         case.leftOuterRotaryEncoderKnob.gear.rotaryEncoder,
+         1.6.mm
+      )
+
+      rotaryEncoderMountHole(
+         case.leftInnerRotaryEncoderKnob.rotaryEncoder,
+         1.6.mm
+      )
    }
 }
 

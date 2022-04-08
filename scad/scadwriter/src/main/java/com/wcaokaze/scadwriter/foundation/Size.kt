@@ -1,10 +1,15 @@
 package com.wcaokaze.scadwriter.foundation
 
-inline class Size(val numberAsMilliMeter: Double) : Comparable<Size> {
-   override fun toString() = numberAsMilliMeter.toString()
+data class Size(val numberAsMilliMeter: Double)
+   : ScadValue(), Comparable<Size>
+{
+   override fun toString() = "%.3fmm".format(numberAsMilliMeter)
+   override fun toScadRepresentation() = numberAsMilliMeter.toString()
 
    operator fun plus (another: Size) = Size(numberAsMilliMeter + another.numberAsMilliMeter)
    operator fun minus(another: Size) = Size(numberAsMilliMeter - another.numberAsMilliMeter)
+
+   operator fun div(another: Size): Double = numberAsMilliMeter / another.numberAsMilliMeter
 
    operator fun times(n: Int)    = Size(numberAsMilliMeter * n)
    operator fun times(n: Double) = Size(numberAsMilliMeter * n)
@@ -22,18 +27,24 @@ inline class Size(val numberAsMilliMeter: Double) : Comparable<Size> {
 data class SizeRange(override val start: Size,
                      override val endInclusive: Size) : ClosedRange<Size>
 {
+   override fun toString() = "$start..$endInclusive"
+
    infix fun step(step: Size) = Iterable {
       object : Iterator<Size> {
-         private val precision = step / 2.0
+         private val precision = step / 16.0
          private var nextIndex = 0
 
-         override fun hasNext() = if (step > 0.mm) {
+         override fun hasNext() = if (start < endInclusive) {
             start + step * nextIndex <= endInclusive + precision
          } else {
-            start + step * nextIndex >= endInclusive - precision
+            start - step * nextIndex >= endInclusive - precision
          }
 
-         override fun next() = start + step * nextIndex++
+         override fun next() = if (start < endInclusive) {
+            start + step * nextIndex++
+         } else {
+            start - step * nextIndex++
+         }
       }
    }
 }
@@ -44,8 +55,11 @@ inline val Double.mm get() = Size(this)
 inline val Int   .cm get() = (this * 10).mm
 inline val Double.cm get() = (this * 10).mm
 
-data class Size2d(val x: Size, val y: Size) {
-   override fun toString() = "[$x, $y]"
+data class Size2d(val x: Size, val y: Size) : ScadValue() {
+   override fun toString() = "($x, $y)"
+
+   override fun toScadRepresentation()
+         = "[${x.toScadRepresentation()}, ${y.toScadRepresentation()}]"
 
    operator fun plus (another: Size2d) = Size2d(x + another.x, y + another.y)
    operator fun minus(another: Size2d) = Size2d(x - another.x, y - another.y)
@@ -59,8 +73,11 @@ data class Size2d(val x: Size, val y: Size) {
    operator fun unaryPlus () = Size2d(+x, +y)
 }
 
-data class Size3d(val x: Size, val y: Size, val z: Size) {
-   override fun toString() = "[$x, $y, $z]"
+data class Size3d(val x: Size, val y: Size, val z: Size) : ScadValue() {
+   override fun toString() = "($x, $y, $z)"
+
+   override fun toScadRepresentation()
+         = "[${x.toScadRepresentation()}, ${y.toScadRepresentation()}, ${z.toScadRepresentation()}]"
 
    operator fun plus (another: Size3d) = Size3d(x + another.x, y + another.y, z + another.z)
    operator fun minus(another: Size3d) = Size3d(x - another.x, y - another.y, z - another.z)

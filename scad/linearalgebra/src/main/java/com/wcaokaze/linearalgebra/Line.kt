@@ -108,8 +108,6 @@ class Line3d
    val vector: Vector3d get() = direction.toUnitVector()
 }
 
-private operator fun Size.div(size: Size): Double = numberAsMilliMeter / size.numberAsMilliMeter
-
 fun Line3d.translate(distance: Size3d)
       = Line3d(somePoint.translate(distance), vector)
 

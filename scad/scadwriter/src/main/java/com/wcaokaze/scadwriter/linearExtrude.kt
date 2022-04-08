@@ -3,12 +3,12 @@ package com.wcaokaze.scadwriter
 import com.wcaokaze.scadwriter.foundation.*
 
 data class LinearExtrude(
+   override val parent: ScadParentObject,
    val height: Size,
    val center: Boolean = false
 ) : ScadParentObject() {
-   override fun writeScad(scadWriter: ScadWriter) {
-      writeChildren(scadWriter, "linear_extrude($height, center = $center)")
-   }
+   override fun toScadRepresentation()
+         = buildChildrenScad("linear_extrude(${height.scad}, center = $center)")
 }
 
 inline fun ScadParentObject.linearExtrude(
@@ -16,7 +16,7 @@ inline fun ScadParentObject.linearExtrude(
    center: Boolean = false,
    children: LinearExtrude.() -> Unit
 ): LinearExtrude {
-   val linearExtrude = LinearExtrude(height, center)
+   val linearExtrude = LinearExtrude(this, height, center)
    addChild(linearExtrude)
    linearExtrude.children()
    return linearExtrude

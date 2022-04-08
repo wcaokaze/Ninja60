@@ -1,10 +1,10 @@
 package com.wcaokaze.ninja60
 
+import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
+import kotlin.math.*
 
-val `$fs`: Double = 2.0
-val `$fa`: Double = 12.0
 val `$fn`: Double = 0.0
 
 val keyPitch = Size2d(19.2.mm, 16.mm)
@@ -19,6 +19,75 @@ fun ScadParentObject.polygonPyramid(n: Int, height: Size, radius: Size): ScadObj
             )
          }
       )
+   }
+}
+
+fun ScadParentObject.arcCylinder(
+   radius: Size, height: Size,
+   startAngle: Angle, endAngle: Angle
+): ScadObject {
+   val fixedRadius = radius * sqrt(2.0)
+
+   fun arcPoint(a: Angle) = Point2d.ORIGIN + Size2d(fixedRadius * cos(a),
+                                                    fixedRadius * sin(a))
+
+   return intersection {
+      cylinder(height, radius)
+
+      linearExtrude(height) {
+         polygon(
+            listOf(
+               Point2d.ORIGIN,
+               arcPoint(startAngle),
+               *(startAngle..endAngle step Angle.PI / 2).map(::arcPoint).toTypedArray(),
+               arcPoint(endAngle)
+            )
+         )
+      }
+   }
+}
+
+/**
+ * 法線ベクトルの向きを正として2つの平面の位置を比較します
+ * 2つの平面の法線ベクトルは同じ向きである必要があります
+ */
+operator fun Plane3d.compareTo(another: Plane3d): Int {
+   require(normalVector angleWith another.normalVector < 0.01.deg)
+
+   val line = Line3d(Point3d.ORIGIN, normalVector)
+   val vAB = Vector3d(this intersection line, another intersection line)
+
+   return when {
+      vAB.norm < 0.001.mm -> 0
+      vAB angleWith normalVector in (-90).deg..90.deg -> -1
+      else -> 1
+   }
+}
+
+/**
+ * 法線ベクトルの向きを正としたとき、より大きい位置にある平面を返します
+ * 2つの平面の法線ベクトルは同じ向きである必要があります
+ */
+fun max(a: Plane3d, b: Plane3d): Plane3d {
+   return if (a < b) {
+      b
+   } else {
+      a
+   }
+}
+
+/** 指定したベクトルの向きを正として2点を比較するComparator。 */
+class PointOnVectorComparator(val vector: Vector3d) : Comparator<Point3d> {
+   override fun compare(o1: Point3d, o2: Point3d): Int
+         = Plane3d(o1, vector).compareTo(Plane3d(o2, vector))
+}
+
+/** 指定したベクトルの向きを正としたとき、より大きい位置にある点を返します */
+fun max(vector: Vector3d, a: Point3d, b: Point3d): Point3d {
+   return if (Plane3d(a, vector) < Plane3d(b, vector)) {
+      b
+   } else {
+      a
    }
 }
 
@@ -48,8 +117,8 @@ infix fun Point.leaveOrigin(d: Size): Point {
  * a, bの2点を通る直線の高さzにおける座標
  */
 fun zPointOnLine(a: Point3d, b: Point3d, z: Point) = Point3d(
-   a.x + (z - a.z) * ((b.x - a.x).numberAsMilliMeter / (b.z - a.z).numberAsMilliMeter),
-   a.y + (z - a.z) * ((b.y - a.y).numberAsMilliMeter / (b.z - a.z).numberAsMilliMeter),
+   a.x + (z - a.z) * ((b.x - a.x) / (b.z - a.z)),
+   a.y + (z - a.z) * ((b.y - a.y) / (b.z - a.z)),
    z
 )
 

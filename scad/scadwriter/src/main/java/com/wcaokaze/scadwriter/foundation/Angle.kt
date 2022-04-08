@@ -2,12 +2,15 @@ package com.wcaokaze.scadwriter.foundation
 
 import java.lang.StrictMath.*
 
-inline class Angle(val numberAsRadian: Double) : Comparable<Angle> {
+data class Angle(val numberAsRadian: Double)
+   : ScadValue(), Comparable<Angle>
+{
    companion object {
       val PI: Angle = StrictMath.PI.rad
    }
 
-   override fun toString() = toDegrees(numberAsRadian).toString()
+   override fun toString() = "%.3f°".format(toDegrees(numberAsRadian))
+   override fun toScadRepresentation() = toDegrees(numberAsRadian).toString()
 
    operator fun plus (another: Angle) = Angle(numberAsRadian + another.numberAsRadian)
    operator fun minus(another: Angle) = Angle(numberAsRadian - another.numberAsRadian)
@@ -28,18 +31,24 @@ inline class Angle(val numberAsRadian: Double) : Comparable<Angle> {
 data class AngleRange(override val start: Angle,
                       override val endInclusive: Angle) : ClosedRange<Angle>
 {
+   override fun toString() = "$start..$endInclusive"
+
    infix fun step(step: Angle) = Iterable {
       object : Iterator<Angle> {
-         private val precision = step / 2.0
+         private val precision = step / 16.0
          private var nextIndex = 0
 
-         override fun hasNext() = if (step > 0.0.rad) {
+         override fun hasNext() = if (start < endInclusive) {
             start + step * nextIndex <= endInclusive + precision
          } else {
-            start + step * nextIndex >= endInclusive - precision
+            start - step * nextIndex >= endInclusive - precision
          }
 
-         override fun next() = start + step * nextIndex++
+         override fun next() = if (start < endInclusive) {
+            start + step * nextIndex++
+         } else {
+            start - step * nextIndex++
+         }
       }
    }
 }
