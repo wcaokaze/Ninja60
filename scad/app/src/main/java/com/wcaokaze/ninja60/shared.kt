@@ -5,8 +5,6 @@ import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 import kotlin.math.*
 
-val `$fn`: Double = 0.0
-
 val keyPitch = Size2d(19.2.mm, 16.mm)
 
 fun ScadParentObject.polygonPyramid(n: Int, height: Size, radius: Size): ScadObject {
