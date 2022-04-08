@@ -84,14 +84,14 @@ fun ScadParentObject.rotaryEncoderKnobHole(
    return place(rotaryEncoder) {
       union {
          difference {
-            cylinder(RotaryEncoder.HEIGHT + 0.1.mm, 3.mm, `$fa`)
+            cylinder(RotaryEncoder.HEIGHT + 0.1.mm, 3.mm)
 
             translate(x = 1.45.mm, y = (-3).mm) {
                cube(3.mm, 6.mm, RotaryEncoder.HEIGHT + 0.1.mm)
             }
          }
 
-         cylinder(RotaryEncoder.HEIGHT - 3.mm, RotaryEncoder.SHAFT_RADIUS + 0.1.mm, `$fa`)
+         cylinder(RotaryEncoder.HEIGHT - 3.mm, RotaryEncoder.SHAFT_RADIUS + 0.1.mm)
       }
    }
 }

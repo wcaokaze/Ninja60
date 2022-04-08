@@ -96,7 +96,7 @@ fun ScadParentObject.switchSideHolder(): ScadObject {
 
             translate(x = 7.25.mm, z = -(zSize - cylinderRadius)) {
                rotate(x = 90.deg) {
-                  cylinder(height = ySize, cylinderRadius, center = true, fa = `$fa`)
+                  cylinder(height = ySize, cylinderRadius, center = true)
                }
             }
          }

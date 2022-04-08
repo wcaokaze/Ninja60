@@ -123,14 +123,12 @@ fun ScadParentObject.bevelGear(bevelGear: BevelGear): ScadObject {
          + cylinder(
             bevelGear.outerDedendumConeHeight - bevelGear.innerDedendumConeHeight,
             bottomRadius = bevelGear.outerDedendumConeRadius,
-            topRadius = bevelGear.innerDedendumConeRadius,
-            `$fa`
+            topRadius = bevelGear.innerDedendumConeRadius
          )
          intersection cylinder(
             bevelGear.outerDedendumConeHeight,
             bottomRadius = bevelGear.outerDedendumConeHeight * tan(bevelGear.faceConeAngle),
-            topRadius = 0.mm,
-            `$fa`
+            topRadius = 0.mm
          )
       )
    }
@@ -160,7 +158,7 @@ private fun ScadParentObject.tooth(gear: BevelGear): ScadObject {
 
       return linearExtrude(0.01.mm) {
          polygon(
-            (0.0.rad..Angle.PI / 2 step `$fa`)
+            (0.0.rad..Angle.PI / 2 step fa.value)
                .map { a ->
                   Point2d(
                      Point(involuteDiameter * (cos(a) + a.numberAsRadian * sin(a))),

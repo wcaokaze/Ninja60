@@ -6,7 +6,6 @@ import com.wcaokaze.scadwriter.foundation.*
 import kotlin.math.*
 
 val `$fs`: Size = 2.mm
-val `$fa`: Angle = 12.deg
 val `$fn`: Double = 0.0
 
 val keyPitch = Size2d(19.2.mm, 16.mm)
@@ -26,8 +25,7 @@ fun ScadParentObject.polygonPyramid(n: Int, height: Size, radius: Size): ScadObj
 
 fun ScadParentObject.arcCylinder(
    radius: Size, height: Size,
-   startAngle: Angle, endAngle: Angle,
-   fa: Angle
+   startAngle: Angle, endAngle: Angle
 ): ScadObject {
    val fixedRadius = radius * sqrt(2.0)
 
@@ -35,7 +33,7 @@ fun ScadParentObject.arcCylinder(
                                                     fixedRadius * sin(a))
 
    return intersection {
-      cylinder(height, radius, fa)
+      cylinder(height, radius)
 
       linearExtrude(height) {
          polygon(

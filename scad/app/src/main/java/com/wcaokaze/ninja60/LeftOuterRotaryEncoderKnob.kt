@@ -85,8 +85,7 @@ fun ScadParentObject.leftOuterRotaryEncoderKnob(
    fun ScadParentObject.mainBody(): ScadObject {
       return cylinder(
          LeftOuterRotaryEncoderKnob.HEIGHT,
-         LeftOuterRotaryEncoderKnob.RADIUS,
-         `$fa`
+         LeftOuterRotaryEncoderKnob.RADIUS
       )
    }
 
@@ -97,8 +96,7 @@ fun ScadParentObject.leftOuterRotaryEncoderKnob(
       ) {
          cylinder(
             LeftOuterRotaryEncoderKnob.INNER_KNOB_DEPTH * 2,
-            LeftInnerRotaryEncoderKnob.RADIUS + 0.7.mm,
-            `$fa`
+            LeftInnerRotaryEncoderKnob.RADIUS + 0.7.mm
          )
       }
    }
@@ -106,8 +104,7 @@ fun ScadParentObject.leftOuterRotaryEncoderKnob(
    fun ScadParentObject.innerRotaryEncoderShaftHole(): ScadObject {
       return cylinder(
          LeftOuterRotaryEncoderKnob.HEIGHT,
-         RotaryEncoder.SHAFT_RADIUS + 0.5.mm,
-         `$fa`
+         RotaryEncoder.SHAFT_RADIUS + 0.5.mm
       )
    }
 
@@ -115,8 +112,7 @@ fun ScadParentObject.leftOuterRotaryEncoderKnob(
       return cylinder(
          leftOuterRotaryEncoderKnob.referencePoint
                distance leftOuterRotaryEncoderKnob.internalGear.referencePoint,
-         LeftOuterRotaryEncoderKnob.RADIUS - LeftOuterRotaryEncoderKnob.THICKNESS,
-         `$fa`
+         LeftOuterRotaryEncoderKnob.RADIUS - LeftOuterRotaryEncoderKnob.THICKNESS
       )
    }
 

@@ -76,8 +76,7 @@ fun ScadParentObject.backRotaryEncoderKnob(knob: BackRotaryEncoderKnob): ScadObj
                BackRotaryEncoderKnob.RADIUS + BackRotaryEncoderKnob.SKIDPROOF_RADIUS,
                BackRotaryEncoderKnob.HEIGHT,
                a - skidproofAngle / 2,
-               a + skidproofAngle / 2,
-               `$fa`
+               a + skidproofAngle / 2
             )
          }
       }
@@ -87,7 +86,7 @@ fun ScadParentObject.backRotaryEncoderKnob(knob: BackRotaryEncoderKnob): ScadObj
       gear(knob.gear)
       + place(knob) {
          (
-            cylinder(BackRotaryEncoderKnob.HEIGHT, BackRotaryEncoderKnob.RADIUS, `$fa`)
+            cylinder(BackRotaryEncoderKnob.HEIGHT, BackRotaryEncoderKnob.RADIUS)
             + skidproof()
          )
       }
@@ -95,7 +94,7 @@ fun ScadParentObject.backRotaryEncoderKnob(knob: BackRotaryEncoderKnob): ScadObj
          cylinder(
             BackRotaryEncoderKnob.HEIGHT * 3,
             BackRotaryEncoderKnob.SHAFT_HOLE_RADIUS,
-            center = true, `$fa`
+            center = true
          )
       }
    )
@@ -222,7 +221,7 @@ fun ScadParentObject.backRotaryEncoderMediationGear(gear: BackRotaryEncoderMedia
          cylinder(
             BackRotaryEncoderKnob.HEIGHT * 3,
             BackRotaryEncoderMediationGear.SHAFT_HOLE_RADIUS,
-            center = true, `$fa`
+            center = true
          )
       }
    )
@@ -334,7 +333,7 @@ data class BackRotaryEncoderGear(
 fun ScadParentObject.backRotaryEncoderGear(gear: BackRotaryEncoderGear): ScadObject {
    return (
       place(gear) {
-         cylinder(BackRotaryEncoderGear.Shaft.HEIGHT, BackRotaryEncoderGear.Shaft.RADIUS, `$fa`)
+         cylinder(BackRotaryEncoderGear.Shaft.HEIGHT, BackRotaryEncoderGear.Shaft.RADIUS)
       }
       + bevelGear(gear.gear)
       - rotaryEncoderKnobHole(gear.rotaryEncoder)

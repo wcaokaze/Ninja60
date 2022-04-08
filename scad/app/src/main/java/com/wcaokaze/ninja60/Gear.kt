@@ -45,8 +45,8 @@ fun ScadParentObject.gear(gear: Gear): ScadObject {
                tooth().rotate(z = 360.deg / gear.toothCount * i)
             }
          }
-         + cylinder(gear.thickness, gear.bottomDiameter / 2, `$fa`)
-         intersection cylinder(gear.thickness, gear.addendumDiameter / 2, `$fa`)
+         + cylinder(gear.thickness, gear.bottomDiameter / 2)
+         intersection cylinder(gear.thickness, gear.addendumDiameter / 2)
       )
    }
 }
@@ -86,7 +86,7 @@ private fun ScadParentObject.tooth(gear: Gear): ScadObject {
       val half = linearExtrude(gear.thickness) {
          rotate(z = -involuteHalfThicknessAngle) {
             polygon(
-               (0.0.rad..Angle.PI / 2 step `$fa`)
+               (0.0.rad..Angle.PI / 2 step fa.value)
                   .map { a ->
                      Point2d(
                         Point(gear.involuteRadius * (cos(a) + a.numberAsRadian * sin(a))),

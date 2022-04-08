@@ -9,7 +9,7 @@ fun ScadParentObject.linearProtuberance(
 ): ScadObject {
    return minkowski {
       cube(length, 0.01.mm, 0.01.mm)
-      sphere(protuberanceRadius, `$fa`)
+      sphere(protuberanceRadius)
    }
 }
 
@@ -19,10 +19,10 @@ fun ScadParentObject.circularProtuberance(
 ): ScadObject {
    return minkowski {
       difference {
-         cylinder(0.01.mm, circleRadius, `$fa`)
-         cylinder(0.01.mm, circleRadius - 0.01.mm, `$fa`)
+         cylinder(0.01.mm, circleRadius)
+         cylinder(0.01.mm, circleRadius - 0.01.mm)
       }
 
-      sphere(protuberanceRadius, `$fa`)
+      sphere(protuberanceRadius)
    }
 }

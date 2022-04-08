@@ -48,8 +48,7 @@ fun ScadParentObject.leftInnerRotaryEncoderKnob(
       place(leftInnerRotaryEncoderKnob) {
          cylinder(
             LeftInnerRotaryEncoderKnob.HEIGHT,
-            LeftInnerRotaryEncoderKnob.RADIUS,
-            `$fa`
+            LeftInnerRotaryEncoderKnob.RADIUS
          )
       }
       - rotaryEncoderKnobHole(leftInnerRotaryEncoderKnob.rotaryEncoder)

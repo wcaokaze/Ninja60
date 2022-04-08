@@ -516,9 +516,9 @@ private fun ScadParentObject.thumbPlateCase(
       translate(y = -thumbPlate.layoutRadius, z = -bottomOffset) {
          difference {
             arcCylinder(radius = outerRadius + otherOffsets, height + bottomOffset,
-               startAngle - offsetAngle, endAngle + offsetAngle, `$fa`)
+               startAngle - offsetAngle, endAngle + offsetAngle)
             arcCylinder(radius = innerRadius - otherOffsets, height + bottomOffset,
-               startAngle - offsetAngle, endAngle + offsetAngle, `$fa`)
+               startAngle - offsetAngle, endAngle + offsetAngle)
          }
       }
    }
@@ -741,8 +741,7 @@ private fun ScadParentObject.frontRotaryEncoderKnobHole(
       translate(z = (-1.5).mm - bottomOffset) {
          cylinder(
             FrontRotaryEncoderKnob.HEIGHT * 2,
-            FrontRotaryEncoderKnob.RADIUS + 0.7.mm + radiusOffset,
-            `$fa`
+            FrontRotaryEncoderKnob.RADIUS + 0.7.mm + radiusOffset
          )
       }
    }
@@ -787,10 +786,10 @@ fun ScadParentObject.frontRotaryEncoderKeyHole(
             val endAngle   = frontAngle + FrontRotaryEncoderKey.ARC_ANGLE / 2
 
             arcCylinder(radius = outerRadius + otherOffsets, height + bottomOffset,
-               startAngle - offsetAngle, endAngle + offsetAngle, `$fa`)
+               startAngle - offsetAngle, endAngle + offsetAngle)
 
             arcCylinder(radius = innerRadius - otherOffsets, height + bottomOffset,
-               startAngle - offsetAngle, endAngle + offsetAngle, `$fa`)
+               startAngle - offsetAngle, endAngle + offsetAngle)
          }
       }
    }
