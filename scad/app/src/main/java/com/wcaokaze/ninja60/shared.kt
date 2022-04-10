@@ -46,6 +46,27 @@ fun ScadParentObject.arcCylinder(
 }
 
 /**
+ * [point]を通るこの平面の垂線のベクトル ([point]からこの平面を向く)
+ */
+private fun Plane3d.perpendicular(point: Point3d): Vector3d {
+   val perpendicularLine = Line3d(point, normalVector)
+   val intersectionPoint = this intersection perpendicularLine
+   return Vector3d(point, intersectionPoint)
+}
+
+/**
+ * 法線ベクトル方向を正としてこの平面と[point]の位置関係を比較します
+ */
+operator fun Plane3d.compareTo(point: Point3d): Int {
+   val perpendicular = perpendicular(point)
+   return when {
+      perpendicular.norm < 0.001.mm -> 0
+      perpendicular angleWith normalVector in (-90).deg..90.deg -> 1
+      else -> -1
+   }
+}
+
+/**
  * 法線ベクトルの向きを正として2つの平面の位置を比較します
  * 2つの平面の法線ベクトルは同じ向きである必要があります
  */

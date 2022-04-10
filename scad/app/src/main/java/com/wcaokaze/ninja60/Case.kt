@@ -329,57 +329,35 @@ fun alphanumericTopPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Pl
    // 各Columnの一番手前の点から2点を選び、
    // その2点を通る平面が他のすべての点より上にあるとき使える
 
-   val frontVector = alphanumericPlate.columns.map { it.frontVector } .sum()
-
    val points = alphanumericPlate.columns
       .flatMap { column ->
          val plate = column.keySwitches.last().plate(AlphanumericPlate.KEY_PLATE_SIZE)
          listOf(plate.frontLeft, plate.frontRight)
       }
 
-   return points.flatMap { left ->
-         (points - left).map { right ->
-            val otherPoints = points - left - right
-            Triple(left, right, otherPoints)
-         }
-      }
-      .asSequence()
-      .filter { (left, right) ->
-         // 総当りなので右から左のベクトルが混入してます
-         // filterします
-         // もうちょっといいやり方があるといいですね
-         Vector3d(
-            alphanumericPlate.columns.first().referencePoint,
-            alphanumericPlate.columns.last() .referencePoint
-         ) angleWith Vector3d(left, right) in (-90).deg..90.deg
-      }
-      .map { (left, right, otherPoints) ->
+   return points.asSequence()
+      .iterateAllCombination()
+      .filter { it.vectorAB isSameDirection alphanumericPlate.rightVector }
+      .map {
          object {
-            val left = left
-            val right = right
-            val otherPoints = otherPoints
+            val leftPoint = it.pointA
+            val rightPoint = it.pointB
+            val otherPoints = it.otherPoints
 
-            /** 2点を通りfrontVectorと平行な平面 */
-            val plane = Plane3d(left, frontVector vectorProduct Vector3d(left, right))
+            val plane = run {
+               val frontVectorAverage = alphanumericPlate.columns
+                  .map { c -> c.frontVector }
+                  .sum()
+
+               Plane3d(it.pointA, frontVectorAverage vectorProduct it.vectorAB)
+            }
          }
       }
       .filter {
-         it.otherPoints.all { p ->
-            /** pからplaneへの垂線 */
-            val perpendicular = Line3d(p, it.plane.normalVector)
-            /** 垂線とplaneの交点 */
-            val intersectionPoint = it.plane intersection perpendicular
-
-            // pから交点へのベクトルを改めて算出し、planeの法線ベクトルと比較
-            // 0°もしくは180°となるはずで、0°の場合planeより下にpが存在する
-            Vector3d(p, intersectionPoint) angleWith it.plane.normalVector in (-90).deg..90.deg
-         }
+         it.otherPoints.all { p -> it.plane > p }
       }
       .minByOrNull {
-         Vector3d(
-            alphanumericPlate.columns.first().referencePoint,
-            alphanumericPlate.columns.last() .referencePoint
-         ) angleWith Vector3d(it.left, it.right)
+         alphanumericPlate.rightVector angleWith Vector3d(it.leftPoint, it.rightPoint)
       } !!
       .plane
       .let {
@@ -403,41 +381,24 @@ fun alphanumericBackSlopePlane(alphanumericPlate: AlphanumericPlate, offset: Siz
    val mostBackKeyPlates = alphanumericPlate.columns
       .map { it.keySwitches.first().plate(AlphanumericPlate.KEY_PLATE_SIZE) }
 
-   val alphanumericPlateTopVector = alphanumericPlate.columns.map { it.topVector } .sum()
-
+   // 斜め部分のベクトル。法線ベクトルではなく斜めの方向そのもの。
    val slopeVector = mostBackKeyPlates
       .map { it.topVector }
-      .maxByOrNull { it angleWith alphanumericPlateTopVector } !!
+      .maxByOrNull { it angleWith alphanumericPlate.topVector } !!
 
    val points = mostBackKeyPlates.flatMap { listOf(it.backLeft, it.backRight) }
 
-   return points.flatMap { left ->
-         (points - left).map { right ->
-            val otherPoints = points - left - right
-            Triple(left, right, otherPoints)
-         }
-      }
-      .asSequence()
-      .filter { (left, right) ->
-         Vector3d(
-            alphanumericPlate.columns.first().referencePoint,
-            alphanumericPlate.columns.last() .referencePoint
-         ) angleWith Vector3d(left, right) in (-90).deg..90.deg
-      }
-      .map { (left, right, otherPoints) ->
+   return points.asSequence()
+      .iterateAllCombination()
+      .filter { it.vectorAB isSameDirection alphanumericPlate.rightVector }
+      .map {
          object {
-            val otherPoints = otherPoints
-
-            val plane = Plane3d(left, slopeVector vectorProduct Vector3d(left, right))
+            val otherPoints = it.otherPoints
+            val plane = Plane3d(it.pointA, slopeVector vectorProduct it.vectorAB)
          }
       }
       .filter {
-         it.otherPoints.all { p ->
-            val perpendicular = Line3d(p, it.plane.normalVector)
-            val intersectionPoint = it.plane intersection perpendicular
-
-            Vector3d(p, intersectionPoint) angleWith it.plane.normalVector in (-90).deg..90.deg
-         }
+         it.otherPoints.all { p -> it.plane > p }
       }
       .minByOrNull {
          // ケースの角とキースイッチの間の角度の合計が一番小さいやつを選びます
@@ -791,6 +752,29 @@ fun ScadParentObject.frontRotaryEncoderKeyHole(
             arcCylinder(radius = innerRadius - otherOffsets, height + bottomOffset,
                startAngle - offsetAngle, endAngle + offsetAngle)
          }
+      }
+   }
+}
+
+private infix fun Vector3d.isSameDirection(another: Vector3d): Boolean
+      = this angleWith another in (-90).deg..90.deg
+
+private class PointCombination(
+   val pointA: Point3d,
+   val pointB: Point3d,
+   val otherPoints: List<Point3d>
+) {
+   val vectorAB get() = Vector3d(pointA, pointB)
+}
+
+private fun Sequence<Point3d>.iterateAllCombination(): Sequence<PointCombination> {
+   val allPoints = this
+   return flatMap { a ->
+      (allPoints - a).map { b ->
+         PointCombination(
+            a, b,
+            otherPoints = (allPoints - a - b).toList()
+         )
       }
    }
 }
