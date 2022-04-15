@@ -102,21 +102,19 @@ fun ScadParentObject.case(case: Case): ScadObject {
       }
    }
 
-   /*
    scad = baseCase()
 
    scad -= union {
       alphanumericCase(case, bottomOffset = 1.5.mm)
       //thumbCase(case)
    }
-   */
 
 
    // ==== alphanumericのプレート部 ============================================
 
    // キースイッチの底の高さでhull。alphanumericCaseに確実に引っ付けるために
    // 前後左右広めに生成してalphanumericCaseとのintersectionをとります
-   scad = intersection {
+   scad += intersection {
       baseCase()
       hullAlphanumericPlate(
          case.alphanumericPlate,
@@ -313,7 +311,8 @@ fun ScadParentObject.alphanumericCase(
                alphanumericBackPlane(case, otherOffsets),
                alphanumericBackSlopePlane(case.alphanumericPlate, otherOffsets),
                alphanumericTopPlane(case.alphanumericPlate, otherOffsets),
-               alphanumericFrontPlane(case.thumbPlate, otherOffsets),
+               alphanumericFrontSlopePlane(case.alphanumericPlate, otherOffsets),
+               alphanumericFrontPlane(case.alphanumericPlate, otherOffsets),
                alphanumericBottomPlane(case, bottomOffset)
             )
             .zipWithNext()
@@ -435,10 +434,77 @@ fun alphanumericBackPlane(case: Case, offset: Size): Plane3d {
       .translate(case.backVector, offset)
 }
 
-fun alphanumericFrontPlane(thumbPlate: ThumbPlate, offset: Size): Plane3d {
-   return Plane3d.ZX_PLANE
-      .translate(Vector3d.Y_UNIT_VECTOR, 9.mm)
-      .translate(Vector3d.Y_UNIT_VECTOR, -offset)
+fun alphanumericFrontSlopePlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+   val mostFrontKeyPlates = alphanumericPlate.columns
+      .map { it.keySwitches.last().plate(AlphanumericPlate.KEY_PLATE_SIZE) }
+      .map { it.translate(it.bottomVector, KeySwitch.BOTTOM_HEIGHT) }
+
+   val points = mostFrontKeyPlates.flatMap { listOf(it.frontLeft, it.frontRight) }
+
+   val rightVector = mostFrontKeyPlates.map { it.rightVector } .sum()
+   val topVector = mostFrontKeyPlates.map { it.topVector } .sum()
+
+   return points.asSequence()
+      .iterateAllCombination()
+      .filter { it.vectorAB isSameDirection rightVector }
+      .map {
+         Plane3d(it.pointA, it.vectorAB vectorProduct topVector.rotate(rightVector, 45.deg))
+      }
+      .minByOrNull { plane ->
+         // 各KeyPlateとの角度の合計が一番小さいやつ
+         mostFrontKeyPlates
+            .map { mostFrontKey ->
+               plane.normalVector angleWith mostFrontKey.bottomVector
+            }
+            .sumOf { it.numberAsRadian }
+      } !!
+      .let { plane ->
+         // pointsのうち一番手前の点を通る平面にする
+         val mostFrontPoint = points.maxWithOrNull { a, b ->
+            val aPlane = Plane3d(a, plane.normalVector)
+            val bPlane = Plane3d(b, plane.normalVector)
+            aPlane.compareTo(bPlane)
+         } !!
+         Plane3d(mostFrontPoint, plane.normalVector)
+      }
+      .let {
+         it.translate(it.normalVector, offset)
+      }
+}
+
+fun alphanumericFrontPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+   val mostFrontKeyPlates = alphanumericPlate.columns
+      .map { it.keySwitches.last().plate(AlphanumericPlate.KEY_PLATE_SIZE) }
+      .map { it.translate(it.bottomVector, KeySwitch.BOTTOM_HEIGHT) }
+
+   val points = mostFrontKeyPlates.flatMap { listOf(it.frontLeft, it.frontRight) }
+
+   return points.asSequence()
+      .iterateAllCombination()
+      .filter { it.vectorAB isSameDirection alphanumericPlate.rightVector }
+      .map {
+         Plane3d(it.pointA, it.vectorAB vectorProduct Vector3d.Z_UNIT_VECTOR)
+      }
+      .minByOrNull { plane ->
+         // 各KeyPlateとの角度の合計が一番小さいやつ
+         mostFrontKeyPlates
+            .map { mostFrontKey ->
+               plane.normalVector angleWith mostFrontKey.bottomVector
+            }
+            .sumOf { it.numberAsRadian }
+      } !!
+      .let { plane ->
+         // pointsのうち一番手前の点を通る平面にする
+         val mostFrontPoint = points.maxWithOrNull { a, b ->
+            val aPlane = Plane3d(a, plane.normalVector)
+            val bPlane = Plane3d(b, plane.normalVector)
+            aPlane.compareTo(bPlane)
+         } !!
+         Plane3d(mostFrontPoint, plane.normalVector)
+      }
+      .let {
+         it.translate(it.normalVector, 10.mm + offset)
+      }
 }
 
 // =============================================================================
