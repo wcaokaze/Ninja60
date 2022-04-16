@@ -17,9 +17,10 @@ class FrontRotaryEncoderKnob(
       val HEIGHT = 14.mm
       val HOLE_HEIGHT = HEIGHT - 2.mm
 
-      operator fun invoke(alphanumericPlate: AlphanumericPlate): FrontRotaryEncoderKnob {
-         val caseTopPlane = alphanumericTopPlane(alphanumericPlate, 0.mm)
-
+      operator fun invoke(
+         alphanumericPlate: AlphanumericPlate,
+         alphanumericTopPlane: Plane3d
+      ): FrontRotaryEncoderKnob {
          val column = alphanumericPlate.columns[COLUMN_INDEX]
          val columnPlane = Plane3d(column.referencePoint, column.rightVector)
 
@@ -28,8 +29,8 @@ class FrontRotaryEncoderKnob(
             .translate(mostFrontKey.topVector, KeySwitch.TOP_HEIGHT + KeySwitch.STEM_HEIGHT + Keycap.THICKNESS)
 
          val knobCenter = (
-               caseTopPlane
-                  .translate(-caseTopPlane.normalVector, 2.mm)
+               alphanumericTopPlane
+                  .translate(-alphanumericTopPlane.normalVector, 2.mm)
             ) intersection (
                columnPlane
             ) intersection (
@@ -40,8 +41,8 @@ class FrontRotaryEncoderKnob(
             )
 
          return FrontRotaryEncoderKnob(
-            column.frontVector vectorProduct caseTopPlane.normalVector,
-            -caseTopPlane.normalVector,
+            column.frontVector vectorProduct alphanumericTopPlane.normalVector,
+            -alphanumericTopPlane.normalVector,
             knobCenter
          )
       }

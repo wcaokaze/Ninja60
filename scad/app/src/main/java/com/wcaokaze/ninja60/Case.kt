@@ -17,6 +17,9 @@ data class Case(
 
    companion object {
       private val THUMB_KEY_PITCH = 19.2.mm
+
+      val ALPHANUMERIC_FRONT_LEFT_MARGIN = 7.mm
+      val ALPHANUMERIC_FRONT_RIGHT_MARGIN = 11.mm
    }
 
    /** [Transformable.referencePoint]を通る[axis]向きの直線を軸として回転する */
@@ -79,7 +82,7 @@ data class Case(
       )
    }
 
-   val frontRotaryEncoderKnob get() = FrontRotaryEncoderKnob(alphanumericPlate)
+   val frontRotaryEncoderKnob get() = FrontRotaryEncoderKnob(alphanumericPlate, alphanumericTopPlaneLeft(alphanumericPlate, offset = 0.mm))
    val backRotaryEncoderKnob get() = BackRotaryEncoderKnob(alphanumericPlate)
    val backRotaryEncoderMediationGear get() = BackRotaryEncoderMediationGear(alphanumericPlate, alphanumericBackSlopePlane(alphanumericPlate, offset = 1.7.mm))
    val backRotaryEncoderGear get() = BackRotaryEncoderGear(backRotaryEncoderMediationGear, alphanumericBackSlopePlane(alphanumericPlate, offset = 1.7.mm))
@@ -214,7 +217,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
             otherOffsets = 1.5.mm)
       }
       intersection distortedCube(
-         topPlane = alphanumericTopPlane(case.alphanumericPlate, offset = 1.5.mm),
+         topPlane = alphanumericTopPlaneLeft(case.alphanumericPlate, offset = 1.5.mm),
          bottomPlane = Plane3d.XY_PLANE.translate(z = (-100).mm),
          rightPlane  = Plane3d.YZ_PLANE.translate(x =   100 .mm),
          leftPlane   = Plane3d.YZ_PLANE.translate(x = (-100).mm),
@@ -301,34 +304,106 @@ fun ScadParentObject.alphanumericCase(
    bottomOffset: Size = 0.mm,
    otherOffsets: Size = 0.mm
 ): ScadObject {
-   return hullPoints(
-      listOf(
-         alphanumericLeftPlane(case.alphanumericPlate, otherOffsets),
-         alphanumericRightPlane(case.alphanumericPlate, otherOffsets)
-      ).flatMap { leftRightPlane ->
-         listOf(
-               alphanumericBottomPlane(case, bottomOffset),
-               alphanumericBackPlane(case, otherOffsets),
-               alphanumericBackSlopePlane(case.alphanumericPlate, otherOffsets),
-               alphanumericTopPlane(case.alphanumericPlate, otherOffsets),
-               alphanumericFrontSlopePlane(case.alphanumericPlate, otherOffsets),
-               alphanumericFrontPlane(case.alphanumericPlate, otherOffsets),
-               alphanumericBottomPlane(case, bottomOffset)
-            )
-            .zipWithNext()
-            .map { (a, b) ->
-               a intersection b intersection leftRightPlane
+   val xLines = listOf(
+      case.lrLine.translate(y = (-300).mm, z = (-300).mm),
+      case.lrLine.translate(y = (-300).mm, z =   300 .mm),
+      case.lrLine.translate(y =   300 .mm, z = (-300).mm),
+      case.lrLine.translate(y =   300 .mm, z =   300 .mm),
+   )
+
+   val leftPlane  = Plane3d.YZ_PLANE.translate((-300).mm)
+   val rightPlane = Plane3d.YZ_PLANE.translate(  300 .mm)
+
+   val knobColumn = case.alphanumericPlate.columns[FrontRotaryEncoderKnob.COLUMN_INDEX]
+   val knobPlane = Plane3d(knobColumn.referencePoint, knobColumn.rightVector)
+
+   return union {
+      intersection {
+         hullPoints(
+            listOf(leftPlane, knobPlane).flatMap { leftRightPlane ->
+               xLines.map { line -> leftRightPlane intersection line }
             }
+         )
+
+         hullPoints(
+            listOf(
+               alphanumericLeftPlane(case.alphanumericPlate, otherOffsets),
+               alphanumericRightPlane(case.alphanumericPlate, otherOffsets)
+            ).flatMap { leftRightPlane ->
+               listOf(
+                     alphanumericBottomPlane(case, bottomOffset),
+                     alphanumericBackPlane(case, otherOffsets),
+                     alphanumericBackSlopePlane(case.alphanumericPlate, otherOffsets),
+                     alphanumericTopPlaneLeft(case.alphanumericPlate, otherOffsets),
+                     alphanumericFrontSlopePlane(case.alphanumericPlate, otherOffsets),
+                     alphanumericFrontPlaneLeft(case.alphanumericPlate, otherOffsets),
+                     alphanumericBottomPlane(case, bottomOffset)
+                  )
+                  .zipWithNext()
+                  .map { (a, b) ->
+                     a intersection b intersection leftRightPlane
+                  }
+            }
+         )
       }
+
+      intersection {
+         hullPoints(
+            listOf(knobPlane, rightPlane).flatMap { leftRightPlane ->
+               xLines.map { line -> leftRightPlane intersection line }
+            }
+         )
+
+         hullPoints(
+            listOf(
+               alphanumericLeftPlane(case.alphanumericPlate, otherOffsets),
+               alphanumericRightPlane(case.alphanumericPlate, otherOffsets)
+            ).flatMap { leftRightPlane ->
+               listOf(
+                     alphanumericBottomPlane(case, bottomOffset),
+                     alphanumericBackPlane(case, otherOffsets),
+                     alphanumericBackSlopePlane(case.alphanumericPlate, otherOffsets),
+                     alphanumericTopPlaneRight(case.alphanumericPlate, otherOffsets),
+                     alphanumericFrontPlaneRight(case.alphanumericPlate, otherOffsets),
+                     alphanumericBottomPlane(case, bottomOffset)
+                  )
+                  .zipWithNext()
+                  .map { (a, b) ->
+                     a intersection b intersection leftRightPlane
+                  }
+            }
+         )
+      }
+   }
+}
+
+fun alphanumericTopPlaneLeft(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+   return alphanumericTopPlane(
+      alphanumericPlate,
+      alphanumericPlate.columns.subList(0, FrontRotaryEncoderKnob.COLUMN_INDEX),
+      offset
    )
 }
 
-fun alphanumericTopPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+fun alphanumericTopPlaneRight(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+   return alphanumericTopPlane(
+      alphanumericPlate,
+      alphanumericPlate.columns.subList(
+         FrontRotaryEncoderKnob.COLUMN_INDEX, alphanumericPlate.columns.size),
+      offset
+   )
+}
+
+private fun alphanumericTopPlane(
+   alphanumericPlate: AlphanumericPlate,
+   columns: List<AlphanumericColumn>,
+   offset: Size
+): Plane3d {
    // 上面の平面を算出する。
    // 各Columnの一番手前の点から2点を選び、
    // その2点を通る平面が他のすべての点より上にあるとき使える
 
-   val points = alphanumericPlate.columns
+   val points = columns
       .flatMap { column ->
          val plate = column.keySwitches.last().plate(AlphanumericPlate.KEY_PLATE_SIZE)
          listOf(plate.frontLeft, plate.frontRight)
@@ -472,8 +547,29 @@ fun alphanumericFrontSlopePlane(alphanumericPlate: AlphanumericPlate, offset: Si
       }
 }
 
-fun alphanumericFrontPlane(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
-   val mostFrontKeyPlates = alphanumericPlate.columns
+fun alphanumericFrontPlaneLeft(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+   return alphanumericFrontPlane(
+      alphanumericPlate,
+      alphanumericPlate.columns.subList(0, FrontRotaryEncoderKnob.COLUMN_INDEX),
+      offset + Case.ALPHANUMERIC_FRONT_LEFT_MARGIN
+   )
+}
+
+fun alphanumericFrontPlaneRight(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+   return alphanumericFrontPlane(
+      alphanumericPlate,
+      alphanumericPlate.columns.subList(
+         FrontRotaryEncoderKnob.COLUMN_INDEX, alphanumericPlate.columns.size),
+      offset + Case.ALPHANUMERIC_FRONT_RIGHT_MARGIN
+   )
+}
+
+private fun alphanumericFrontPlane(
+   alphanumericPlate: AlphanumericPlate,
+   columns: List<AlphanumericColumn>,
+   offset: Size
+): Plane3d {
+   val mostFrontKeyPlates = columns
       .map { it.keySwitches.last().plate(AlphanumericPlate.KEY_PLATE_SIZE) }
       .map { it.translate(it.bottomVector, KeySwitch.BOTTOM_HEIGHT) }
 
@@ -503,7 +599,7 @@ fun alphanumericFrontPlane(alphanumericPlate: AlphanumericPlate, offset: Size): 
          Plane3d(mostFrontPoint, plane.normalVector)
       }
       .let {
-         it.translate(it.normalVector, 10.mm + offset)
+         it.translate(it.normalVector, offset)
       }
 }
 
