@@ -22,9 +22,15 @@ fun ScadParentObject.polygonPyramid(n: Int, height: Size, radius: Size): ScadObj
 
 fun ScadParentObject.arcCylinder(
    radius: Size, height: Size,
-   startAngle: Angle, endAngle: Angle
+   startAngle: Angle, endAngle: Angle,
+   offset: Size = 0.mm
 ): ScadObject {
    val fixedRadius = radius * sqrt(2.0)
+
+   val startOffset = Size2d(offset * cos(startAngle - 90.deg),
+                            offset * sin(startAngle - 90.deg))
+   val endOffset = Size2d(offset * cos(endAngle + 90.deg),
+                          offset * sin(endAngle + 90.deg))
 
    fun arcPoint(a: Angle) = Point2d.ORIGIN + Size2d(fixedRadius * cos(a),
                                                     fixedRadius * sin(a))
@@ -36,9 +42,11 @@ fun ScadParentObject.arcCylinder(
          polygon(
             listOf(
                Point2d.ORIGIN,
-               arcPoint(startAngle),
+               Point2d.ORIGIN + startOffset,
+               arcPoint(startAngle) + startOffset,
                *(startAngle..endAngle step Angle.PI / 4).map(::arcPoint).toTypedArray(),
-               arcPoint(endAngle)
+               arcPoint(endAngle) + endOffset,
+               Point2d.ORIGIN + endOffset
             )
          )
       }

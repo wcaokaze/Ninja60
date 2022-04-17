@@ -657,7 +657,6 @@ private fun ScadParentObject.thumbPlateCase(
    val innerRadius = thumbPlate.layoutRadius - keyLength / 2
 
    val backAngle = Angle.PI / 2
-   val offsetAngle = Angle(otherOffsets / innerRadius)
 
    val startAngle = backAngle - thumbPlate.keyAngle * (thumbPlate.keySwitches.size - 0.5)
    val endAngle = backAngle + thumbPlate.keyAngle / 2
@@ -666,9 +665,9 @@ private fun ScadParentObject.thumbPlateCase(
       translate(y = -thumbPlate.layoutRadius, z = -bottomOffset) {
          difference {
             arcCylinder(radius = outerRadius + otherOffsets, height + bottomOffset,
-               startAngle - offsetAngle, endAngle + offsetAngle)
+               startAngle, endAngle, otherOffsets)
             arcCylinder(radius = innerRadius - otherOffsets, height + bottomOffset,
-               startAngle - offsetAngle, endAngle + offsetAngle)
+               startAngle, endAngle, otherOffsets)
          }
       }
    }
@@ -959,16 +958,15 @@ fun ScadParentObject.frontRotaryEncoderKeyHole(
             val innerRadius = FrontRotaryEncoderKey.RADIUS - FrontRotaryEncoderKey.KEY_WIDTH / 2
 
             val frontAngle = -Angle.PI / 2
-            val offsetAngle = Angle(otherOffsets / innerRadius)
 
             val startAngle = frontAngle - FrontRotaryEncoderKey.ARC_ANGLE / 2
             val endAngle   = frontAngle + FrontRotaryEncoderKey.ARC_ANGLE / 2
 
             arcCylinder(radius = outerRadius + otherOffsets, height + bottomOffset,
-               startAngle - offsetAngle, endAngle + offsetAngle)
+               startAngle, endAngle, otherOffsets)
 
             arcCylinder(radius = innerRadius - innerRadiusOffset, height + bottomOffset,
-               startAngle - offsetAngle, endAngle + offsetAngle)
+               startAngle, endAngle, otherOffsets)
          }
       }
    }
