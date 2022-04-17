@@ -208,16 +208,22 @@ fun ScadParentObject.case(case: Case): ScadObject {
    scad += (
       union {
          frontRotaryEncoderKnobHole(case.frontRotaryEncoderKnob,
-            bottomOffset = 1.5.mm, radiusOffset = 1.5.mm)
+            bottomOffset = PrinterAdjustments.minWallThickness.value,
+            radiusOffset = PrinterAdjustments.minWallThickness.value)
          frontRotaryEncoderHole(case.frontRotaryEncoderKnob.rotaryEncoder,
             bottomOffset = 1.6.mm, otherOffsets = 1.5.mm)
          frontRotaryEncoderKeyHole(case.frontRotaryEncoderKey,
             height = KeySwitch.TRAVEL,
             bottomOffset = KeySwitch.BOTTOM_HEIGHT,
-            otherOffsets = 1.5.mm)
+            innerRadiusOffset = PrinterAdjustments.minWallThickness.value,
+            otherOffsets = PrinterAdjustments.minWallThickness.value)
       }
       intersection distortedCube(
-         topPlane = alphanumericTopPlaneLeft(case.alphanumericPlate, offset = 1.5.mm),
+         topPlane = alphanumericTopPlaneLeft(
+            case.alphanumericPlate,
+            offset = PrinterAdjustments.minWallThickness.value
+                  + PrinterAdjustments.minHollowSize.value.z
+         ),
          bottomPlane = Plane3d.XY_PLANE.translate(z = (-100).mm),
          rightPlane  = Plane3d.YZ_PLANE.translate(x =   100 .mm),
          leftPlane   = Plane3d.YZ_PLANE.translate(x = (-100).mm),
@@ -233,7 +239,13 @@ fun ScadParentObject.case(case: Case): ScadObject {
    scad -= union {
       frontRotaryEncoderKnobHole(case.frontRotaryEncoderKnob)
       frontRotaryEncoderHole(case.frontRotaryEncoderKnob.rotaryEncoder)
-      frontRotaryEncoderKeyHole(case.frontRotaryEncoderKey, height = 100.mm, otherOffsets = 0.1.mm)
+      frontRotaryEncoderKeyHole(case.frontRotaryEncoderKey, height = 100.mm)
+      frontRotaryEncoderKeyHole(
+         case.frontRotaryEncoderKey,
+         height = 100.mm,
+         bottomOffset = frontRotaryEncoderKnobHoleZOffset()
+               - FrontRotaryEncoderKey.Z_OFFSET_FROM_KNOB,
+         innerRadiusOffset = 3.mm)
       rotaryEncoderMountHole(case.frontRotaryEncoderKnob.rotaryEncoder, 2.mm)
    }
 
@@ -247,7 +259,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
          case.alphanumericPlate.columns.getOrNull(FrontRotaryEncoderKnob.COLUMN_INDEX + 1),
          HullAlphanumericConfig(
             layerOffset = 20.mm,
-            frontBackOffset = 20.mm,
+            frontBackOffset = 40.mm,
             columnOffset = 1.mm
          )
       )
@@ -855,16 +867,21 @@ fun ScadParentObject.backRotaryEncoderKnobCave(case: Case): ScadObject {
 
 // =============================================================================
 
+private fun ScadObject.frontRotaryEncoderKnobHoleZOffset(): Size
+      = RotaryEncoder.CLICK_TRAVEL + PrinterAdjustments.movableMargin.value
+
 private fun ScadParentObject.frontRotaryEncoderKnobHole(
    knob: FrontRotaryEncoderKnob,
    bottomOffset: Size = 0.mm,
    radiusOffset: Size = 0.mm
 ): ScadObject {
    return place(knob) {
-      translate(z = (-1.5).mm - bottomOffset) {
+      translate(z = -frontRotaryEncoderKnobHoleZOffset() - bottomOffset) {
          cylinder(
             FrontRotaryEncoderKnob.HEIGHT * 2,
-            FrontRotaryEncoderKnob.RADIUS + 0.7.mm + radiusOffset
+            FrontRotaryEncoderKnob.RADIUS
+                  + PrinterAdjustments.movableMargin.value
+                  + radiusOffset
          )
       }
    }
@@ -894,6 +911,7 @@ fun ScadParentObject.frontRotaryEncoderKeyHole(
    key: FrontRotaryEncoderKey,
    height: Size,
    bottomOffset: Size = 0.mm,
+   innerRadiusOffset: Size = 0.mm,
    otherOffsets: Size = 0.mm
 ): ScadObject {
    return place(key) {
@@ -911,7 +929,7 @@ fun ScadParentObject.frontRotaryEncoderKeyHole(
             arcCylinder(radius = outerRadius + otherOffsets, height + bottomOffset,
                startAngle - offsetAngle, endAngle + offsetAngle)
 
-            arcCylinder(radius = innerRadius - otherOffsets, height + bottomOffset,
+            arcCylinder(radius = innerRadius - innerRadiusOffset, height + bottomOffset,
                startAngle - offsetAngle, endAngle + offsetAngle)
          }
       }

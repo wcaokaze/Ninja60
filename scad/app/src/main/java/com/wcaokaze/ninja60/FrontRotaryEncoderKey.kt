@@ -58,12 +58,20 @@ data class FrontRotaryEncoderKey(
                / RADIUS.numberAsMilliMeter.pow(2.0)) / 2)))
       }
 
+      /**
+       * [FrontRotaryEncoderKnob.bottomVector]方向へズラす距離。
+       *
+       * [referencePoint]基準。つまりノブの表面とかキーの表面ではなく、
+       * ノブの底面位置からキースイッチのマウントプレート位置までの
+       * Z軸上の距離。
+       */
+      val Z_OFFSET_FROM_KNOB = 8.8.mm
+
       operator fun invoke(knob: FrontRotaryEncoderKnob): FrontRotaryEncoderKey {
          return FrontRotaryEncoderKey(
             knob.frontVector .rotate(knob.topVector, 135.deg),
             knob.bottomVector.rotate(knob.topVector, 135.deg),
-            knob.referencePoint.translate(knob.bottomVector,
-               Keycap.THICKNESS + KeySwitch.STEM_HEIGHT + KeySwitch.TOP_HEIGHT)
+            knob.referencePoint.translate(knob.bottomVector, Z_OFFSET_FROM_KNOB)
          )
       }
    }

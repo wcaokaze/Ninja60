@@ -17,6 +17,9 @@ data class RotaryEncoder(
 
       /** 基板に取り付ける用の足の高さ */
       val LEG_HEIGHT = 3.2.mm
+
+      /** クリックするときの押し込みの深さ */
+      val CLICK_TRAVEL = 1.5.mm
    }
 
    init {

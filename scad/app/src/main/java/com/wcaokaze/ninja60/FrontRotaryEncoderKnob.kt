@@ -60,7 +60,9 @@ class FrontRotaryEncoderKnob(
 fun ScadParentObject.frontRotaryEncoderKnob(knob: FrontRotaryEncoderKnob): ScadObject {
    return (
       place(knob) {
-         cylinder(FrontRotaryEncoderKnob.HEIGHT, FrontRotaryEncoderKnob.RADIUS)
+         cylinder(
+            FrontRotaryEncoderKnob.HEIGHT - PrinterAdjustments.errorSize.value,
+            FrontRotaryEncoderKnob.RADIUS - PrinterAdjustments.errorSize.value)
       }
       - rotaryEncoderKnobHole(knob.rotaryEncoder)
    )

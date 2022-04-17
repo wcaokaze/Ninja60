@@ -37,7 +37,7 @@ fun ScadParentObject.arcCylinder(
             listOf(
                Point2d.ORIGIN,
                arcPoint(startAngle),
-               *(startAngle..endAngle step Angle.PI / 2).map(::arcPoint).toTypedArray(),
+               *(startAngle..endAngle step Angle.PI / 4).map(::arcPoint).toTypedArray(),
                arcPoint(endAngle)
             )
          )
