@@ -18,7 +18,7 @@ data class Case(
    companion object {
       private val THUMB_KEY_PITCH = 19.2.mm
 
-      val ALPHANUMERIC_FRONT_LEFT_MARGIN = 7.mm
+      val ALPHANUMERIC_FRONT_LEFT_MARGIN = 9.mm
       val ALPHANUMERIC_FRONT_RIGHT_MARGIN = 11.mm
    }
 
@@ -102,6 +102,11 @@ fun ScadParentObject.case(case: Case): ScadObject {
       union {
          alphanumericCase(case, otherOffsets = 1.5.mm)
          //thumbCase(case, offsets = 1.5.mm)
+
+         frontRotaryEncoderKnobCase(
+            case,
+            radiusOffset = PrinterAdjustments.minWallThickness.value
+         )
       }
    }
 
@@ -110,6 +115,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
    scad -= union {
       alphanumericCase(case, bottomOffset = 1.5.mm)
       //thumbCase(case)
+      frontRotaryEncoderKnobCase(case)
    }
 
 
@@ -218,17 +224,12 @@ fun ScadParentObject.case(case: Case): ScadObject {
             innerRadiusOffset = PrinterAdjustments.minWallThickness.value,
             otherOffsets = PrinterAdjustments.minWallThickness.value)
       }
-      intersection distortedCube(
+      intersection hugeCube(
          topPlane = alphanumericTopPlaneLeft(
             case.alphanumericPlate,
             offset = PrinterAdjustments.minWallThickness.value
                   + PrinterAdjustments.minHollowSize.value.z
-         ),
-         bottomPlane = Plane3d.XY_PLANE.translate(z = (-100).mm),
-         rightPlane  = Plane3d.YZ_PLANE.translate(x =   100 .mm),
-         leftPlane   = Plane3d.YZ_PLANE.translate(x = (-100).mm),
-         backPlane   = Plane3d.ZX_PLANE.translate(y =   100 .mm),
-         frontPlane  = Plane3d.ZX_PLANE.translate(y = (-100).mm)
+         )
       )
 
       // 手前側ロータリーエンコーダは意図的にalphanumericとカブる位置に配置されてます
@@ -288,6 +289,20 @@ fun ScadParentObject.case(case: Case): ScadObject {
    }
 
    return scad
+}
+
+// =============================================================================
+
+private fun ScadParentObject.hugeCube(
+   leftPlane:   Plane3d = Plane3d.YZ_PLANE.translate(x = (-200).mm),
+   rightPlane:  Plane3d = Plane3d.YZ_PLANE.translate(x =   200 .mm),
+   frontPlane:  Plane3d = Plane3d.ZX_PLANE.translate(y = (-200).mm),
+   backPlane:   Plane3d = Plane3d.ZX_PLANE.translate(y =   200 .mm),
+   bottomPlane: Plane3d = Plane3d.XY_PLANE.translate(z = (-200).mm),
+   topPlane:    Plane3d = Plane3d.XY_PLANE.translate(z =   200 .mm)
+): ScadObject {
+   return distortedCube(
+      topPlane, leftPlane, backPlane, rightPlane, frontPlane, bottomPlane)
 }
 
 private fun ScadParentObject.distortedCube(
@@ -869,6 +884,29 @@ fun ScadParentObject.backRotaryEncoderKnobCave(case: Case): ScadObject {
 
 private fun ScadObject.frontRotaryEncoderKnobHoleZOffset(): Size
       = RotaryEncoder.CLICK_TRAVEL + PrinterAdjustments.movableMargin.value
+
+private fun ScadParentObject.frontRotaryEncoderKnobCase(
+   case: Case,
+   radiusOffset: Size = 0.mm
+): ScadObject {
+   return intersection {
+      place(case.frontRotaryEncoderKnob) {
+         translate(z = (-200).mm) {
+            cylinder(
+               height = 400.mm,
+               radius = FrontRotaryEncoderKnob.RADIUS
+                     + PrinterAdjustments.movableMargin.value
+                     + radiusOffset
+            )
+         }
+      }
+
+      hugeCube(
+         topPlane = alphanumericTopPlaneLeft(case.alphanumericPlate, offset = 0.mm),
+         bottomPlane = alphanumericBottomPlane(case, offset = 0.mm)
+      )
+   }
+}
 
 private fun ScadParentObject.frontRotaryEncoderKnobHole(
    knob: FrontRotaryEncoderKnob,
