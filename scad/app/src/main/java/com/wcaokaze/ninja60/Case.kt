@@ -20,6 +20,8 @@ data class Case(
 
       val ALPHANUMERIC_FRONT_LEFT_MARGIN = 9.mm
       val ALPHANUMERIC_FRONT_RIGHT_MARGIN = 11.mm
+
+      val FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT = 17.mm
    }
 
    /** [Transformable.referencePoint]を通る[axis]向きの直線を軸として回転する */
@@ -107,6 +109,13 @@ fun ScadParentObject.case(case: Case): ScadObject {
             case,
             radiusOffset = PrinterAdjustments.minWallThickness.value
          )
+
+         frontRotaryEncoderKeyCase(
+            case.frontRotaryEncoderKey,
+            height = Case.FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT
+                  + PrinterAdjustments.minWallThickness.value,
+            offset = PrinterAdjustments.minWallThickness.value
+         )
       }
    }
 
@@ -116,6 +125,8 @@ fun ScadParentObject.case(case: Case): ScadObject {
       alphanumericCase(case, bottomOffset = 1.5.mm)
       //thumbCase(case)
       frontRotaryEncoderKnobCase(case)
+      frontRotaryEncoderKeyCase(case.frontRotaryEncoderKey,
+         height = Case.FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT)
    }
 
 
@@ -942,6 +953,27 @@ private fun ScadParentObject.frontRotaryEncoderHole(
       rotaryEncoder.frontVector,
       rotaryEncoder.bottomVector
    ))
+}
+
+fun ScadParentObject.frontRotaryEncoderKeyCase(
+   key: FrontRotaryEncoderKey,
+   height: Size,
+   offset: Size = 0.mm
+): ScadObject {
+   return place(key) {
+      translate(z = -height) {
+         difference {
+            val radius = FrontRotaryEncoderKey.RADIUS + FrontRotaryEncoderKey.KEY_WIDTH / 2
+
+            val frontAngle = -Angle.PI / 2
+
+            val startAngle = frontAngle - FrontRotaryEncoderKey.ARC_ANGLE / 2
+            val endAngle   = frontAngle + FrontRotaryEncoderKey.ARC_ANGLE / 2
+
+            arcCylinder(radius + offset, height, startAngle, endAngle, offset)
+         }
+      }
+   }
 }
 
 fun ScadParentObject.frontRotaryEncoderKeyHole(
