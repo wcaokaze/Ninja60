@@ -19,9 +19,9 @@ data class Case(
       private val THUMB_KEY_PITCH = 19.2.mm
 
       val ALPHANUMERIC_FRONT_LEFT_MARGIN = 9.mm
-      val ALPHANUMERIC_FRONT_RIGHT_MARGIN = 11.mm
+      val ALPHANUMERIC_FRONT_RIGHT_MARGIN = 1.mm
 
-      val FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT = 17.mm
+      val FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT = 11.mm
       val THUMB_HOME_KEY_CASE_HEIGHT = 12.mm
    }
 
@@ -124,7 +124,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
             bottomOffset = Case.THUMB_HOME_KEY_CASE_HEIGHT
                   + PrinterAdjustments.minWallThickness.value,
             frontOffset = PrinterAdjustments.minWallThickness.value,
-            backOffset = PrinterAdjustments.minWallThickness.value,
+            backOffset = 20.mm,
             leftOffset = 20.mm,
             rightOffset = PrinterAdjustments.minWallThickness.value
          )
@@ -197,7 +197,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
    scad += thumbPlateCase(case.thumbPlate,
       height = KeySwitch.TRAVEL,
       bottomOffset = KeySwitch.BOTTOM_HEIGHT,
-      otherOffsets = 1.5.mm)
+      otherOffsets = PrinterAdjustments.minWallThickness.value)
    scad -= thumbPlateCase(case.thumbPlate, height = 100.mm)
    /*
    // alphanumericと同じ手法でやりましょうね
@@ -425,7 +425,7 @@ fun ScadParentObject.alphanumericCase(
                      alphanumericBackPlane(case, otherOffsets),
                      alphanumericBackSlopePlane(case.alphanumericPlate, otherOffsets),
                      alphanumericTopPlaneRight(case.alphanumericPlate, otherOffsets),
-                     alphanumericFrontPlaneRight(case.alphanumericPlate, otherOffsets),
+                     alphanumericFrontPlaneRight(case.alphanumericPlate, case.thumbHomeKey, otherOffsets),
                      alphanumericBottomPlane(case, bottomOffset)
                   )
                   .zipWithNext()
@@ -612,22 +612,35 @@ fun alphanumericFrontPlaneLeft(alphanumericPlate: AlphanumericPlate, offset: Siz
    return alphanumericFrontPlane(
       alphanumericPlate,
       alphanumericPlate.columns.subList(0, FrontRotaryEncoderKnob.COLUMN_INDEX),
+      surfaceVector = Vector3d.Z_UNIT_VECTOR,
       offset + Case.ALPHANUMERIC_FRONT_LEFT_MARGIN
    )
 }
 
-fun alphanumericFrontPlaneRight(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
+fun alphanumericFrontPlaneRight(
+   alphanumericPlate: AlphanumericPlate,
+   thumbHomeKey: KeySwitch,
+   offset: Size
+): Plane3d {
    return alphanumericFrontPlane(
       alphanumericPlate,
       alphanumericPlate.columns.subList(
          FrontRotaryEncoderKnob.COLUMN_INDEX, alphanumericPlate.columns.size),
+      surfaceVector = thumbHomeKey.leftVector,
       offset + Case.ALPHANUMERIC_FRONT_RIGHT_MARGIN
    )
 }
 
+/**
+ * @param surfaceVector
+ * 表面のベクトル。返り値の平面はこのベクトルと平行
+ * (すなわち法線ベクトルがこのベクトルと垂直)であることが保証される。
+ * 一応ケースに対して上向きであることを期待してます
+ */
 private fun alphanumericFrontPlane(
    alphanumericPlate: AlphanumericPlate,
    columns: List<AlphanumericColumn>,
+   surfaceVector: Vector3d,
    offset: Size
 ): Plane3d {
    val mostFrontKeyPlates = columns
@@ -640,7 +653,7 @@ private fun alphanumericFrontPlane(
       .iterateAllCombination()
       .filter { it.vectorAB isSameDirection alphanumericPlate.rightVector }
       .map {
-         Plane3d(it.pointA, it.vectorAB vectorProduct Vector3d.Z_UNIT_VECTOR)
+         Plane3d(it.pointA, it.vectorAB vectorProduct surfaceVector)
       }
       .minByOrNull { plane ->
          // 各KeyPlateとの角度の合計が一番小さいやつ

@@ -69,8 +69,8 @@ data class FrontRotaryEncoderKey(
 
       operator fun invoke(knob: FrontRotaryEncoderKnob): FrontRotaryEncoderKey {
          return FrontRotaryEncoderKey(
-            knob.frontVector .rotate(knob.topVector, 135.deg),
-            knob.bottomVector.rotate(knob.topVector, 135.deg),
+            knob.frontVector .rotate(knob.topVector, 152.deg),
+            knob.bottomVector.rotate(knob.topVector, 152.deg),
             knob.referencePoint.translate(knob.bottomVector, Z_OFFSET_FROM_KNOB)
          )
       }
