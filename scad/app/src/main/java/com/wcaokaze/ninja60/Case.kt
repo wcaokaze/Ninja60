@@ -22,6 +22,7 @@ data class Case(
       val ALPHANUMERIC_FRONT_RIGHT_MARGIN = 11.mm
 
       val FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT = 17.mm
+      val THUMB_HOME_KEY_CASE_HEIGHT = 12.mm
    }
 
    /** [Transformable.referencePoint]を通る[axis]向きの直線を軸として回転する */
@@ -116,6 +117,17 @@ fun ScadParentObject.case(case: Case): ScadObject {
                   + PrinterAdjustments.minWallThickness.value,
             offset = PrinterAdjustments.minWallThickness.value
          )
+
+         thumbHomeKeyHole(
+            case.thumbHomeKey,
+            height = KeySwitch.TRAVEL,
+            bottomOffset = Case.THUMB_HOME_KEY_CASE_HEIGHT
+                  + PrinterAdjustments.minWallThickness.value,
+            frontOffset = PrinterAdjustments.minWallThickness.value,
+            backOffset = PrinterAdjustments.minWallThickness.value,
+            leftOffset = 20.mm,
+            rightOffset = PrinterAdjustments.minWallThickness.value
+         )
       }
    }
 
@@ -127,6 +139,8 @@ fun ScadParentObject.case(case: Case): ScadObject {
       frontRotaryEncoderKnobCase(case)
       frontRotaryEncoderKeyCase(case.frontRotaryEncoderKey,
          height = Case.FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT)
+      thumbHomeKeyHole(case.thumbHomeKey, height = 0.mm, leftOffset = 20.mm,
+         bottomOffset = Case.THUMB_HOME_KEY_CASE_HEIGHT, backOffset = 20.mm)
    }
 
 
@@ -170,6 +184,15 @@ fun ScadParentObject.case(case: Case): ScadObject {
 
 
    // ==== thumbのプレート部 ===================================================
+
+   scad += thumbHomeKeyHole(case.thumbHomeKey,
+      height = KeySwitch.TRAVEL,
+      bottomOffset = KeySwitch.BOTTOM_HEIGHT,
+      frontOffset = PrinterAdjustments.minWallThickness.value,
+      backOffset = PrinterAdjustments.minWallThickness.value,
+      leftOffset = PrinterAdjustments.minWallThickness.value,
+      rightOffset = PrinterAdjustments.minWallThickness.value)
+   scad -= thumbHomeKeyHole(case.thumbHomeKey, height = 100.mm)
 
    scad += thumbPlateCase(case.thumbPlate,
       height = KeySwitch.TRAVEL,
@@ -642,6 +665,31 @@ private fun alphanumericFrontPlane(
 }
 
 // =============================================================================
+
+private fun ScadParentObject.thumbHomeKeyHole(
+   key: KeySwitch,
+   height: Size,
+   bottomOffset: Size = 0.mm,
+   frontOffset: Size = 0.mm,
+   backOffset: Size = 0.mm,
+   leftOffset: Size = 0.mm,
+   rightOffset: Size = 0.mm
+): ScadObject {
+   val keyPlateSize = key.plate(ThumbPlate.KEY_PLATE_SIZE).size
+
+   return cube(Cube(
+      key.referencePoint
+         .translate(key.leftVector,  keyPlateSize.x / 2 + leftOffset)
+         .translate(key.frontVector, keyPlateSize.y / 2 + frontOffset)
+         .translate(key.bottomVector, bottomOffset),
+      Size3d(
+         keyPlateSize.x + leftOffset + rightOffset,
+         keyPlateSize.y + frontOffset + backOffset,
+         height + bottomOffset),
+      key.frontVector,
+      key.bottomVector
+   ))
+}
 
 /*
 private fun ScadParentObject.thumbCase(
