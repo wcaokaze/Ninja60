@@ -53,6 +53,27 @@ fun ScadParentObject.arcCylinder(
    }
 }
 
+fun ScadParentObject.arcCylinder(
+   innerRadius: Size, outerRadius: Size,
+   height: Size,
+   startAngle: Angle, endAngle: Angle,
+   offset: Size = 0.mm
+): ScadObject {
+   return difference {
+      arcCylinder(outerRadius, height, startAngle, endAngle, offset)
+
+      translate(z = (-0.01).mm) {
+         arcCylinder(
+            innerRadius,
+            height + 0.02.mm,
+            startAngle - 0.1.deg,
+            endAngle + 0.1.deg,
+            offset
+         )
+      }
+   }
+}
+
 /**
  * [point]を通るこの平面の垂線のベクトル ([point]からこの平面を向く)
  */
