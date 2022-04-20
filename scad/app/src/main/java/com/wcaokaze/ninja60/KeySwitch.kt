@@ -71,8 +71,8 @@ fun ScadParentObject.switchHole(): ScadObject {
          cube(caveSize, caveSize, KeySwitch.BOTTOM_HEIGHT + 0.5.mm - plateThickness)
       }
 
-      translate(-plateHoleSize / 2, -plateHoleSize / 2, -(1.5.mm + 0.5.mm)) {
-         cube(plateHoleSize, plateHoleSize, 2.0.mm)
+      translate(-plateHoleSize / 2, -plateHoleSize / 2, -(plateThickness + 0.5.mm)) {
+         cube(plateHoleSize, plateHoleSize, plateThickness + 1.mm)
       }
    }
 }
