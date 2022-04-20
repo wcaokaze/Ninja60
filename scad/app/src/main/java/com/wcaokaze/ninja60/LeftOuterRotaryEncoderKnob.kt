@@ -38,8 +38,7 @@ class LeftOuterRotaryEncoderKnob(
          val keySwitch = leftmostColumn.keySwitches[ROW_INDEX]
 
          val keycapTop = keySwitch.referencePoint
-            .translate(keySwitch.topVector,
-               KeySwitch.TOP_HEIGHT + KeySwitch.STEM_HEIGHT + Keycap.THICKNESS)
+            .translate(keySwitch.topVector, KeySwitch.KEYCAP_SURFACE_HEIGHT)
 
          val tangencyPoint = alphanumericPlate.leftmostPlane intersection
                Line3d(keycapTop, keySwitch.leftVector)

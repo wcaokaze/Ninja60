@@ -25,7 +25,7 @@ data class AlphanumericColumn(
       val alignmentAxis = Line3d(referencePoint, rightVector)
 
       val nonTwistedRow3 = KeySwitch(keycapTop, bottomVector, frontVector)
-         .translate(bottomVector, Keycap.THICKNESS + KeySwitch.STEM_HEIGHT + KeySwitch.TOP_HEIGHT)
+         .translate(bottomVector, KeySwitch.KEYCAP_SURFACE_HEIGHT)
 
       val nonTwistedRow2 = nonTwistedRow3
          .let { row2 ->

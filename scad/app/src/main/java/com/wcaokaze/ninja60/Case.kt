@@ -71,7 +71,7 @@ data class Case(
             key.rotate(
                Line3d(
                   key.referencePoint
-                     .translate(key.topVector, KeySwitch.TOP_HEIGHT + KeySwitch.STEM_HEIGHT + Keycap.THICKNESS)
+                     .translate(key.topVector, KeySwitch.KEYCAP_SURFACE_HEIGHT)
                      .translate(key.rightVector, THUMB_KEY_PITCH * key.layoutSize.x / 2),
                   key.frontVector
                ),

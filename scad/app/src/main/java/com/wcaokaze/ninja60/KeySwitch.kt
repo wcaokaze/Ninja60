@@ -25,6 +25,9 @@ data class KeySwitch(
 
       /** スイッチの上面(ステムの先ではない)からトッププレートまでの距離 */
       val TOP_HEIGHT = HEIGHT - BOTTOM_HEIGHT
+
+      /** [KeySwitch.referencePoint]からキーキャップの表面までの距離 */
+      val KEYCAP_SURFACE_HEIGHT = TOP_HEIGHT + STEM_HEIGHT + Keycap.THICKNESS
    }
 
    /** [大きさ][layoutSize]が1Uの[KeySwitch] */

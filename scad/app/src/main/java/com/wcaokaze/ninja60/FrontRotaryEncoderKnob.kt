@@ -26,7 +26,7 @@ class FrontRotaryEncoderKnob(
 
          val mostFrontKey = column.keySwitches.last()
          val mostFrontKeycapTopPlane = Plane3d(mostFrontKey.referencePoint, mostFrontKey.topVector)
-            .translate(mostFrontKey.topVector, KeySwitch.TOP_HEIGHT + KeySwitch.STEM_HEIGHT + Keycap.THICKNESS)
+            .translate(mostFrontKey.topVector, KeySwitch.KEYCAP_SURFACE_HEIGHT)
 
          val knobCenter = (
                alphanumericTopPlane
