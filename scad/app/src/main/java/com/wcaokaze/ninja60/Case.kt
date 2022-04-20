@@ -4,6 +4,10 @@ import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
+private fun <T : Transformable<T>> T.transform(transformer: T.() -> T): T {
+   return transformer()
+}
+
 data class Case(
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
@@ -25,37 +29,18 @@ data class Case(
       val THUMB_HOME_KEY_CASE_HEIGHT = 12.mm
    }
 
-   /** [Transformable.referencePoint]を通る[axis]向きの直線を軸として回転する */
-   private fun <T : Transformable<T>>
-         T.rotate(axis: (T) -> Vector3d, angle: Angle): T
-   {
-      return rotate(
-         Line3d(referencePoint, axis(this)),
-         angle
-      )
-   }
-
-   private fun <T : Transformable<T>>
-         T.translate(direction: (T) -> Vector3d, distance: Size): T
-   {
-      return translate(
-         direction(this),
-         distance
-      )
-   }
-
    val alphanumericPlate: AlphanumericPlate get() {
       return AlphanumericPlate(frontVector, bottomVector, referencePoint)
-         .rotate(AlphanumericPlate::frontVector, 15.deg)
+         .transform { rotate(frontVectorLine, 15.deg) }
          .translate(backVector, 69.mm)
          .translate(topVector, 85.mm)
    }
 
    val thumbHomeKey: KeySwitch get() {
       return KeySwitch(referencePoint, bottomVector, frontVector)
-         .rotate(KeySwitch::backVector, 69.deg)
-         .rotate(KeySwitch::leftVector, 1.deg)
-         .rotate(KeySwitch::bottomVector, 10.deg)
+         .transform { rotate(backVectorLine, 69.deg) }
+         .transform { rotate(leftVectorLine, 1.deg) }
+         .transform { rotate(bottomVectorLine, 10.deg) }
          .translate(rightVector, 40.mm)
          .translate(backVector, 18.mm)
          .translate(topVector, 49.mm)
@@ -63,18 +48,11 @@ data class Case(
 
    val thumbPlate: ThumbPlate get() {
       val leftmostKey = thumbHomeKey
-         .translate(
-            rightVector,
-            distance = THUMB_KEY_PITCH * thumbHomeKey.layoutSize.x
-         )
-         .let { key ->
-            key.rotate(
-               Line3d(
-                  key.referencePoint
-                     .translate(key.topVector, KeySwitch.KEYCAP_SURFACE_HEIGHT)
-                     .translate(key.rightVector, THUMB_KEY_PITCH * key.layoutSize.x / 2),
-                  key.frontVector
-               ),
+         .transform { translate(rightVector, THUMB_KEY_PITCH * thumbHomeKey.layoutSize.x) }
+         .transform {
+            rotate(
+               frontVectorLine.translate(topVector, KeySwitch.KEYCAP_SURFACE_HEIGHT)
+                              .translate(leftVector, THUMB_KEY_PITCH * layoutSize.x / 2),
                80.deg
             )
          }
@@ -366,10 +344,10 @@ fun ScadParentObject.alphanumericCase(
    otherOffsets: Size = 0.mm
 ): ScadObject {
    val xLines = listOf(
-      case.lrLine.translate(y = (-300).mm, z = (-300).mm),
-      case.lrLine.translate(y = (-300).mm, z =   300 .mm),
-      case.lrLine.translate(y =   300 .mm, z = (-300).mm),
-      case.lrLine.translate(y =   300 .mm, z =   300 .mm),
+      case.rightVectorLine.translate(y = (-300).mm, z = (-300).mm),
+      case.rightVectorLine.translate(y = (-300).mm, z =   300 .mm),
+      case.rightVectorLine.translate(y =   300 .mm, z = (-300).mm),
+      case.rightVectorLine.translate(y =   300 .mm, z =   300 .mm),
    )
 
    val leftPlane  = Plane3d.YZ_PLANE.translate((-300).mm)

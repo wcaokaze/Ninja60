@@ -293,7 +293,7 @@ data class BackRotaryEncoderGear(
                = Plane3d(gear.referencePoint, mediationGear.bevelGear.topVector)
                .intersection(alphanumericCasePlane)
             val a = gear.topVector angleWith alphanumericCaseLine.vector
-            val v = mediationGearPositionRef.btLine
+            val v = mediationGearPositionRef.topVectorLine
             mediationGearPositionRef = mediationGearPositionRef.rotate(v, a)
             gear = gear.rotate(v, a)
          }
