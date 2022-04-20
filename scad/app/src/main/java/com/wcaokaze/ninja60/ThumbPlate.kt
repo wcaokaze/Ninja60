@@ -21,7 +21,8 @@ data class ThumbPlate(
       val KEY_PLATE_SIZE = Size2d(17.5.mm, 17.5.mm)
    }
 
-   val keyAngle get() = Angle(keyPitch / layoutRadius)
+   private val arcInnerRadius get() = layoutRadius - KEY_PLATE_SIZE.y / 2
+   val keyAngle get() = Angle(keyPitch / arcInnerRadius)
 
    val keySwitches: List<KeySwitch> get() {
       val arcCenter = referencePoint.translate(frontVector, layoutRadius)
