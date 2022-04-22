@@ -18,7 +18,7 @@ data class ThumbPlate(
    override val bottomVector: Vector3d
 ) : Transformable<ThumbPlate> {
    companion object {
-      val KEY_PLATE_SIZE = Size2d(17.5.mm, 17.5.mm)
+      val KEY_PLATE_SIZE = Size2d(17.5.mm, 24.mm)
    }
 
    private val arcInnerRadius get() = layoutRadius - KEY_PLATE_SIZE.y / 2

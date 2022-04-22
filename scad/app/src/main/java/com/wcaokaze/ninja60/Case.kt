@@ -23,9 +23,9 @@ data class Case(
       private val THUMB_KEY_PITCH = 19.2.mm
 
       val ALPHANUMERIC_FRONT_LEFT_MARGIN = 9.mm
-      val ALPHANUMERIC_FRONT_RIGHT_MARGIN = 1.mm
+      val ALPHANUMERIC_FRONT_RIGHT_MARGIN = 0.mm
 
-      val FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT = 11.mm
+      val FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT = 9.mm
       val THUMB_HOME_KEY_CASE_HEIGHT = 12.mm
    }
 
@@ -38,11 +38,11 @@ data class Case(
 
    val thumbHomeKey: KeySwitch get() {
       return KeySwitch(referencePoint, bottomVector, frontVector)
-         .transform { rotate(backVectorLine, 69.deg) }
+         .transform { rotate(backVectorLine, 65.deg) }
          .transform { rotate(leftVectorLine, 1.deg) }
-         .transform { rotate(bottomVectorLine, 10.deg) }
-         .translate(rightVector, 40.mm)
-         .translate(backVector, 18.mm)
+         .transform { rotate(bottomVectorLine, 14.deg) }
+         .translate(rightVector, 25.mm)
+         .translate(backVector, 17.mm)
          .translate(topVector, 49.mm)
    }
 
@@ -53,7 +53,7 @@ data class Case(
             rotate(
                frontVectorLine.translate(topVector, KeySwitch.KEYCAP_SURFACE_HEIGHT)
                               .translate(leftVector, THUMB_KEY_PITCH * layoutSize.x / 2),
-               80.deg
+               69.deg
             )
          }
 
@@ -702,7 +702,8 @@ private fun ScadParentObject.thumbPlateCase(
    bottomOffset: Size = 0.mm,
    otherOffsets: Size = 0.mm
 ): ScadObject {
-   val keyLength = thumbPlate.keySwitches.maxOf { thumbPlate.keyPitch * it.layoutSize.y }
+   val keyLength = thumbPlate.keySwitches
+      .maxOf { ThumbPlate.KEY_PLATE_SIZE.y * it.layoutSize.y }
    val outerRadius = thumbPlate.layoutRadius + keyLength / 2
    val innerRadius = thumbPlate.layoutRadius - keyLength / 2
 

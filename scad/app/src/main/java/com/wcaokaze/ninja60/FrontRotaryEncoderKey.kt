@@ -20,7 +20,7 @@ data class FrontRotaryEncoderKey(
 
       val RADIUS = FrontRotaryEncoderKnob.RADIUS + 0.7.mm + KEY_WIDTH / 2
 
-      val ARC_ANGLE = run {
+      private val MIN_ARC_ANGLE = run {
          // 2Uスタビライザーを使うので *直線距離で* 19.05mm×2必要
          val linearDistance = 19.05.mm * 2
 
@@ -58,6 +58,8 @@ data class FrontRotaryEncoderKey(
                / RADIUS.numberAsMilliMeter.pow(2.0)) / 2)))
       }
 
+      val ARC_ANGLE = 84.deg.coerceAtLeast(MIN_ARC_ANGLE)
+
       /**
        * [FrontRotaryEncoderKnob.bottomVector]方向へズラす距離。
        *
@@ -69,8 +71,8 @@ data class FrontRotaryEncoderKey(
 
       operator fun invoke(knob: FrontRotaryEncoderKnob): FrontRotaryEncoderKey {
          return FrontRotaryEncoderKey(
-            knob.frontVector .rotate(knob.topVector, 152.deg),
-            knob.bottomVector.rotate(knob.topVector, 152.deg),
+            knob.frontVector .rotate(knob.topVector, 145.deg),
+            knob.bottomVector.rotate(knob.topVector, 145.deg),
             knob.referencePoint.translate(knob.bottomVector, Z_OFFSET_FROM_KNOB)
          )
       }
