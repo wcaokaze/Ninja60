@@ -82,7 +82,6 @@ fun ScadParentObject.case(case: Case): ScadObject {
    val baseCase = memoize {
       union {
          alphanumericCase(case, otherOffsets = 1.5.mm)
-         //thumbCase(case, offsets = 1.5.mm)
 
          frontRotaryEncoderKnobCase(
             case,
@@ -185,32 +184,6 @@ fun ScadParentObject.case(case: Case): ScadObject {
       bottomOffset = KeySwitch.BOTTOM_HEIGHT,
       otherOffsets = PrinterAdjustments.minWallThickness.value)
    scad -= thumbPlateCase(case.thumbPlate, height = 100.mm)
-   /*
-   // alphanumericと同じ手法でやりましょうね
-   scad += intersection {
-      baseCase()
-      hullThumbPlate(
-         case.thumbPlate,
-         layerOffset = KeySwitch.BOTTOM_HEIGHT,
-         leftRightOffset = 20.mm,
-         frontOffset = 20.mm
-      )
-   }
-
-   val thumbHollow = memoize {
-      union {
-         hullThumbPlate(case.thumbPlate)
-
-         hullThumbPlate(case.thumbPlate,
-            layerOffset = -KeySwitch.TRAVEL,
-            leftRightOffset = 20.mm,
-            frontOffset = 20.mm
-         )
-      }
-   }
-
-   scad -= thumbHollow()
-   */
 
 
    // ==== 奥側ロータリーエンコーダ ============================================
@@ -689,20 +662,6 @@ private fun ScadParentObject.thumbHomeKeyHole(
       key.bottomVector
    ))
 }
-
-/*
-private fun ScadParentObject.thumbCase(
-   case: Case,
-   offsets: Size = 0.mm
-): ScadObject {
-   return hullThumbPlate(
-      case.thumbPlate,
-      layerOffset = KeySwitch.HEIGHT + offsets,
-      leftRightOffset = 2.mm + offsets,
-      frontOffset = offsets
-   )
-}
-*/
 
 private fun ScadParentObject.thumbPlateCase(
    thumbPlate: ThumbPlate,
