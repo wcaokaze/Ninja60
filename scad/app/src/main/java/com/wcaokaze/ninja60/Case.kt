@@ -33,7 +33,7 @@ data class Case(
       return AlphanumericPlate(frontVector, bottomVector, referencePoint)
          .transform { rotate(frontVectorLine, 15.deg) }
          .translate(backVector, 69.mm)
-         .translate(topVector, 85.mm)
+         .translate(topVector, 65.mm)
    }
 
    val thumbHomeKey: KeySwitch get() {
@@ -43,7 +43,7 @@ data class Case(
          .transform { rotate(bottomVectorLine, 14.deg) }
          .translate(rightVector, 25.mm)
          .translate(backVector, 17.mm)
-         .translate(topVector, 49.mm)
+         .translate(topVector, 29.mm)
    }
 
    val thumbPlate: ThumbPlate get() {
