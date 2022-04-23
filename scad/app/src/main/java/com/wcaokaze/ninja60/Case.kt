@@ -26,7 +26,7 @@ data class Case(
       val ALPHANUMERIC_FRONT_RIGHT_MARGIN = 0.mm
 
       val FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT = 9.mm
-      val THUMB_HOME_KEY_CASE_HEIGHT = 12.mm
+      val THUMB_HOME_KEY_CASE_HEIGHT = 4.mm
    }
 
    val alphanumericPlate: AlphanumericPlate get() {
@@ -110,6 +110,14 @@ fun ScadParentObject.case(case: Case): ScadObject {
    }
 
    scad = baseCase()
+
+   scad += wristRest(
+      case,
+      alphanumericLeftPlane(case.alphanumericPlate, offset = 1.5.mm),
+      alphanumericFrontSlopePlane(case.alphanumericPlate, offset = 1.5.mm),
+      alphanumericFrontPlaneLeft(case.alphanumericPlate, offset = 1.5.mm),
+      alphanumericBottomPlane(case, offset = 0.mm)
+   )
 
    scad -= union {
       alphanumericCase(case, bottomOffset = 1.5.mm)

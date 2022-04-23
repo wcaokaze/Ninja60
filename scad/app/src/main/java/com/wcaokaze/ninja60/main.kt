@@ -51,10 +51,6 @@ fun main(vararg args: String) {
 
          // ----
 
-         translate((-62).mm, (-108).mm, 0.mm) {
-            cube(102.mm, 70.mm, 60.mm)
-         }
-
          leftOuterRotaryEncoderKnob(case.leftOuterRotaryEncoderKnob)
          leftInnerRotaryEncoderKnob(case.leftInnerRotaryEncoderKnob)
 
