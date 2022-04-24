@@ -1,4 +1,4 @@
-package com.wcaokaze.ninja60.case
+package com.wcaokaze.ninja60.case.scad
 
 /*
 fun backRotaryEncoderCaseTopPlane(
