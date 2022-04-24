@@ -2,7 +2,6 @@ package com.wcaokaze.ninja60.case
 
 import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.ninja60.shared.calcutil.*
-import com.wcaokaze.ninja60.shared.scadutil.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
@@ -22,15 +21,8 @@ fun ScadParentObject.wristRest(
       val bridgeBackPlane = wristRestBridgeBackPlane(alphanumericCaseFrontPlane)
       val bridgeFrontPlane = wristRestBridgeFrontPlane(case)
 
-      hullPoints(
-         listOf(bridgeLeftPlane, bridgeRightPlane).flatMap { x ->
-            listOf(bridgeFrontPlane, bridgeBackPlane).flatMap { y ->
-               listOf(bridgeBottomPlane, bridgeTopPlane).map { z ->
-                  x intersection y intersection z
-               }
-            }
-         }
-      )
+      distortedCube(bridgeTopPlane, bridgeLeftPlane, bridgeBackPlane,
+         bridgeRightPlane, bridgeFrontPlane, bridgeBottomPlane)
 
       val topPlane = wristRestTopPlane(case)
       val bottomPlane = wristRestBottomPlane(alphanumericCaseBottomPlane)
@@ -41,15 +33,7 @@ fun ScadParentObject.wristRest(
       val backPlane = wristRestBackPlane(case)
       val frontPlane = wristRestFrontPlane(case)
 
-      hullPoints(
-         listOf(leftPlane, rightPlane).flatMap { x ->
-            listOf(frontPlane, backPlane).flatMap { y ->
-               listOf(bottomPlane, topPlane).map { z ->
-                  x intersection y intersection z
-               }
-            }
-         }
-      )
+      distortedCube(topPlane, leftPlane, backPlane, rightPlane, frontPlane, bottomPlane)
    }
 }
 
