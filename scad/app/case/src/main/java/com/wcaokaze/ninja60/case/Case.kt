@@ -12,6 +12,7 @@ import com.wcaokaze.ninja60.parts.rotaryencoder.left.*
 import com.wcaokaze.ninja60.shared.*
 import com.wcaokaze.ninja60.shared.calcutil.*
 import com.wcaokaze.ninja60.shared.scadutil.*
+import com.wcaokaze.ninja60.shared.scadutil.Cube
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
