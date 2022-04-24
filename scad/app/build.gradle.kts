@@ -10,6 +10,9 @@ repositories {
 dependencies {
    implementation(project(":scadwriter"))
    implementation(project(":linearalgebra"))
+   implementation(project(":app:case"))
+   implementation(project(":app:parts"))
+   implementation(project(":app:shared"))
 }
 
 tasks.register<Exec>("generateAllScads") {

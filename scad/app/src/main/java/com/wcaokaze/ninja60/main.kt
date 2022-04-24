@@ -1,6 +1,17 @@
 package com.wcaokaze.ninja60
 
 import com.wcaokaze.linearalgebra.*
+import com.wcaokaze.ninja60.case.*
+import com.wcaokaze.ninja60.parts.key.*
+import com.wcaokaze.ninja60.parts.key.alphanumeric.*
+import com.wcaokaze.ninja60.parts.key.thumb.*
+import com.wcaokaze.ninja60.parts.rotaryencoder.*
+import com.wcaokaze.ninja60.parts.rotaryencoder.back.*
+import com.wcaokaze.ninja60.parts.rotaryencoder.front.*
+import com.wcaokaze.ninja60.parts.rotaryencoder.left.*
+import com.wcaokaze.ninja60.shared.*
+import com.wcaokaze.ninja60.shared.calcutil.*
+import com.wcaokaze.ninja60.shared.scadutil.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 import java.io.File
