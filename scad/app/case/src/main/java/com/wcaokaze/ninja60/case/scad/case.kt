@@ -4,7 +4,6 @@ import com.wcaokaze.ninja60.case.*
 import com.wcaokaze.ninja60.parts.key.*
 import com.wcaokaze.ninja60.parts.key.alphanumeric.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.*
-import com.wcaokaze.ninja60.parts.rotaryencoder.front.*
 import com.wcaokaze.ninja60.shared.*
 import com.wcaokaze.ninja60.shared.calcutil.*
 import com.wcaokaze.scadwriter.*
@@ -172,7 +171,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
          case.frontRotaryEncoderKey,
          height = 100.mm,
          bottomOffset = frontRotaryEncoderKnobHoleZOffset()
-               - FrontRotaryEncoderKey.Z_OFFSET_FROM_KNOB,
+               - Case.FRONT_ROTARY_ENCODER_KEY_Z_OFFSET,
          innerRadiusOffset = 3.mm)
       rotaryEncoderMountHole(case.frontRotaryEncoderKnob.rotaryEncoder, 2.mm)
    }
@@ -182,9 +181,9 @@ fun ScadParentObject.case(case: Case): ScadObject {
       frontRotaryEncoderKnobHole(case.frontRotaryEncoderKnob, radiusOffset = 100.mm)
 
       hullColumn(
-         case.alphanumericPlate.columns[FrontRotaryEncoderKnob.COLUMN_INDEX],
-         case.alphanumericPlate.columns.getOrNull(FrontRotaryEncoderKnob.COLUMN_INDEX - 1),
-         case.alphanumericPlate.columns.getOrNull(FrontRotaryEncoderKnob.COLUMN_INDEX + 1),
+         case.alphanumericPlate.columns[Case.FRONT_ROTARY_ENCODER_COLUMN_INDEX],
+         case.alphanumericPlate.columns.getOrNull(Case.FRONT_ROTARY_ENCODER_COLUMN_INDEX - 1),
+         case.alphanumericPlate.columns.getOrNull(Case.FRONT_ROTARY_ENCODER_COLUMN_INDEX + 1),
          HullAlphanumericConfig(
             layerOffset = 20.mm,
             frontBackOffset = 40.mm,

@@ -1,9 +1,6 @@
 package com.wcaokaze.ninja60.parts.rotaryencoder.left
 
 import com.wcaokaze.linearalgebra.*
-import com.wcaokaze.ninja60.case.*
-import com.wcaokaze.ninja60.parts.key.*
-import com.wcaokaze.ninja60.parts.key.alphanumeric.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.gear.*
 import com.wcaokaze.ninja60.shared.calcutil.*
@@ -17,9 +14,6 @@ class LeftOuterRotaryEncoderKnob(
    override val referencePoint: Point3d
 ) : Transformable<LeftOuterRotaryEncoderKnob> {
    companion object {
-      /** 奥から何番目の[KeySwitch]にノブを配置するか */
-      val ROW_INDEX = 2
-
       val MODULE = 1.mm
       val RADIUS = 30.mm
       val HEIGHT = 8.mm
@@ -37,29 +31,6 @@ class LeftOuterRotaryEncoderKnob(
 
       val SKIDPROOF_COUNT = 14
       val SKIDPROOF_RADIUS = 0.75.mm
-
-      operator fun invoke(case: Case): LeftOuterRotaryEncoderKnob {
-         val alphanumericPlate = case.alphanumericPlate
-
-         val leftmostColumn = alphanumericPlate.columns.first()
-         val keySwitch = leftmostColumn.keySwitches[ROW_INDEX]
-
-         val keycapTop = keySwitch.referencePoint
-            .translate(keySwitch.topVector, KeySwitch.KEYCAP_SURFACE_HEIGHT)
-
-         val tangencyPoint = alphanumericPlate.leftmostPlane intersection
-               Line3d(keycapTop, keySwitch.leftVector)
-
-         return LeftOuterRotaryEncoderKnob(
-               -alphanumericPlate.leftmostPlane.normalVector
-                     vectorProduct case.bottomVector,
-               case.bottomVector,
-               tangencyPoint
-            )
-            .let { it.translate(it.leftVector, RADIUS + 2.mm) }
-            .let { it.translate(it.backVector, keyPitch.y / 3) }
-            .let { it.translate(it.bottomVector, HEIGHT) }
-      }
    }
 
    val internalGear: InternalGear get() {

@@ -4,7 +4,6 @@ import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.ninja60.case.*
 import com.wcaokaze.ninja60.parts.key.*
 import com.wcaokaze.ninja60.parts.key.alphanumeric.*
-import com.wcaokaze.ninja60.parts.rotaryencoder.front.*
 import com.wcaokaze.ninja60.shared.calcutil.*
 import com.wcaokaze.ninja60.shared.scadutil.*
 import com.wcaokaze.scadwriter.*
@@ -25,7 +24,7 @@ fun ScadParentObject.alphanumericCase(
    val leftPlane  = Plane3d.YZ_PLANE.translate((-300).mm)
    val rightPlane = Plane3d.YZ_PLANE.translate(  300 .mm)
 
-   val knobColumn = case.alphanumericPlate.columns[FrontRotaryEncoderKnob.COLUMN_INDEX]
+   val knobColumn = case.alphanumericPlate.columns[Case.FRONT_ROTARY_ENCODER_COLUMN_INDEX]
    val knobPlane = Plane3d(knobColumn.referencePoint, knobColumn.rightVector)
 
    return union {
@@ -91,7 +90,7 @@ fun ScadParentObject.alphanumericCase(
 fun alphanumericTopPlaneLeft(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
    return alphanumericTopPlane(
       alphanumericPlate,
-      alphanumericPlate.columns.subList(0, FrontRotaryEncoderKnob.COLUMN_INDEX),
+      alphanumericPlate.columns.subList(0, Case.FRONT_ROTARY_ENCODER_COLUMN_INDEX),
       offset
    )
 }
@@ -100,7 +99,7 @@ fun alphanumericTopPlaneRight(alphanumericPlate: AlphanumericPlate, offset: Size
    return alphanumericTopPlane(
       alphanumericPlate,
       alphanumericPlate.columns.subList(
-         FrontRotaryEncoderKnob.COLUMN_INDEX, alphanumericPlate.columns.size),
+         Case.FRONT_ROTARY_ENCODER_COLUMN_INDEX, alphanumericPlate.columns.size),
       offset
    )
 }
@@ -261,7 +260,7 @@ fun alphanumericFrontSlopePlane(alphanumericPlate: AlphanumericPlate, offset: Si
 fun alphanumericFrontPlaneLeft(alphanumericPlate: AlphanumericPlate, offset: Size): Plane3d {
    return alphanumericFrontPlane(
       alphanumericPlate,
-      alphanumericPlate.columns.subList(0, FrontRotaryEncoderKnob.COLUMN_INDEX),
+      alphanumericPlate.columns.subList(0, Case.FRONT_ROTARY_ENCODER_COLUMN_INDEX),
       surfaceVector = Vector3d.Z_UNIT_VECTOR,
       offset + Case.ALPHANUMERIC_FRONT_LEFT_MARGIN
    )
@@ -275,7 +274,7 @@ fun alphanumericFrontPlaneRight(
    return alphanumericFrontPlane(
       alphanumericPlate,
       alphanumericPlate.columns.subList(
-         FrontRotaryEncoderKnob.COLUMN_INDEX, alphanumericPlate.columns.size),
+         Case.FRONT_ROTARY_ENCODER_COLUMN_INDEX, alphanumericPlate.columns.size),
       surfaceVector = thumbHomeKey.leftVector,
       offset + Case.ALPHANUMERIC_FRONT_RIGHT_MARGIN
    )

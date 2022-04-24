@@ -14,13 +14,6 @@ class LeftInnerRotaryEncoderKnob(
    companion object {
       val RADIUS = 10.mm
       val HEIGHT = 13.mm
-
-      operator fun invoke(outerKnob: LeftOuterRotaryEncoderKnob) = LeftInnerRotaryEncoderKnob(
-         outerKnob.frontVector,
-         outerKnob.bottomVector,
-         outerKnob.referencePoint
-            .translate(outerKnob.topVector, LeftOuterRotaryEncoderKnob.HEIGHT)
-      )
    }
 
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)

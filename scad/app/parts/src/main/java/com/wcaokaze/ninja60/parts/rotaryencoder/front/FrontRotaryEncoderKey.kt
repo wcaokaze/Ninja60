@@ -61,23 +61,6 @@ data class FrontRotaryEncoderKey(
       }
 
       val ARC_ANGLE = 84.deg.coerceAtLeast(MIN_ARC_ANGLE)
-
-      /**
-       * [FrontRotaryEncoderKnob.bottomVector]方向へズラす距離。
-       *
-       * [referencePoint]基準。つまりノブの表面とかキーの表面ではなく、
-       * ノブの底面位置からキースイッチのマウントプレート位置までの
-       * Z軸上の距離。
-       */
-      val Z_OFFSET_FROM_KNOB = 8.8.mm
-
-      operator fun invoke(knob: FrontRotaryEncoderKnob): FrontRotaryEncoderKey {
-         return FrontRotaryEncoderKey(
-            knob.frontVector .rotate(knob.topVector, 145.deg),
-            knob.bottomVector.rotate(knob.topVector, 145.deg),
-            knob.referencePoint.translate(knob.bottomVector, Z_OFFSET_FROM_KNOB)
-         )
-      }
    }
 
    val switch: KeySwitch get() = KeySwitch(
