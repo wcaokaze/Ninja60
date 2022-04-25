@@ -112,11 +112,11 @@ fun ScadParentObject.case(case: Case): ScadObject {
       rightOffset = PrinterAdjustments.minWallThickness.value)
    scad -= thumbHomeKeyHole(case.thumbHomeKey, height = 100.mm)
 
-   scad += thumbPlateCase(case.thumbPlate,
+   scad += thumbPlateHole(case.thumbPlate,
       height = KeySwitch.TRAVEL,
       bottomOffset = KeySwitch.BOTTOM_HEIGHT,
       otherOffsets = PrinterAdjustments.minWallThickness.value)
-   scad -= thumbPlateCase(case.thumbPlate, height = 100.mm)
+   scad -= thumbPlateHole(case.thumbPlate, height = 100.mm)
 
 
    // ==== 奥側ロータリーエンコーダ ============================================

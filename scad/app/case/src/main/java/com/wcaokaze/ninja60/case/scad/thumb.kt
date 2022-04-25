@@ -34,7 +34,7 @@ internal fun ScadParentObject.thumbHomeKeyHole(
    ))
 }
 
-internal fun ScadParentObject.thumbPlateCase(
+internal fun ScadParentObject.thumbPlateHole(
    thumbPlate: ThumbPlate,
    height: Size,
    bottomOffset: Size = 0.mm,
