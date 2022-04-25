@@ -18,6 +18,9 @@ data class Gear(
 ) : Transformable<Gear> {
    companion object {
       val PROFILE_ANGLE = 20.deg
+
+      fun toothCount(module: Size, diameter: Size): Int
+            = ((diameter - module * 2) / module).toInt()
    }
 
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)

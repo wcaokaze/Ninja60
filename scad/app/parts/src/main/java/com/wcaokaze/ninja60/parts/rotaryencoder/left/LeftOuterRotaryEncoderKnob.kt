@@ -21,7 +21,7 @@ class LeftOuterRotaryEncoderKnob(
 
       val INNER_KNOB_DEPTH = 1.5.mm
 
-      val INTERNAL_GEAR_TOOTH_COUNT = gearToothCount(
+      val INTERNAL_GEAR_TOOTH_COUNT = Gear.toothCount(
          MODULE,
          (RADIUS - THICKNESS) * 2
       )
@@ -164,55 +164,3 @@ private fun ScadParentObject.repeatRotation(
       }
    }
 }
-
-// =============================================================================
-
-class LeftOuterRotaryEncoderGear(
-   override val frontVector: Vector3d,
-   override val bottomVector: Vector3d,
-   override val referencePoint: Point3d
-) : Transformable<LeftOuterRotaryEncoderGear> {
-   companion object {
-      val HEIGHT = 4.mm
-
-      val RADIUS = (
-            LeftOuterRotaryEncoderKnob.RADIUS
-                  - LeftOuterRotaryEncoderKnob.THICKNESS
-                  - RotaryEncoder.SHAFT_RADIUS
-         ) / 2 - 0.5.mm
-
-      val TOOTH_COUNT = gearToothCount(
-         LeftOuterRotaryEncoderKnob.MODULE,
-         RADIUS * 2
-      )
-   }
-
-   val gear get() = Gear(
-      LeftOuterRotaryEncoderKnob.MODULE,
-      TOOTH_COUNT,
-      HEIGHT,
-      referencePoint,
-      frontVector, bottomVector
-   )
-
-   val rotaryEncoder: RotaryEncoder get() = RotaryEncoder(
-      frontVector,
-      bottomVector,
-      referencePoint.translate(topVector, HEIGHT - RotaryEncoder.HEIGHT)
-   )
-
-   override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
-      = LeftOuterRotaryEncoderGear(frontVector, bottomVector, referencePoint)
-}
-
-fun ScadParentObject.leftOuterRotaryEncoderGear(
-   leftOuterRotaryEncoderGear: LeftOuterRotaryEncoderGear
-): ScadObject {
-   return difference {
-      gear(leftOuterRotaryEncoderGear.gear)
-      rotaryEncoderKnobHole(leftOuterRotaryEncoderGear.rotaryEncoder)
-   }
-}
-
-private fun gearToothCount(module: Size, diameter: Size)
-      = ((diameter - module * 2) / module).toInt()
