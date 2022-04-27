@@ -4,7 +4,6 @@ import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.ninja60.case.*
 import com.wcaokaze.ninja60.parts.key.*
 import com.wcaokaze.ninja60.parts.key.thumb.*
-import com.wcaokaze.ninja60.shared.PrinterAdjustments
 import com.wcaokaze.ninja60.shared.calcutil.*
 import com.wcaokaze.ninja60.shared.scadutil.*
 import com.wcaokaze.ninja60.shared.scadutil.Cube
@@ -43,7 +42,7 @@ internal fun ScadParentObject.thumbKeyCase(
    }
 }
 
-internal fun ScadObject.thumbKeyCaseLeftPlane(
+internal fun thumbKeyCaseLeftPlane(
    thumbHomeKey: KeySwitch,
    offset: Size
 ): Plane3d {
@@ -51,7 +50,7 @@ internal fun ScadObject.thumbKeyCaseLeftPlane(
          thumbHomeKey.referencePoint
             .translate(
                thumbHomeKey.bottomVector,
-               Case.THUMB_HOME_KEY_CASE_HEIGHT + PrinterAdjustments.minWallThickness.value
+               Case.THUMB_HOME_KEY_CASE_HEIGHT
             ),
          thumbHomeKey.bottomVector
       )
@@ -70,7 +69,7 @@ internal fun thumbKeyCaseRightPlane(
       .translateNormalVector(offset)
 }
 
-internal fun ScadObject.thumbKeyCaseFrontPlane(
+internal fun thumbKeyCaseFrontPlane(
    thumbHomeKey: KeySwitch,
    offset: Size
 ): Plane3d {
@@ -78,7 +77,7 @@ internal fun ScadObject.thumbKeyCaseFrontPlane(
          thumbHomeKey.referencePoint
             .translate(
                thumbHomeKey.frontVector,
-               ThumbPlate.KEY_PLATE_SIZE.y / 2 + PrinterAdjustments.minWallThickness.value
+               ThumbPlate.KEY_PLATE_SIZE.y / 2
             ),
          thumbHomeKey.frontVector
       )
