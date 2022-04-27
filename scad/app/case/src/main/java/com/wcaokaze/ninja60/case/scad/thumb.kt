@@ -13,49 +13,96 @@ import com.wcaokaze.scadwriter.foundation.*
 
 internal fun ScadParentObject.thumbKeyCase(
    thumbHomeKey: KeySwitch,
+   thumbPlate: ThumbPlate,
    alphanumericFrontPlane: Plane3d,
    alphanumericBottomPlane: Plane3d,
-   frontRotaryEncoderKeyBottomPlane: Plane3d
+   frontRotaryEncoderKeyBottomPlane: Plane3d,
+   offsets: Size = 0.mm
 ): ScadObject {
-   return distortedCube(
-      thumbKeyCaseTopPlane(frontRotaryEncoderKeyBottomPlane),
-      thumbKeyCaseLeftPlane(thumbHomeKey),
-      thumbKeyCaseBackPlane(alphanumericFrontPlane),
-      thumbKeyCaseRightPlane(thumbHomeKey),
-      thumbKeyCaseFrontPlane(thumbHomeKey),
-      thumbKeyCaseBottomPlane(alphanumericBottomPlane)
-   )
+   return intersection {
+      hugeCube(
+         leftPlane = thumbKeyCaseLeftPlane(thumbHomeKey, offsets),
+         backPlane = thumbKeyCaseBackPlane(alphanumericFrontPlane, offsets),
+         bottomPlane = thumbKeyCaseBottomPlane(alphanumericBottomPlane, offset = 0.mm),
+         topPlane = thumbKeyCaseTopPlane(frontRotaryEncoderKeyBottomPlane, offsets)
+      )
+
+      union {
+         distortedCube(
+            thumbKeyCaseTopPlane(frontRotaryEncoderKeyBottomPlane, offsets),
+            thumbKeyCaseLeftPlane(thumbHomeKey, offsets),
+            thumbKeyCaseBackPlane(alphanumericFrontPlane, offsets),
+            thumbKeyCaseRightPlane(thumbHomeKey, offsets),
+            thumbKeyCaseFrontPlane(thumbHomeKey, offsets),
+            thumbKeyCaseBottomPlane(alphanumericBottomPlane, offset = 0.mm)
+         )
+
+         thumbPlateHole(
+            thumbPlate,
+            height = KeySwitch.TRAVEL,
+            bottomOffset = 20.mm + offsets,
+            otherOffsets = offsets
+         )
+      }
+   }
 }
 
-internal fun ScadObject.thumbKeyCaseLeftPlane(thumbHomeKey: KeySwitch) = Plane3d(
-   thumbHomeKey.referencePoint
-      .translate(
-         thumbHomeKey.bottomVector,
-         Case.THUMB_HOME_KEY_CASE_HEIGHT + PrinterAdjustments.minWallThickness.value
-      ),
-   thumbHomeKey.bottomVector
-)
+internal fun ScadObject.thumbKeyCaseLeftPlane(
+   thumbHomeKey: KeySwitch,
+   offset: Size
+): Plane3d {
+   return Plane3d(
+         thumbHomeKey.referencePoint
+            .translate(
+               thumbHomeKey.bottomVector,
+               Case.THUMB_HOME_KEY_CASE_HEIGHT + PrinterAdjustments.minWallThickness.value
+            ),
+         thumbHomeKey.bottomVector
+      )
+      .translateNormalVector(offset)
+}
 
-internal fun thumbKeyCaseRightPlane(thumbHomeKey: KeySwitch) = Plane3d(
-   thumbHomeKey.referencePoint
-      .translate(thumbHomeKey.topVector, KeySwitch.TRAVEL),
-   thumbHomeKey.topVector
-)
+internal fun thumbKeyCaseRightPlane(
+   thumbHomeKey: KeySwitch,
+   offset: Size
+): Plane3d {
+   return Plane3d(
+         thumbHomeKey.referencePoint
+            .translate(thumbHomeKey.topVector, KeySwitch.TRAVEL),
+         thumbHomeKey.topVector
+      )
+      .translateNormalVector(offset)
+}
 
-internal fun ScadObject.thumbKeyCaseFrontPlane(thumbHomeKey: KeySwitch) = Plane3d(
-   thumbHomeKey.referencePoint
-      .translate(
-         thumbHomeKey.frontVector,
-         ThumbPlate.KEY_PLATE_SIZE.y / 2 + PrinterAdjustments.minWallThickness.value
-      ),
-   thumbHomeKey.frontVector
-)
+internal fun ScadObject.thumbKeyCaseFrontPlane(
+   thumbHomeKey: KeySwitch,
+   offset: Size
+): Plane3d {
+   return Plane3d(
+         thumbHomeKey.referencePoint
+            .translate(
+               thumbHomeKey.frontVector,
+               ThumbPlate.KEY_PLATE_SIZE.y / 2 + PrinterAdjustments.minWallThickness.value
+            ),
+         thumbHomeKey.frontVector
+      )
+      .translateNormalVector(offset)
+}
 
-internal fun thumbKeyCaseBackPlane(alphanumericFrontPlane: Plane3d) = alphanumericFrontPlane
+internal fun thumbKeyCaseBackPlane(
+   alphanumericFrontPlane: Plane3d,
+   offset: Size
+) = alphanumericFrontPlane.translateNormalVector(offset)
 
-internal fun thumbKeyCaseBottomPlane(alphanumericBottomPlane: Plane3d) = alphanumericBottomPlane
+internal fun thumbKeyCaseBottomPlane(
+   alphanumericBottomPlane: Plane3d,
+   offset: Size
+) = alphanumericBottomPlane.translateNormalVector(offset)
 
-internal fun thumbKeyCaseTopPlane(frontRotaryEncoderKeyBottomPlane: Plane3d) = frontRotaryEncoderKeyBottomPlane
+internal fun thumbKeyCaseTopPlane(
+   frontRotaryEncoderKeyBottomPlane: Plane3d,
+   offset: Size
+) = frontRotaryEncoderKeyBottomPlane.translateNormalVector(offset)
 
 internal fun ScadParentObject.thumbHomeKeyHole(
    key: KeySwitch,

@@ -9,6 +9,10 @@ internal fun <T : Transformable<T>> T.transform(transformer: T.() -> T): T {
    return transformer()
 }
 
+internal fun Plane3d.translateNormalVector(distance: Size): Plane3d {
+   return translate(normalVector, distance)
+}
+
 /** 平面が指定した点を通るように移動します */
 internal fun Plane3d.translate(point: Point3d) = Plane3d(point, normalVector)
 
