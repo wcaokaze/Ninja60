@@ -29,11 +29,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
          )
 
          thumbKeyCase(
-            case.thumbHomeKey,
-            case.thumbPlate,
-            alphanumericFrontPlaneRight(case.alphanumericPlate, case.thumbHomeKey, offset = 0.mm),
-            alphanumericBottomPlane(case, offset = 0.mm),
-            frontRotaryEncoderKeyCaseBottomPlane(case.frontRotaryEncoderKey),
+            case,
             offsets = PrinterAdjustments.minWallThickness.value
          )
       }
@@ -57,13 +53,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
          height = Case.FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT)
       thumbHomeKeyHole(case.thumbHomeKey, height = 0.mm, leftOffset = 20.mm,
          bottomOffset = Case.THUMB_HOME_KEY_CASE_HEIGHT, backOffset = 20.mm)
-      thumbKeyCase(
-         case.thumbHomeKey,
-         case.thumbPlate,
-         alphanumericFrontPlaneRight(case.alphanumericPlate, case.thumbHomeKey, offset = 0.mm),
-         alphanumericBottomPlane(case, offset = 0.mm),
-         frontRotaryEncoderKeyCaseBottomPlane(case.frontRotaryEncoderKey)
-      )
+      thumbKeyCase(case)
    }
 
 
