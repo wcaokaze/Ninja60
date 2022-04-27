@@ -95,6 +95,12 @@ fun ScadParentObject.frontRotaryEncoderKeyCase(
    }
 }
 
+internal fun frontRotaryEncoderKeyCaseBottomPlane(key: FrontRotaryEncoderKey) = Plane3d(
+   key.referencePoint
+      .translate(key.bottomVector, Case.FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT),
+   key.bottomVector
+)
+
 fun ScadParentObject.frontRotaryEncoderKeyHole(
    key: FrontRotaryEncoderKey,
    height: Size,

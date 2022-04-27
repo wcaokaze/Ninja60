@@ -1,13 +1,61 @@
 package com.wcaokaze.ninja60.case.scad
 
 import com.wcaokaze.linearalgebra.*
+import com.wcaokaze.ninja60.case.*
 import com.wcaokaze.ninja60.parts.key.*
 import com.wcaokaze.ninja60.parts.key.thumb.*
+import com.wcaokaze.ninja60.shared.PrinterAdjustments
 import com.wcaokaze.ninja60.shared.calcutil.*
 import com.wcaokaze.ninja60.shared.scadutil.*
 import com.wcaokaze.ninja60.shared.scadutil.Cube
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
+
+internal fun ScadParentObject.thumbKeyCase(
+   thumbHomeKey: KeySwitch,
+   alphanumericFrontPlane: Plane3d,
+   alphanumericBottomPlane: Plane3d,
+   frontRotaryEncoderKeyBottomPlane: Plane3d
+): ScadObject {
+   return distortedCube(
+      thumbKeyCaseTopPlane(frontRotaryEncoderKeyBottomPlane),
+      thumbKeyCaseLeftPlane(thumbHomeKey),
+      thumbKeyCaseBackPlane(alphanumericFrontPlane),
+      thumbKeyCaseRightPlane(thumbHomeKey),
+      thumbKeyCaseFrontPlane(thumbHomeKey),
+      thumbKeyCaseBottomPlane(alphanumericBottomPlane)
+   )
+}
+
+internal fun ScadObject.thumbKeyCaseLeftPlane(thumbHomeKey: KeySwitch) = Plane3d(
+   thumbHomeKey.referencePoint
+      .translate(
+         thumbHomeKey.bottomVector,
+         Case.THUMB_HOME_KEY_CASE_HEIGHT + PrinterAdjustments.minWallThickness.value
+      ),
+   thumbHomeKey.bottomVector
+)
+
+internal fun thumbKeyCaseRightPlane(thumbHomeKey: KeySwitch) = Plane3d(
+   thumbHomeKey.referencePoint
+      .translate(thumbHomeKey.topVector, KeySwitch.TRAVEL),
+   thumbHomeKey.topVector
+)
+
+internal fun ScadObject.thumbKeyCaseFrontPlane(thumbHomeKey: KeySwitch) = Plane3d(
+   thumbHomeKey.referencePoint
+      .translate(
+         thumbHomeKey.frontVector,
+         ThumbPlate.KEY_PLATE_SIZE.y / 2 + PrinterAdjustments.minWallThickness.value
+      ),
+   thumbHomeKey.frontVector
+)
+
+internal fun thumbKeyCaseBackPlane(alphanumericFrontPlane: Plane3d) = alphanumericFrontPlane
+
+internal fun thumbKeyCaseBottomPlane(alphanumericBottomPlane: Plane3d) = alphanumericBottomPlane
+
+internal fun thumbKeyCaseTopPlane(frontRotaryEncoderKeyBottomPlane: Plane3d) = frontRotaryEncoderKeyBottomPlane
 
 internal fun ScadParentObject.thumbHomeKeyHole(
    key: KeySwitch,
