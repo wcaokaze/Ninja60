@@ -12,31 +12,32 @@ import com.wcaokaze.scadwriter.foundation.*
 
 internal fun ScadParentObject.thumbKeyCase(
    case: Case,
-   offsets: Size = 0.mm
+   homeKeyTopOffset: Size = 0.mm,
+   otherOffsets: Size = 0.mm
 ): ScadObject {
    return intersection {
       hugeCube(
-         leftPlane = thumbKeyCaseLeftPlane(case.thumbHomeKey, offsets),
-         backPlane = thumbKeyCaseBackPlane(case, offsets),
+         leftPlane = thumbKeyCaseLeftPlane(case.thumbHomeKey, otherOffsets),
+         backPlane = thumbKeyCaseBackPlane(case, otherOffsets),
          bottomPlane = thumbKeyCaseBottomPlane(case, offset = 0.mm),
-         topPlane = thumbKeyCaseTopPlane(case, offsets)
+         topPlane = thumbKeyCaseTopPlane(case, otherOffsets)
       )
 
       union {
          distortedCube(
-            thumbKeyCaseTopPlane(case, offsets),
-            thumbKeyCaseLeftPlane(case.thumbHomeKey, offsets),
-            thumbKeyCaseBackPlane(case, offsets),
-            thumbKeyCaseRightPlane(case.thumbHomeKey, offsets),
-            thumbKeyCaseFrontPlane(case.thumbHomeKey, offsets),
+            thumbKeyCaseTopPlane(case, otherOffsets),
+            thumbKeyCaseLeftPlane(case.thumbHomeKey, otherOffsets),
+            thumbKeyCaseBackPlane(case, otherOffsets),
+            thumbKeyCaseRightPlane(case.thumbHomeKey, homeKeyTopOffset),
+            thumbKeyCaseFrontPlane(case.thumbHomeKey, otherOffsets),
             thumbKeyCaseBottomPlane(case, offset = 0.mm)
          )
 
          thumbPlateHole(
             case.thumbPlate,
             height = KeySwitch.TRAVEL,
-            bottomOffset = 20.mm + offsets,
-            otherOffsets = offsets
+            bottomOffset = 20.mm + otherOffsets,
+            otherOffsets = otherOffsets
          )
       }
    }
