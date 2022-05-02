@@ -17,20 +17,17 @@ internal fun ScadParentObject.thumbKeyCase(
 ): ScadObject {
    return intersection {
       hugeCube(
-         leftPlane = thumbKeyCaseLeftPlane(case.thumbHomeKey, otherOffsets),
-         backPlane = thumbKeyCaseBackPlane(case, otherOffsets),
-         bottomPlane = thumbKeyCaseBottomPlane(case, offset = 0.mm),
-         topPlane = thumbKeyCaseTopPlane(case, otherOffsets)
+         bottomPlane = thumbKeyCaseBottomPlane(case, offset = 0.mm)
       )
 
       union {
          distortedCube(
-            thumbKeyCaseTopPlane(case, otherOffsets),
-            thumbKeyCaseLeftPlane(case.thumbHomeKey, otherOffsets),
-            thumbKeyCaseBackPlane(case, otherOffsets),
-            thumbKeyCaseRightPlane(case.thumbHomeKey, homeKeyTopOffset),
-            thumbKeyCaseFrontPlane(case.thumbHomeKey, otherOffsets),
-            thumbKeyCaseBottomPlane(case, offset = 0.mm)
+            thumbHomeKeyCaseTopPlane(case, otherOffsets),
+            thumbHomeKeyCaseLeftPlane(case.thumbHomeKey, otherOffsets),
+            thumbHomeKeyCaseBackPlane(case, otherOffsets),
+            thumbHomeKeyCaseRightPlane(case.thumbHomeKey, homeKeyTopOffset),
+            thumbHomeKeyCaseFrontPlane(case.thumbHomeKey, otherOffsets),
+            thumbHomeKeyCaseBottomPlane(case, offset = 0.mm)
          )
 
          thumbPlateHole(
@@ -43,7 +40,10 @@ internal fun ScadParentObject.thumbKeyCase(
    }
 }
 
-internal fun thumbKeyCaseLeftPlane(
+internal fun thumbKeyCaseBottomPlane(case: Case, offset: Size): Plane3d
+      = thumbHomeKeyCaseBottomPlane(case, offset)
+
+internal fun thumbHomeKeyCaseLeftPlane(
    thumbHomeKey: KeySwitch,
    offset: Size
 ): Plane3d {
@@ -58,7 +58,7 @@ internal fun thumbKeyCaseLeftPlane(
       .translateNormalVector(offset)
 }
 
-internal fun thumbKeyCaseRightPlane(
+internal fun thumbHomeKeyCaseRightPlane(
    thumbHomeKey: KeySwitch,
    offset: Size
 ): Plane3d {
@@ -70,7 +70,7 @@ internal fun thumbKeyCaseRightPlane(
       .translateNormalVector(offset)
 }
 
-internal fun thumbKeyCaseFrontPlane(
+internal fun thumbHomeKeyCaseFrontPlane(
    thumbHomeKey: KeySwitch,
    offset: Size
 ): Plane3d {
@@ -85,7 +85,7 @@ internal fun thumbKeyCaseFrontPlane(
       .translateNormalVector(offset)
 }
 
-internal fun thumbKeyCaseBackPlane(
+internal fun thumbHomeKeyCaseBackPlane(
    case: Case,
    offset: Size
 ): Plane3d {
@@ -96,12 +96,12 @@ internal fun thumbKeyCaseBackPlane(
    )
 }
 
-internal fun thumbKeyCaseBottomPlane(
+internal fun thumbHomeKeyCaseBottomPlane(
    case: Case,
    offset: Size
 ): Plane3d = alphanumericBottomPlane(case, offset)
 
-internal fun thumbKeyCaseTopPlane(
+internal fun thumbHomeKeyCaseTopPlane(
    case: Case,
    offset: Size
 ): Plane3d {
