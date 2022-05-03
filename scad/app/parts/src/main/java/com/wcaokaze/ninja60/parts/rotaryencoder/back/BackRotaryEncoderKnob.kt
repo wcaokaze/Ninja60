@@ -52,32 +52,35 @@ fun ScadParentObject.backRotaryEncoderKnob(knob: BackRotaryEncoderKnob): ScadObj
       val twoPi = Angle.PI * 2
       val skidproofAngle = twoPi / BackRotaryEncoderKnob.SKIDPROOF_COUNT / 2
 
+      val memo = memoize {
+         arcCylinder(
+            BackRotaryEncoderKnob.RADIUS + BackRotaryEncoderKnob.SKIDPROOF_RADIUS,
+            BackRotaryEncoderKnob.HEIGHT,
+            -skidproofAngle / 2,
+             skidproofAngle / 2
+         )
+      }
+
       return union {
          for (a in 0.0.rad..twoPi step skidproofAngle * 2) {
-            arcCylinder(
-               BackRotaryEncoderKnob.RADIUS + BackRotaryEncoderKnob.SKIDPROOF_RADIUS,
-               BackRotaryEncoderKnob.HEIGHT,
-               a - skidproofAngle / 2,
-               a + skidproofAngle / 2
-            )
+            rotate(z = a) {
+               memo()
+            }
          }
       }
    }
 
-   return (
-      gear(knob.gear)
-      + place(knob) {
-         (
-            cylinder(BackRotaryEncoderKnob.HEIGHT, BackRotaryEncoderKnob.RADIUS)
-            + skidproof()
-         )
-      }
-      - place(knob) {
-         cylinder(
-            BackRotaryEncoderKnob.HEIGHT * 3,
-            BackRotaryEncoderKnob.SHAFT_HOLE_RADIUS,
-            center = true
-         )
-      }
-   )
+   return place(knob) {
+      union {
+         translate(z = -BackRotaryEncoderKnob.GEAR_THICKNESS) {
+            gearAtOrigin(knob.gear)
+         }
+         cylinder(BackRotaryEncoderKnob.HEIGHT, BackRotaryEncoderKnob.RADIUS)
+         skidproof()
+      } - cylinder(
+         BackRotaryEncoderKnob.HEIGHT * 3,
+         BackRotaryEncoderKnob.SHAFT_HOLE_RADIUS,
+         center = true
+      )
+   }
 }

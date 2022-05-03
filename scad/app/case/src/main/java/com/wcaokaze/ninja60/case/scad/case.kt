@@ -12,30 +12,32 @@ import com.wcaokaze.scadwriter.foundation.*
 fun ScadParentObject.case(case: Case): ScadObject {
    var scad: ScadObject
 
-   val baseCase = memoize {
-      union {
-         alphanumericCase(case, otherOffsets = 1.5.mm)
-
-         frontRotaryEncoderKnobCase(
-            case,
-            radiusOffset = PrinterAdjustments.minWallThickness.value
-         )
-
-         frontRotaryEncoderKeyCase(
-            case.frontRotaryEncoderKey,
-            height = Case.FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT
-                  + PrinterAdjustments.minWallThickness.value,
-            offset = PrinterAdjustments.minWallThickness.value
-         )
-
-         thumbKeyCase(
-            case,
-            otherOffsets = PrinterAdjustments.minWallThickness.value
-         )
-      }
+   val alphanumericCase = memoize {
+      alphanumericCase(case, otherOffsets = 1.5.mm)
+   }
+   val frontRotaryEncoderKnobCase = memoize {
+      frontRotaryEncoderKnobCase(
+         case,
+         radiusOffset = PrinterAdjustments.minWallThickness.value
+      )
    }
 
-   scad = baseCase()
+   scad = union {
+      alphanumericCase()
+      frontRotaryEncoderKnobCase()
+
+      frontRotaryEncoderKeyCase(
+         case.frontRotaryEncoderKey,
+         height = Case.FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT
+               + PrinterAdjustments.minWallThickness.value,
+         offset = PrinterAdjustments.minWallThickness.value
+      )
+
+      thumbKeyCase(
+         case,
+         otherOffsets = PrinterAdjustments.minWallThickness.value
+      )
+   }
 
    scad += wristRest(
       case,
@@ -62,7 +64,10 @@ fun ScadParentObject.case(case: Case): ScadObject {
    // キースイッチの底の高さでhull。alphanumericCaseに確実に引っ付けるために
    // 前後左右広めに生成してalphanumericCaseとのintersectionをとります
    scad += intersection {
-      baseCase()
+      union {
+         alphanumericCase()
+         frontRotaryEncoderKnobCase()
+      }
       hullAlphanumericPlate(
          case.alphanumericPlate,
          HullAlphanumericConfig(
@@ -145,7 +150,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
                innerRadiusOffset = PrinterAdjustments.minWallThickness.value,
                otherOffsets = PrinterAdjustments.minWallThickness.value)
          }
-               intersection hugeCube(
+         intersection hugeCube(
             topPlane = alphanumericTopPlaneLeft(
                case.alphanumericPlate,
                offset = PrinterAdjustments.minWallThickness.value
@@ -153,10 +158,10 @@ fun ScadParentObject.case(case: Case): ScadObject {
             )
          )
 
-               // 手前側ロータリーエンコーダは意図的にalphanumericとカブる位置に配置されてます
-               // alphanumeric部分にはみ出た分を削ります
-               - alphanumericHollow()
-         )
+         // 手前側ロータリーエンコーダは意図的にalphanumericとカブる位置に配置されてます
+         // alphanumeric部分にはみ出た分を削ります
+         - alphanumericHollow()
+   )
 
    scad -= union {
       frontRotaryEncoderKnobHole(case.frontRotaryEncoderKnob)

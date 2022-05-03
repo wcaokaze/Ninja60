@@ -3,6 +3,19 @@ package com.wcaokaze.linearalgebra
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
+fun Point2d.rotate(axis: Point2d, angle: Angle): Point2d {
+   val px = axis.x
+   val py = axis.y
+
+   val tx = x - px
+   val ty = y - py
+
+   return Point2d(
+      x = px + tx * cos(angle) - ty * sin(angle),
+      y = py + tx * sin(angle) + ty * cos(angle)
+   )
+}
+
 fun Point3d.rotate(axis: Line3d, angle: Angle): Point3d {
    val ax = axis.vector.x.numberAsMilliMeter
    val ay = axis.vector.y.numberAsMilliMeter

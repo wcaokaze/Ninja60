@@ -39,6 +39,7 @@ fun main(vararg args: String) {
          val case = Case()
          case(case)
 
+         /*
          (
                case.alphanumericPlate.columns
                   .flatMap { it.keySwitches }
@@ -97,6 +98,7 @@ fun main(vararg args: String) {
             case.leftInnerRotaryEncoderKnob.rotaryEncoder,
             1.6.mm
          )
+         */
       }
    }
 }

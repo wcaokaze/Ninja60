@@ -2,6 +2,7 @@ package com.wcaokaze.ninja60.parts.rotaryencoder.gear
 
 import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.ninja60.shared.calcutil.*
+import com.wcaokaze.ninja60.shared.scadutil.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 import kotlin.math.*
@@ -113,25 +114,25 @@ private val BevelGear.innerDedendumConeRadius: Size
 
 fun ScadParentObject.bevelGear(bevelGear: BevelGear): ScadObject {
    return place(bevelGear) {
-      (
-         union {
-            val tooth = memoize { tooth(bevelGear) }
-
-            for (i in 0 until bevelGear.toothCount) {
-               tooth().rotate(z = 360.deg / bevelGear.toothCount * i)
-            }
-         }
-         + cylinder(
-            bevelGear.outerDedendumConeHeight - bevelGear.innerDedendumConeHeight,
-            bottomRadius = bevelGear.outerDedendumConeRadius,
-            topRadius = bevelGear.innerDedendumConeRadius
-         )
-         intersection cylinder(
+      intersection {
+         cylinder(
             bevelGear.outerDedendumConeHeight,
             bottomRadius = bevelGear.outerDedendumConeHeight * tan(bevelGear.faceConeAngle),
             topRadius = 0.mm
          )
-      )
+
+         union {
+            cylinder(
+               bevelGear.outerDedendumConeHeight - bevelGear.innerDedendumConeHeight,
+               bottomRadius = bevelGear.outerDedendumConeRadius,
+               topRadius = bevelGear.innerDedendumConeRadius
+            )
+
+            repeatRotation(bevelGear.toothCount) {
+               tooth(bevelGear)
+            }
+         }
+      }
    }
 }
 
@@ -154,16 +155,16 @@ private fun ScadParentObject.tooth(gear: BevelGear): ScadObject {
     * Z軸上とかではないです
     */
    fun ScadParentObject.thinTooth(distance: Size): ScadObject {
-      val pitchDiameter = distance * tan(gear.pitchConeAngle)
-      val involuteDiameter = pitchDiameter * cos(BevelGear.PROFILE_ANGLE)
+      val pitchRadius = distance * tan(gear.pitchConeAngle)
+      val involuteRadius = pitchRadius * cos(BevelGear.PROFILE_ANGLE)
 
       return linearExtrude(0.01.mm) {
          polygon(
             (0.0.rad..Angle.PI / 2 step fa.value)
                .map { a ->
                   Point2d(
-                     Point(involuteDiameter * (cos(a) + a.numberAsRadian * sin(a))),
-                     Point(involuteDiameter * (sin(a) - a.numberAsRadian * cos(a)))
+                     Point(involuteRadius * (cos(a) + a.numberAsRadian * sin(a))),
+                     Point(involuteRadius * (sin(a) - a.numberAsRadian * cos(a)))
                   )
                }
                + Point2d.ORIGIN
@@ -175,7 +176,8 @@ private fun ScadParentObject.tooth(gear: BevelGear): ScadObject {
       val half = rotate(z = -involuteHalfThicknessAngle) {
          (gear.innerConeDistance..gear.outerConeDistance step fs.value)
             .plus(gear.outerConeDistance)
-            .zipWithNext { a, b ->
+            .zipWithNext()
+            .forEach { (a, b) ->
                hull {
                   for (distance in listOf(a, b)) {
                      translate(z = gear.outerDedendumConeHeight

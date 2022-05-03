@@ -2,6 +2,7 @@ package com.wcaokaze.ninja60.parts.rotaryencoder.gear
 
 import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.ninja60.shared.calcutil.*
+import com.wcaokaze.ninja60.shared.scadutil.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
@@ -41,17 +42,26 @@ infix fun Gear.idealDistance(another: Gear): Size {
 
 fun ScadParentObject.gear(gear: Gear): ScadObject {
    return place(gear) {
-      (
-         union {
-            val tooth = memoize { tooth(gear) }
+      gearAtOrigin(gear)
+   }
+}
 
-            for (i in 0 until gear.toothCount) {
-               tooth().rotate(z = 360.deg / gear.toothCount * i)
-            }
+/**
+ * [位置][Gear.referencePoint]と[向き][Gear.frontVector]を無視して
+ * gearをXY平面の原点に配置する。
+ *
+ * [place]を別途自力で呼び出した方が都合がいい場合にどうぞ
+ */
+fun ScadParentObject.gearAtOrigin(gear: Gear): ScadObject {
+   return intersection {
+      cylinder(gear.thickness, gear.addendumDiameter / 2)
+      union {
+         cylinder(gear.thickness, gear.bottomDiameter / 2)
+
+         repeatRotation(gear.toothCount) {
+            tooth(gear)
          }
-         + cylinder(gear.thickness, gear.bottomDiameter / 2)
-         intersection cylinder(gear.thickness, gear.addendumDiameter / 2)
-      )
+      }
    }
 }
 
@@ -86,24 +96,26 @@ private fun ScadParentObject.tooth(gear: Gear): ScadObject {
     */
    val involuteHalfThicknessAngle = halfThicknessAngle + tan(Gear.PROFILE_ANGLE).rad - Gear.PROFILE_ANGLE
 
-   return intersection {
-      val half = linearExtrude(gear.thickness) {
-         rotate(z = -involuteHalfThicknessAngle) {
-            polygon(
-               (0.0.rad..Angle.PI / 2 step fa.value)
-                  .map { a ->
-                     Point2d(
-                        Point(gear.involuteRadius * (cos(a) + a.numberAsRadian * sin(a))),
-                        Point(gear.involuteRadius * (sin(a) - a.numberAsRadian * cos(a)))
-                     )
-                  }
-                  + Point2d.ORIGIN
-            )
-         }
-      }
-
-      mirror(0.mm, 1.mm, 0.mm) {
-         addChild(half)
-      }
+   return linearExtrude(gear.thickness) {
+      polygon(
+         (0.0.rad..Angle.PI step fa.value)
+            .asSequence()
+            .map { a ->
+               Point2d(
+                  Point(gear.involuteRadius * (cos(a) + a.numberAsRadian * sin(a))),
+                  Point(gear.involuteRadius * (sin(a) - a.numberAsRadian * cos(a)))
+               )
+            }
+            .map { it.rotate(Point2d.ORIGIN, -involuteHalfThicknessAngle) }
+            .takeWhile { it.y < Point.ORIGIN }
+            .toList()
+            .let { halfPoints ->
+               halfPoints +
+               halfPoints.asReversed().map(Point2d::mirror) +
+               Point2d.ORIGIN
+            }
+      )
    }
 }
+
+internal fun Point2d.mirror() = Point2d(x, Point(-y.distanceFromOrigin))

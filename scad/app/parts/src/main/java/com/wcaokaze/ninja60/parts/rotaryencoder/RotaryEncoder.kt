@@ -46,37 +46,26 @@ fun ScadParentObject.rotaryEncoderMountHole(
    rotaryEncoder: RotaryEncoder,
    thickness: Size
 ): ScadObject {
-   fun Point3d.translate(x: Size, y: Size): Point3d {
-      return translate(rotaryEncoder.rightVector, x)
-            .translate(rotaryEncoder.frontVector, y)
-   }
-
    fun ScadParentObject.hole(positionX: Size, positionY: Size, sizeX: Size, sizeY: Size): ScadObject {
-      val holeCenter = rotaryEncoder.referencePoint.translate(positionX, positionY)
-
-      val holePoints = listOf(
-         holeCenter.translate(-sizeX / 2.0,  sizeY / 2.0),
-         holeCenter.translate( sizeX / 2.0,  sizeY / 2.0),
-         holeCenter.translate( sizeX / 2.0, -sizeY / 2.0),
-         holeCenter.translate(-sizeX / 2.0, -sizeY / 2.0)
-      )
-
-      return hullPoints(
-         holePoints.map { it.translate(rotaryEncoder.topVector, 0.1.mm) } +
-         holePoints.map { it.translate(rotaryEncoder.bottomVector, thickness) }
-      )
+      return translate(positionX, positionY) {
+         cube(sizeX, sizeY, thickness + 0.2.mm)
+      }
    }
 
-   return union {
-      hole((-2.5).mm, (-7.5).mm, 1.mm, 1.mm)
-      hole(  0.0 .mm, (-7.5).mm, 1.mm, 1.mm)
-      hole(  2.5 .mm, (-7.5).mm, 1.mm, 1.mm)
+   return place(rotaryEncoder) {
+      translate(z = -thickness - 0.1.mm) {
+         union {
+            hole((-2.5).mm, (-7.5).mm, 1.mm, 1.mm)
+            hole(  0.0 .mm, (-7.5).mm, 1.mm, 1.mm)
+            hole(  2.5 .mm, (-7.5).mm, 1.mm, 1.mm)
 
-      hole((-5.6).mm, 0.mm, 2.mm, 2.5.mm)
-      hole(  5.6 .mm, 0.mm, 2.mm, 2.5.mm)
+            hole((-5.6).mm, 0.mm, 2.mm, 2.5.mm)
+            hole(  5.6 .mm, 0.mm, 2.mm, 2.5.mm)
 
-      hole((-2.5).mm, 7.mm, 1.mm, 1.mm)
-      hole(  2.5 .mm, 7.mm, 1.mm, 1.mm)
+            hole((-2.5).mm, 7.mm, 1.mm, 1.mm)
+            hole(  2.5 .mm, 7.mm, 1.mm, 1.mm)
+         }
+      }
    }
 }
 
