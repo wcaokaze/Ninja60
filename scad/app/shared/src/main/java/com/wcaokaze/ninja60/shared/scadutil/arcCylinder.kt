@@ -12,15 +12,12 @@ fun ScadParentObject.arcCylinder(
    val fixedRadius = radius * sqrt(2.0)
 
    val startOffset = Size2d(offset * cos(startAngle - 90.deg),
-      offset * sin(startAngle - 90.deg)
-   )
+                            offset * sin(startAngle - 90.deg))
    val endOffset = Size2d(offset * cos(endAngle + 90.deg),
-      offset * sin(endAngle + 90.deg)
-   )
+                          offset * sin(endAngle + 90.deg))
 
    fun arcPoint(a: Angle) = Point2d.ORIGIN + Size2d(fixedRadius * cos(a),
-      fixedRadius * sin(a)
-   )
+                                                    fixedRadius * sin(a))
 
    return intersection {
       cylinder(height, radius)
