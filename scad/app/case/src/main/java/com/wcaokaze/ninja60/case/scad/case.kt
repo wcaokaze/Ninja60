@@ -27,7 +27,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
       frontRotaryEncoderKnobCase()
 
       frontRotaryEncoderKeyCase(
-         case.frontRotaryEncoderKey,
+         case,
          height = Case.FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT
                + PrinterAdjustments.minWallThickness.value,
          offset = PrinterAdjustments.minWallThickness.value
@@ -51,7 +51,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
       alphanumericCase(case, bottomOffset = 1.5.mm)
       //thumbCase(case)
       frontRotaryEncoderKnobCase(case)
-      frontRotaryEncoderKeyCase(case.frontRotaryEncoderKey,
+      frontRotaryEncoderKeyCase(case,
          height = Case.FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT)
       thumbHomeKeyHole(case.thumbHomeKey, height = 0.mm, leftOffset = 20.mm,
          bottomOffset = Case.THUMB_HOME_KEY_CASE_HEIGHT, backOffset = 20.mm)

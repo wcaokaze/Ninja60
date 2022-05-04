@@ -2,6 +2,8 @@ package com.wcaokaze.ninja60.case.scad
 
 import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.ninja60.case.*
+import com.wcaokaze.ninja60.parts.key.*
+import com.wcaokaze.ninja60.parts.key.alphanumeric.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.front.*
 import com.wcaokaze.ninja60.shared.*
@@ -75,23 +77,35 @@ internal fun ScadParentObject.frontRotaryEncoderHole(
 }
 
 fun ScadParentObject.frontRotaryEncoderKeyCase(
-   key: FrontRotaryEncoderKey,
+   case: Case,
    height: Size,
    offset: Size = 0.mm
 ): ScadObject {
-   return place(key) {
-      translate(z = -height) {
-         val radius = FrontRotaryEncoderKey.RADIUS + FrontRotaryEncoderKey.KEY_WIDTH / 2
+   return union {
+      place(case.frontRotaryEncoderKey) {
+         translate(z = -height) {
+            val radius = FrontRotaryEncoderKey.RADIUS + FrontRotaryEncoderKey.KEY_WIDTH / 2
 
-         val frontAngle = -Angle.PI / 2
+            val frontAngle = -Angle.PI / 2
 
-         val startAngle = frontAngle - FrontRotaryEncoderKey.ARC_ANGLE / 2
-         val endAngle   = frontAngle + FrontRotaryEncoderKey.ARC_ANGLE / 2
+            val startAngle = frontAngle - FrontRotaryEncoderKey.ARC_ANGLE / 2
+            val endAngle   = frontAngle + FrontRotaryEncoderKey.ARC_ANGLE / 2
 
-         arcCylinder(radius + offset, height, startAngle, endAngle, offset)
+            arcCylinder(radius + offset, height, startAngle, endAngle, offset)
+         }
       }
+      marginFiller(case, surfaceOffsets = offset, internalOffsets = 0.1.mm)
    }
 }
+
+internal fun frontRotaryEncoderKeyCaseTopPlane(
+   key: FrontRotaryEncoderKey,
+   offset: Size
+) = Plane3d(
+   key.referencePoint
+      .translate(key.topVector, KeySwitch.TRAVEL + offset),
+   key.topVector
+)
 
 internal fun frontRotaryEncoderKeyCaseBottomPlane(
    key: FrontRotaryEncoderKey,
@@ -129,4 +143,50 @@ fun ScadParentObject.frontRotaryEncoderKeyHole(
          )
       }
    }
+}
+
+/**
+ * [AlphanumericPlate]と[FrontRotaryEncoderKey]の隙間を埋めるやつ
+ *
+ * @param surfaceOffsets
+ * [AlphanumericPlate]など他のパーツと接触せず、壁として露出する部分のオフセット
+ * @param internalOffsets
+ * [AlphanumericPlate]など他のパーツと接触している部分のオフセット
+ */
+private fun ScadParentObject.marginFiller(
+   case: Case,
+   surfaceOffsets: Size,
+   internalOffsets: Size
+): ScadObject {
+   val frontRotaryEncoderKeyEndPoint = arcEndPoint(
+      origin = case.frontRotaryEncoderKey.referencePoint,
+      xAxis = case.frontRotaryEncoderKey.frontVector,
+      yAxis = case.frontRotaryEncoderKey.rightVector,
+      arcRadius = FrontRotaryEncoderKey.RADIUS
+            + FrontRotaryEncoderKey.KEY_WIDTH / 2 + surfaceOffsets,
+      angle = FrontRotaryEncoderKey.ARC_ANGLE / 2,
+      surfaceOffsets
+   )
+
+   return distortedCube(
+      leftPlane = Plane3d(case.frontRotaryEncoderKey.referencePoint, case.leftVector),
+      rightPlane = Plane3d(
+         frontRotaryEncoderKeyEndPoint,
+         case.frontRotaryEncoderKey.frontVector.rotate(
+            case.frontRotaryEncoderKey.topVector,
+            FrontRotaryEncoderKey.ARC_ANGLE / 2
+         )
+      ),
+      frontPlane = Plane3d(
+         frontRotaryEncoderKeyEndPoint,
+         case.frontRotaryEncoderKey.frontVector.rotate(
+            case.frontRotaryEncoderKey.topVector,
+            FrontRotaryEncoderKey.ARC_ANGLE / 2 + 90.deg
+         )
+      ),
+      backPlane = alphanumericFrontPlaneRight(
+         case.alphanumericPlate, case.thumbHomeKey, -internalOffsets),
+      bottomPlane = frontRotaryEncoderKeyCaseBottomPlane(case.frontRotaryEncoderKey, surfaceOffsets),
+      topPlane = alphanumericTopPlaneRight(case.alphanumericPlate, surfaceOffsets)
+   )
 }
