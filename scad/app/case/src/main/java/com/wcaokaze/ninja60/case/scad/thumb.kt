@@ -284,13 +284,27 @@ private fun ScadParentObject.marginFiller(
    surfaceOffsets: Size,
    internalOffsets: Size
 ): ScadObject {
-   return distortedCube(
-      leftPlane = thumbHomeKeyCaseRightPlane(
-         case.thumbHomeKey, offset = keyTopOffset - internalOffsets),
-      rightPlane = thumbPlateLeftPlane(case.thumbPlate, offset = -internalOffsets),
-      frontPlane = thumbHomeKeyCaseFrontPlane(case, offset = surfaceOffsets),
-      backPlane = thumbHomeKeyCaseBackPlane(case, offset = internalOffsets),
-      bottomPlane = thumbKeyCaseBottomPlane(case, offset = internalOffsets),
-      topPlane = thumbPlateTopPlane(case.thumbPlate, offset = keyTopOffset),
-   )
+   return union {
+      distortedCube(
+         leftPlane = thumbHomeKeyCaseRightPlane(
+            case.thumbHomeKey, offset = keyTopOffset - internalOffsets),
+         rightPlane = thumbPlateLeftPlane(case.thumbPlate, offset = -internalOffsets),
+         frontPlane = thumbHomeKeyCaseFrontPlane(case, offset = surfaceOffsets),
+         backPlane = thumbHomeKeyCaseBackPlane(case, offset = internalOffsets),
+         bottomPlane = thumbKeyCaseBottomPlane(case, offset = internalOffsets),
+         topPlane = thumbPlateTopPlane(case.thumbPlate, offset = keyTopOffset)
+      )
+
+      distortedCube(
+         leftPlane = thumbHomeKeyCaseRightPlane(
+            case.thumbHomeKey, offset = keyTopOffset - internalOffsets),
+         rightPlane = alphanumericRightPlane(case.alphanumericPlate, surfaceOffsets),
+         frontPlane = alphanumericFrontPlaneRight(
+            case.alphanumericPlate, case.thumbHomeKey, offset = 20.mm),
+         backPlane = alphanumericFrontPlaneRight(
+            case.alphanumericPlate, case.thumbHomeKey, offset = -internalOffsets),
+         bottomPlane = thumbKeyCaseBottomPlane(case, offset = internalOffsets),
+         topPlane = thumbPlateTopPlane(case.thumbPlate, offset = keyTopOffset)
+      )
+   }
 }
