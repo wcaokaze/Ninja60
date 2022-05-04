@@ -55,7 +55,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
          height = Case.FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT)
       thumbHomeKeyHole(case.thumbHomeKey, height = 0.mm, leftOffset = 20.mm,
          bottomOffset = Case.THUMB_HOME_KEY_CASE_HEIGHT, backOffset = 20.mm)
-      thumbKeyCase(case, homeKeyTopOffset = -PrinterAdjustments.minWallThickness.value)
+      thumbKeyCase(case, keyTopOffset = -PrinterAdjustments.minWallThickness.value)
    }
 
 

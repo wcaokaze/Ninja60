@@ -3,6 +3,7 @@ package com.wcaokaze.ninja60.case.scad
 import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.ninja60.case.*
 import com.wcaokaze.ninja60.parts.key.*
+import com.wcaokaze.ninja60.parts.key.alphanumeric.*
 import com.wcaokaze.ninja60.parts.key.thumb.*
 import com.wcaokaze.ninja60.shared.calcutil.*
 import com.wcaokaze.ninja60.shared.scadutil.*
@@ -12,27 +13,33 @@ import com.wcaokaze.scadwriter.foundation.*
 
 internal fun ScadParentObject.thumbKeyCase(
    case: Case,
-   homeKeyTopOffset: Size = 0.mm,
+   keyTopOffset: Size = 0.mm,
    otherOffsets: Size = 0.mm
 ): ScadObject {
    return (
-      distortedCube(
-         thumbHomeKeyCaseTopPlane(case, otherOffsets),
-         thumbHomeKeyCaseLeftPlane(case.thumbHomeKey, otherOffsets),
-         thumbHomeKeyCaseBackPlane(case, otherOffsets),
-         thumbHomeKeyCaseRightPlane(case.thumbHomeKey, homeKeyTopOffset),
-         thumbHomeKeyCaseFrontPlane(case, otherOffsets),
-         thumbHomeKeyCaseBottomPlane(case, offset = 0.mm)
-      )
-      + thumbPlateOuterArc(
-         case.thumbPlate,
-         height = KeySwitch.TRAVEL,
-         bottomOffset = 20.mm + otherOffsets,
-         otherOffsets = otherOffsets
-      )
+      union {
+         distortedCube(
+            thumbHomeKeyCaseTopPlane(case, otherOffsets),
+            thumbHomeKeyCaseLeftPlane(case.thumbHomeKey, otherOffsets),
+            thumbHomeKeyCaseBackPlane(case, otherOffsets),
+            thumbHomeKeyCaseRightPlane(case.thumbHomeKey, keyTopOffset),
+            thumbHomeKeyCaseFrontPlane(case, otherOffsets),
+            thumbHomeKeyCaseBottomPlane(case, offset = 0.mm)
+         )
+
+         thumbPlateOuterArc(
+            case.thumbPlate,
+            height = KeySwitch.TRAVEL + keyTopOffset,
+            bottomOffset = 20.mm + otherOffsets,
+            otherOffsets = otherOffsets
+         )
+
+         marginFiller(case, keyTopOffset, surfaceOffsets = otherOffsets,
+            internalOffsets = 0.1.mm)
+      }
       - thumbPlateInnerArc(
          case.thumbPlate,
-         height = KeySwitch.TRAVEL,
+         height = KeySwitch.TRAVEL + keyTopOffset,
          bottomOffset = 20.mm + otherOffsets,
          otherOffsets = otherOffsets
       )
@@ -140,6 +147,11 @@ internal fun ScadParentObject.thumbHomeKeyHole(
    ))
 }
 
+private fun thumbPlateStartAngle(thumbPlate: ThumbPlate)
+      = -thumbPlate.keyAngle * (thumbPlate.keySwitches.size - 0.5)
+private fun thumbPlateEndAngle(thumbPlate: ThumbPlate)
+      = thumbPlate.keyAngle / 2
+
 private fun thumbPlateEndPoint(
    thumbPlate: ThumbPlate,
    zOffset: Size,
@@ -154,7 +166,7 @@ private fun thumbPlateEndPoint(
          xAxis = thumbPlate.backVector,
          yAxis = thumbPlate.leftVector,
          arcRadius = thumbPlate.layoutRadius - keyLength / 2 - otherOffsets,
-         angle = thumbPlate.keyAngle / 2,
+         angle = thumbPlateEndAngle(thumbPlate),
          otherOffsets
       )
       .translate(thumbPlate.topVector, zOffset)
@@ -177,6 +189,15 @@ private fun arcEndPoint(
       .translate(vector(angle), arcRadius)
       .translate(vector(angle + 90.deg), offset)
 }
+
+internal fun thumbPlateLeftPlane(
+   thumbPlate: ThumbPlate,
+   offset: Size
+) = Plane3d(
+   thumbPlateEndPoint(thumbPlate, zOffset = 0.mm, offset),
+   thumbPlate.backVector
+      .rotate(thumbPlate.topVector, thumbPlateEndAngle(thumbPlate) + 90.deg)
+)
 
 internal fun thumbPlateTopPlane(
    thumbPlate: ThumbPlate,
@@ -211,16 +232,13 @@ private fun ScadParentObject.thumbPlateOuterArc(
 
    val backAngle = Angle.PI / 2
 
-   val startAngle = backAngle - thumbPlate.keyAngle * (thumbPlate.keySwitches.size - 0.5)
-   val endAngle = backAngle + thumbPlate.keyAngle / 2
-
    return place(thumbPlate) {
       translate(y = -thumbPlate.layoutRadius, z = -bottomOffset) {
          arcCylinder(
             radius + otherOffsets,
             height + bottomOffset,
-            startAngle,
-            endAngle,
+            backAngle + thumbPlateStartAngle(thumbPlate),
+            backAngle + thumbPlateEndAngle(thumbPlate),
             otherOffsets
          )
       }
@@ -239,18 +257,40 @@ private fun ScadParentObject.thumbPlateInnerArc(
 
    val backAngle = Angle.PI / 2
 
-   val startAngle = backAngle - thumbPlate.keyAngle * (thumbPlate.keySwitches.size - 0.5)
-   val endAngle = backAngle + thumbPlate.keyAngle / 2
-
    return place(thumbPlate) {
       translate(y = -thumbPlate.layoutRadius, z = -bottomOffset - 0.01.mm) {
          arcCylinder(
             radius - otherOffsets,
             height + bottomOffset + 0.02.mm,
-            startAngle - 0.1.deg,
-            endAngle + 0.1.deg,
+            backAngle + thumbPlateStartAngle(thumbPlate) - 0.1.deg,
+            backAngle + thumbPlateEndAngle(thumbPlate) + 0.1.deg,
             otherOffsets
          )
       }
    }
+}
+
+/**
+ * [AlphanumericPlate]と[ThumbPlate]の隙間などを埋めるやつ
+ *
+ * @param surfaceOffsets
+ * [AlphanumericPlate]など他のパーツと接触せず、壁として露出する部分のオフセット
+ * @param internalOffsets
+ * [AlphanumericPlate]など他のパーツと接触している部分のオフセット
+ */
+private fun ScadParentObject.marginFiller(
+   case: Case,
+   keyTopOffset: Size,
+   surfaceOffsets: Size,
+   internalOffsets: Size
+): ScadObject {
+   return distortedCube(
+      leftPlane = thumbHomeKeyCaseRightPlane(
+         case.thumbHomeKey, offset = keyTopOffset - internalOffsets),
+      rightPlane = thumbPlateLeftPlane(case.thumbPlate, offset = -internalOffsets),
+      frontPlane = thumbHomeKeyCaseFrontPlane(case, offset = surfaceOffsets),
+      backPlane = thumbHomeKeyCaseBackPlane(case, offset = internalOffsets),
+      bottomPlane = thumbKeyCaseBottomPlane(case, offset = internalOffsets),
+      topPlane = thumbPlateTopPlane(case.thumbPlate, offset = keyTopOffset),
+   )
 }
