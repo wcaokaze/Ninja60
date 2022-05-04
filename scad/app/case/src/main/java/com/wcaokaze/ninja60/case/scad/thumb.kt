@@ -112,8 +112,7 @@ internal fun thumbHomeKeyCaseTopPlane(
    case: Case,
    offset: Size
 ): Plane3d {
-   return frontRotaryEncoderKeyCaseBottomPlane(case.frontRotaryEncoderKey)
-      .translateNormalVector(offset)
+   return frontRotaryEncoderKeyCaseBottomPlane(case.frontRotaryEncoderKey, offset)
 }
 
 internal fun ScadParentObject.thumbHomeKeyHole(
@@ -178,6 +177,15 @@ private fun arcEndPoint(
       .translate(vector(angle), arcRadius)
       .translate(vector(angle + 90.deg), offset)
 }
+
+internal fun thumbPlateTopPlane(
+   thumbPlate: ThumbPlate,
+   offset: Size
+) = Plane3d(
+   thumbPlate.referencePoint
+      .translate(thumbPlate.topVector, KeySwitch.TRAVEL + offset),
+   thumbPlate.topVector
+)
 
 internal fun ScadParentObject.thumbPlateHole(
    thumbPlate: ThumbPlate,

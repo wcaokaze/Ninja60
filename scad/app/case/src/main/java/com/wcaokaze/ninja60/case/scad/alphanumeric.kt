@@ -41,14 +41,14 @@ fun ScadParentObject.alphanumericCase(
                alphanumericRightPlane(case.alphanumericPlate, otherOffsets)
             ).flatMap { leftRightPlane ->
                listOf(
-                  alphanumericBottomPlane(case, bottomOffset),
-                  alphanumericBackPlane(case, otherOffsets),
-                  alphanumericBackSlopePlane(case.alphanumericPlate, otherOffsets),
-                  alphanumericTopPlaneLeft(case.alphanumericPlate, otherOffsets),
-                  alphanumericFrontSlopePlane(case.alphanumericPlate, otherOffsets),
-                  alphanumericFrontPlaneLeft(case.alphanumericPlate, otherOffsets),
-                  alphanumericBottomPlane(case, bottomOffset)
-               )
+                     alphanumericBottomPlane(case, bottomOffset),
+                     alphanumericBackPlane(case, otherOffsets),
+                     alphanumericBackSlopePlane(case.alphanumericPlate, otherOffsets),
+                     alphanumericTopPlaneLeft(case.alphanumericPlate, otherOffsets),
+                     alphanumericFrontSlopePlane(case.alphanumericPlate, otherOffsets),
+                     alphanumericFrontPlaneLeft(case.alphanumericPlate, otherOffsets),
+                     alphanumericBottomPlane(case, bottomOffset)
+                  )
                   .zipWithNext()
                   .map { (a, b) ->
                      a intersection b intersection leftRightPlane
@@ -70,13 +70,13 @@ fun ScadParentObject.alphanumericCase(
                alphanumericRightPlane(case.alphanumericPlate, otherOffsets)
             ).flatMap { leftRightPlane ->
                listOf(
-                  alphanumericBottomPlane(case, bottomOffset),
-                  alphanumericBackPlane(case, otherOffsets),
-                  alphanumericBackSlopePlane(case.alphanumericPlate, otherOffsets),
-                  alphanumericTopPlaneRight(case.alphanumericPlate, otherOffsets),
-                  alphanumericFrontPlaneRight(case.alphanumericPlate, case.thumbHomeKey, otherOffsets),
-                  alphanumericBottomPlane(case, bottomOffset)
-               )
+                     alphanumericBottomPlane(case, bottomOffset),
+                     alphanumericBackPlane(case, otherOffsets),
+                     alphanumericBackSlopePlane(case.alphanumericPlate, otherOffsets),
+                     alphanumericTopPlaneRight(case.alphanumericPlate, otherOffsets),
+                     alphanumericFrontPlaneRight(case.alphanumericPlate, case.thumbHomeKey, otherOffsets),
+                     alphanumericBottomPlane(case, bottomOffset)
+                  )
                   .zipWithNext()
                   .map { (a, b) ->
                      a intersection b intersection leftRightPlane

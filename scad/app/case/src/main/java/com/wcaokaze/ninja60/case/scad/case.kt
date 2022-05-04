@@ -13,7 +13,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
    var scad: ScadObject
 
    val alphanumericCase = memoize {
-      alphanumericCase(case, otherOffsets = 1.5.mm)
+      alphanumericCase(case, otherOffsets = PrinterAdjustments.minWallThickness.value)
    }
    val frontRotaryEncoderKnobCase = memoize {
       frontRotaryEncoderKnobCase(
@@ -57,6 +57,40 @@ fun ScadParentObject.case(case: Case): ScadObject {
          bottomOffset = Case.THUMB_HOME_KEY_CASE_HEIGHT, backOffset = 20.mm)
       thumbKeyCase(case, homeKeyTopOffset = -PrinterAdjustments.minWallThickness.value)
    }
+
+
+   // ==== thumb部にはみ出てしまうfrontRotaryEncoderKnobCaseの除去 =============
+
+   scad += distortedCube(
+      leftPlane = thumbHomeKeyCaseRightPlane(
+         case.thumbHomeKey,
+         offset = -PrinterAdjustments.minWallThickness.value
+      ),
+      rightPlane = thumbHomeKeyCaseRightPlane(case.thumbHomeKey, offset = 10.mm),
+      frontPlane = thumbHomeKeyCaseFrontPlane(case, offset = 0.mm),
+      backPlane = alphanumericFrontPlaneRight(
+         case.alphanumericPlate, case.thumbHomeKey, offset = 0.mm
+      ),
+      bottomPlane = thumbPlateTopPlane(case.thumbPlate, offset = 0.1.mm),
+      topPlane = frontRotaryEncoderKeyCaseBottomPlane(
+         case.frontRotaryEncoderKey, offset = 0.mm
+      )
+   )
+
+   scad -= hugeCube(
+      leftPlane = thumbHomeKeyCaseRightPlane(case.thumbHomeKey, offset = 0.mm),
+      rightPlane = thumbHomeKeyCaseRightPlane(case.thumbHomeKey, offset = 10.1.mm),
+      frontPlane = thumbHomeKeyCaseFrontPlane(case, offset = 0.1.mm),
+      backPlane = alphanumericFrontPlaneRight(
+         case.alphanumericPlate, case.thumbHomeKey,
+         offset = PrinterAdjustments.minWallThickness.value
+      ),
+      bottomPlane = thumbPlateTopPlane(case.thumbPlate, offset = 0.mm),
+      topPlane = frontRotaryEncoderKeyCaseBottomPlane(
+         case.frontRotaryEncoderKey,
+         offset = PrinterAdjustments.minWallThickness.value
+      )
+   )
 
 
    // ==== alphanumericのプレート部 ============================================

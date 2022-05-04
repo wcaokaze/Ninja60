@@ -116,12 +116,12 @@ private fun wristRestRightPlane(
    )
 }
 
-private fun wristRestFrontPlane(case: Case) = Plane3d(
+internal fun wristRestFrontPlane(case: Case) = Plane3d(
    case.referencePoint.translate(y = (-108).mm),
    case.frontVector
 )
 
-private fun wristRestBackPlane(case: Case) = Plane3d(
+internal fun wristRestBackPlane(case: Case) = Plane3d(
    case.referencePoint.translate(y = (-38).mm),
    case.backVector
 )

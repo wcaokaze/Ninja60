@@ -81,23 +81,24 @@ fun ScadParentObject.frontRotaryEncoderKeyCase(
 ): ScadObject {
    return place(key) {
       translate(z = -height) {
-         difference {
-            val radius = FrontRotaryEncoderKey.RADIUS + FrontRotaryEncoderKey.KEY_WIDTH / 2
+         val radius = FrontRotaryEncoderKey.RADIUS + FrontRotaryEncoderKey.KEY_WIDTH / 2
 
-            val frontAngle = -Angle.PI / 2
+         val frontAngle = -Angle.PI / 2
 
-            val startAngle = frontAngle - FrontRotaryEncoderKey.ARC_ANGLE / 2
-            val endAngle   = frontAngle + FrontRotaryEncoderKey.ARC_ANGLE / 2
+         val startAngle = frontAngle - FrontRotaryEncoderKey.ARC_ANGLE / 2
+         val endAngle   = frontAngle + FrontRotaryEncoderKey.ARC_ANGLE / 2
 
-            arcCylinder(radius + offset, height, startAngle, endAngle, offset)
-         }
+         arcCylinder(radius + offset, height, startAngle, endAngle, offset)
       }
    }
 }
 
-internal fun frontRotaryEncoderKeyCaseBottomPlane(key: FrontRotaryEncoderKey) = Plane3d(
+internal fun frontRotaryEncoderKeyCaseBottomPlane(
+   key: FrontRotaryEncoderKey,
+   offset: Size
+) = Plane3d(
    key.referencePoint
-      .translate(key.bottomVector, Case.FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT),
+      .translate(key.bottomVector, Case.FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT + offset),
    key.bottomVector
 )
 
@@ -110,24 +111,22 @@ fun ScadParentObject.frontRotaryEncoderKeyHole(
 ): ScadObject {
    return place(key) {
       translate(z = -bottomOffset) {
-         difference {
-            val outerRadius = FrontRotaryEncoderKey.RADIUS + FrontRotaryEncoderKey.KEY_WIDTH / 2
-            val innerRadius = FrontRotaryEncoderKey.RADIUS - FrontRotaryEncoderKey.KEY_WIDTH / 2
+         val outerRadius = FrontRotaryEncoderKey.RADIUS + FrontRotaryEncoderKey.KEY_WIDTH / 2
+         val innerRadius = FrontRotaryEncoderKey.RADIUS - FrontRotaryEncoderKey.KEY_WIDTH / 2
 
-            val frontAngle = -Angle.PI / 2
+         val frontAngle = -Angle.PI / 2
 
-            val startAngle = frontAngle - FrontRotaryEncoderKey.ARC_ANGLE / 2
-            val endAngle   = frontAngle + FrontRotaryEncoderKey.ARC_ANGLE / 2
+         val startAngle = frontAngle - FrontRotaryEncoderKey.ARC_ANGLE / 2
+         val endAngle   = frontAngle + FrontRotaryEncoderKey.ARC_ANGLE / 2
 
-            arcCylinder(
-               innerRadius - innerRadiusOffset,
-               outerRadius + otherOffsets,
-               height + bottomOffset,
-               startAngle,
-               endAngle,
-               otherOffsets
-            )
-         }
+         arcCylinder(
+            innerRadius - innerRadiusOffset,
+            outerRadius + otherOffsets,
+            height + bottomOffset,
+            startAngle,
+            endAngle,
+            otherOffsets
+         )
       }
    }
 }
