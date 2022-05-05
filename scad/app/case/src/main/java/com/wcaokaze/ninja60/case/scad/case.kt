@@ -51,7 +51,6 @@ fun ScadParentObject.case(case: Case): ScadObject {
 
    scad -= union {
       alphanumericCase(case, bottomOffset = 1.5.mm)
-      //thumbCase(case)
       frontRotaryEncoderKnobCase(case)
       frontRotaryEncoderKeyCase(case,
          height = Case.FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT)
@@ -157,18 +156,6 @@ fun ScadParentObject.case(case: Case): ScadObject {
 
    // ==== 奥側ロータリーエンコーダ ============================================
 
-   /*
-   scad += (
-      backRotaryEncoderCase(case, otherOffsets = 1.5.mm)
-      - backRotaryEncoderCase(case, bottomOffset = 1.5.mm, frontOffset = (-1.5).mm)
-      - baseCase()
-      + backRotaryEncoderKnobHolder(case)
-      - backRotaryEncoderKnobCave(case)
-   )
-
-   scad -= backRotaryEncoderInsertionHole(case)
-   scad += backRotaryEncoderMountPlate(case)
-   */
 
 
    // ==== 手前側ロータリーエンコーダ ==========================================
