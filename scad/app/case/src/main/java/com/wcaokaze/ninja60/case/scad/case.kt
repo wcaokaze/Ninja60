@@ -39,13 +39,15 @@ fun ScadParentObject.case(case: Case): ScadObject {
       )
    }
 
-   scad += wristRest(
-      case,
-      alphanumericLeftPlane(case.alphanumericPlate, offset = 1.5.mm),
-      alphanumericFrontSlopePlane(case.alphanumericPlate, offset = 1.5.mm),
-      alphanumericFrontPlaneLeft(case.alphanumericPlate, offset = 1.5.mm),
-      alphanumericBottomPlane(case, offset = 0.mm)
-   )
+   if (Case.generateWristRest.value) {
+      scad += wristRest(
+         case,
+         alphanumericLeftPlane(case.alphanumericPlate, offset = 1.5.mm),
+         alphanumericFrontSlopePlane(case.alphanumericPlate, offset = 1.5.mm),
+         alphanumericFrontPlaneLeft(case.alphanumericPlate, offset = 1.5.mm),
+         alphanumericBottomPlane(case, offset = 0.mm)
+      )
+   }
 
    scad -= union {
       alphanumericCase(case, bottomOffset = 1.5.mm)

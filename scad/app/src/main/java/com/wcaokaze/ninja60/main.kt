@@ -35,6 +35,7 @@ fun main(vararg args: String) {
          PrinterAdjustments.minHollowSize provides Size3d(1.mm, 1.mm, 1.mm),
          PrinterAdjustments.movableMargin provides 0.25.mm,
          PrinterAdjustments.errorSize provides 0.1.mm,
+         Case.generateWristRest provides config.generateWristRest
       ) {
          val case = Case()
          case(case)
@@ -104,7 +105,8 @@ fun main(vararg args: String) {
 }
 
 private data class Config(
-   val outputFile: File = File("out.scad")
+   val outputFile: File = File("out.scad"),
+   val generateWristRest: Boolean = false,
 )
 
 private class ArgumentParseException(message: String) : Exception(message)
@@ -144,6 +146,11 @@ private fun parseArguments(args: Array<out String>): Config {
          "--output-file", "-o" -> {
             val fileName = iterator.nextArgumentOrThrow { "Specify the output file name." }
             config = config.copy(outputFile = File(fileName))
+         }
+
+         "--generate-wrist-rest" -> {
+            val generateWristRest = iterator.nextArgumentOrNull()?.toBoolean() ?: true
+            config = config.copy(generateWristRest = generateWristRest)
          }
 
          else -> {
