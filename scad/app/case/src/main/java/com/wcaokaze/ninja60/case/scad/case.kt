@@ -37,16 +37,20 @@ fun ScadParentObject.case(case: Case): ScadObject {
          case,
          otherOffsets = PrinterAdjustments.minWallThickness.value
       )
-   }
 
-   if (Case.generateWristRest.value) {
-      scad += wristRest(
-         case,
-         alphanumericLeftPlane(case.alphanumericPlate, offset = 1.5.mm),
-         alphanumericFrontSlopePlane(case.alphanumericPlate, offset = 1.5.mm),
-         alphanumericFrontPlaneLeft(case.alphanumericPlate, offset = 1.5.mm),
-         alphanumericBottomPlane(case, offset = 0.mm)
-      )
+      if (Case.generateBackRotaryEncoder.value) {
+         backRotaryEncoderCircuitSideCase(case)
+      }
+
+      if (Case.generateWristRest.value) {
+         wristRest(
+            case,
+            alphanumericLeftPlane(case.alphanumericPlate, offset = 1.5.mm),
+            alphanumericFrontSlopePlane(case.alphanumericPlate, offset = 1.5.mm),
+            alphanumericFrontPlaneLeft(case.alphanumericPlate, offset = 1.5.mm),
+            alphanumericBottomPlane(case, offset = 0.mm)
+         )
+      }
    }
 
    scad -= union {
@@ -57,6 +61,10 @@ fun ScadParentObject.case(case: Case): ScadObject {
       thumbHomeKeyHole(case.thumbHomeKey, height = 0.mm, leftOffset = 20.mm,
          bottomOffset = Case.THUMB_HOME_KEY_CASE_HEIGHT, backOffset = 20.mm)
       thumbKeyCase(case, keyTopOffset = -PrinterAdjustments.minWallThickness.value)
+
+      if (Case.generateBackRotaryEncoder.value) {
+         backRotaryEncoderCircuitSideCave(case)
+      }
    }
 
 
@@ -156,6 +164,12 @@ fun ScadParentObject.case(case: Case): ScadObject {
 
    // ==== 奥側ロータリーエンコーダ ============================================
 
+   if (Case.generateBackRotaryEncoder.value) {
+      scad += backRotaryEncoderGearSideCase(case)
+      scad -= backRotaryEncoderGearSideHollow(case)
+      scad -= rotaryEncoderMountHole(
+         case.backRotaryEncoderGear.rotaryEncoder, RotaryEncoder.BOARD_THICKNESS)
+   }
 
 
    // ==== 手前側ロータリーエンコーダ ==========================================

@@ -35,7 +35,8 @@ fun main(vararg args: String) {
          PrinterAdjustments.minHollowSize provides Size3d(1.mm, 1.mm, 1.mm),
          PrinterAdjustments.movableMargin provides 0.25.mm,
          PrinterAdjustments.errorSize provides 0.1.mm,
-         Case.generateWristRest provides config.generateWristRest
+         Case.generateWristRest provides config.generateWristRest,
+         Case.generateBackRotaryEncoder provides config.generateBackRotaryEncoder
       ) {
          val case = Case()
          case(case)
@@ -61,7 +62,6 @@ fun main(vararg args: String) {
 
          backRotaryEncoderMediationGear(case.backRotaryEncoderMediationGear)
          backRotaryEncoderGear(case.backRotaryEncoderGear)
-         rotaryEncoderMountHole(case.backRotaryEncoderGear.rotaryEncoder, 1.6.mm)
 
          // ----
 
@@ -107,6 +107,7 @@ fun main(vararg args: String) {
 private data class Config(
    val outputFile: File = File("out.scad"),
    val generateWristRest: Boolean = false,
+   val generateBackRotaryEncoder: Boolean = false,
 )
 
 private class ArgumentParseException(message: String) : Exception(message)
@@ -151,6 +152,11 @@ private fun parseArguments(args: Array<out String>): Config {
          "--generate-wrist-rest" -> {
             val generateWristRest = iterator.nextArgumentOrNull()?.toBoolean() ?: true
             config = config.copy(generateWristRest = generateWristRest)
+         }
+
+         "--generate-back-rotary-encoder" -> {
+            val generateBackRotaryEncoder = iterator.nextArgumentOrNull()?.toBoolean() ?: true
+            config = config.copy(generateBackRotaryEncoder = generateBackRotaryEncoder)
          }
 
          else -> {

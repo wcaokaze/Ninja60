@@ -28,17 +28,6 @@ data class BackRotaryEncoderGear(
        * 歯車の位置。[referencePoint]から[topVector]方向の距離
        */
       val GEAR_POSITION = 0.mm
-
-      /** ロータリーエンコーダを入れる際にケースに必要な穴の高さ */
-      val INSERTION_HEIGHT = RotaryEncoder.LEG_HEIGHT + RotaryEncoder.HEIGHT + 0.5.mm
-
-      /**
-       * ロータリーエンコーダを入れる部分のケースの幅
-       *
-       * ロータリーエンコーダが横向きに設置されるので、
-       * ケースの幅はロータリーエンコーダの高さの向きになっていることに注意
-       */
-      val CASE_WIDTH = INSERTION_HEIGHT + RotaryEncoder.LEG_HEIGHT + 1.mm
    }
 
    val gear: BevelGear get() {

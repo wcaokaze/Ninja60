@@ -49,6 +49,9 @@ data class Case(
 
       val FRONT_ROTARY_ENCODER_KEY_CASE_HEIGHT = 9.mm
       val THUMB_HOME_KEY_CASE_HEIGHT = 4.mm
+
+      val BACK_ROTARY_ENCODER_CASE_DEPTH = 15.mm
+      val BACK_ROTARY_ENCODER_CASE_MARGIN_SPACE = 1.5.mm
    }
 
    val alphanumericPlate: AlphanumericPlate get() {

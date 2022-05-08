@@ -27,7 +27,8 @@ tasks.register<Exec>("generateAllScads") {
       "--class-path", classPath.joinToString(separator = ":"),
       "com.wcaokaze.ninja60.MainKt",
       "--output-file", File(buildDir, "test.scad"),
-      "--generate-wrist-rest"
+      "--generate-wrist-rest",
+      "--generate-back-rotary-encoder"
    )
 }
 

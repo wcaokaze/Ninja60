@@ -2,7 +2,6 @@ package com.wcaokaze.ninja60.parts.rotaryencoder
 
 import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.ninja60.shared.calcutil.*
-import com.wcaokaze.ninja60.shared.scadutil.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
@@ -13,7 +12,7 @@ data class RotaryEncoder(
 ) : Transformable<RotaryEncoder> {
    companion object {
       val HEIGHT = 22.3.mm
-      val BODY_SIZE = Size3d(13.4.mm, 22.3.mm, 6.2.mm)
+      val BODY_SIZE = Size3d(13.4.mm, 16.3.mm, 6.2.mm)
       val SHAFT_HEIGHT = HEIGHT - BODY_SIZE.z
       val SHAFT_RADIUS = 3.5.mm
 
@@ -22,6 +21,9 @@ data class RotaryEncoder(
 
       /** クリックするときの押し込みの深さ */
       val CLICK_TRAVEL = 1.5.mm
+
+      /** ロータリーエンコーダを取り付ける基板の厚み */
+      val BOARD_THICKNESS = 1.6.mm
    }
 
    init {
@@ -47,7 +49,7 @@ fun ScadParentObject.rotaryEncoderMountHole(
    thickness: Size
 ): ScadObject {
    fun ScadParentObject.hole(positionX: Size, positionY: Size, sizeX: Size, sizeY: Size): ScadObject {
-      return translate(positionX, positionY) {
+      return translate(positionX - sizeX / 2, positionY - sizeY / 2) {
          cube(sizeX, sizeY, thickness + 0.2.mm)
       }
    }
