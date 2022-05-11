@@ -28,6 +28,9 @@ data class BackRotaryEncoderKnob(
       val SKIDPROOF_RADIUS = 0.25.mm
    }
 
+   val gearReferencePoint: Point3d
+      get() = referencePoint.translate(bottomVector, GEAR_THICKNESS)
+
    val gear: Gear get() {
       val module = BackRotaryEncoderMediationGear.SpurGear.MODULE
       val diameter = RADIUS * 2 - module * 2
@@ -38,7 +41,7 @@ data class BackRotaryEncoderKnob(
          BackRotaryEncoderMediationGear.SpurGear.MODULE,
          toothCount,
          GEAR_THICKNESS,
-         referencePoint.translate(bottomVector, GEAR_THICKNESS),
+         gearReferencePoint,
          frontVector, bottomVector
       )
    }

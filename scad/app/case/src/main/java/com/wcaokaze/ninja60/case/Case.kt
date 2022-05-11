@@ -52,6 +52,7 @@ data class Case(
 
       val BACK_ROTARY_ENCODER_CASE_DEPTH = 15.mm
       val BACK_ROTARY_ENCODER_CASE_MARGIN_SPACE = 1.5.mm
+      val BACK_ROTARY_ENCODER_GEAR_HOLDER_ARM_WIDTH = 6.mm
    }
 
    val alphanumericPlate: AlphanumericPlate get() {

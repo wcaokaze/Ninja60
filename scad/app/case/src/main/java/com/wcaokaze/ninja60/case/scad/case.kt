@@ -169,6 +169,7 @@ fun ScadParentObject.case(case: Case): ScadObject {
       scad -= backRotaryEncoderGearSideHollow(case)
       scad -= rotaryEncoderMountHole(
          case.backRotaryEncoderGear.rotaryEncoder, RotaryEncoder.BOARD_THICKNESS)
+      scad += backRotaryEncoderGearHolder(case)
    }
 
 
