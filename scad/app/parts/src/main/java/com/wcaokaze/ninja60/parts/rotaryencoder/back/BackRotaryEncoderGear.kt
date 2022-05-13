@@ -16,7 +16,7 @@ data class BackRotaryEncoderGear(
    override val referencePoint: Point3d
 ) : Transformable<BackRotaryEncoderGear> {
    object Gear {
-      val TOOTH_COUNT = 14
+      val TOOTH_COUNT = 16
    }
 
    object Shaft {

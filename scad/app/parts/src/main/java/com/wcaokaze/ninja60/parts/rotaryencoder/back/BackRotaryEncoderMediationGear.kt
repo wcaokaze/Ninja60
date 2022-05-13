@@ -14,14 +14,14 @@ data class BackRotaryEncoderMediationGear(
 ) : Transformable<BackRotaryEncoderMediationGear> {
    object SpurGear {
       val MODULE = 1.5.mm
-      val TOOTH_COUNT = 16
+      val TOOTH_COUNT = 17
       val THICKNESS = 2.mm
    }
 
    object BevelGear {
       val MODULE = 1.5.mm
       val OPERATING_ANGLE = 90.deg
-      val TOOTH_COUNT = 10
+      val TOOTH_COUNT = 11
       val THICKNESS = 4.mm
 
       fun createPair(): Pair<Bevel, Bevel> {

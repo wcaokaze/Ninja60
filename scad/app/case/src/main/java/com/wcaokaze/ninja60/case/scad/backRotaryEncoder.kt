@@ -175,8 +175,10 @@ internal fun backRotaryEncoderGearPlane(case: Case, offset: Size): Plane3d {
          gears.asSequence()
             .minusElement(g)
             .map { it.plane() intersection g.leftVectorLine() }
-            .map { Vector3d(g.leftPoint(), it) }
-            .all { it isSameDirection g.leftVector() }
+            .all {
+               val v = Vector3d(g.leftPoint(), it)
+               v.norm < 0.1.mm || v isSameDirection g.leftVector()
+            }
       }
    }
 

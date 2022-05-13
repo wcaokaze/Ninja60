@@ -14,14 +14,16 @@ import com.wcaokaze.ninja60.shared.scadutil.*
 import com.wcaokaze.scadwriter.foundation.*
 
 data class Case(
+   override val referencePoint: Point3d,
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
-   override val referencePoint: Point3d
+   private val gearMargin: Size
 ) : Transformable<Case> {
-   constructor() : this(
+   constructor(gearMargin: Size) : this(
+      Point3d.ORIGIN,
       -Vector3d.Y_UNIT_VECTOR,
       -Vector3d.Z_UNIT_VECTOR,
-      Point3d.ORIGIN
+      gearMargin
    )
 
    companion object {
@@ -162,7 +164,7 @@ data class Case(
       // この直線上に歯車の中心を配置すると歯車とケースが接することになる
       val gearLine = caseLine.translate(
          gearPlane.normalVector vectorProduct caseLine.vector,
-         gear.addendumRadius
+         gear.addendumRadius + gearMargin
       )
 
       // gearLine上にあってknobからの距離が適切な点
@@ -276,5 +278,5 @@ data class Case(
    }
 
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
-         = Case(frontVector, bottomVector, referencePoint)
+         = Case(referencePoint, frontVector, bottomVector, gearMargin)
 }
