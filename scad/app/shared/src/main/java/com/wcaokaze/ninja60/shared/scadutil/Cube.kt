@@ -10,7 +10,7 @@ data class Cube(
    val size: Size3d,
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d
-) : Transformable<Cube> {
+) : TransformableDefaultImpl<Cube> {
    companion object {
       operator fun invoke(
          size: Size3d,

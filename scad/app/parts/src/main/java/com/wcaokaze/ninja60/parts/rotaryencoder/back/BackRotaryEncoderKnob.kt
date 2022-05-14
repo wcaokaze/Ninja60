@@ -17,7 +17,7 @@ data class BackRotaryEncoderKnob(
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
    override val referencePoint: Point3d
-) : Transformable<BackRotaryEncoderKnob> {
+) : TransformableDefaultImpl<BackRotaryEncoderKnob> {
    companion object {
       val RADIUS = 10.mm
       val HEIGHT = 15.mm

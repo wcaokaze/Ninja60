@@ -13,7 +13,7 @@ import com.wcaokaze.ninja60.shared.scadutil.Cube
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
-internal fun ScadObject.frontRotaryEncoderKnobHoleZOffset(): Size
+internal fun PropagatedValueProvider.frontRotaryEncoderKnobHoleZOffset(): Size
       = RotaryEncoder.CLICK_TRAVEL + PrinterAdjustments.movableMargin.value
 
 internal fun ScadParentObject.frontRotaryEncoderKnobCase(

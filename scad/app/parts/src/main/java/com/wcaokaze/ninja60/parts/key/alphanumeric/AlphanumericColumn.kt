@@ -21,7 +21,7 @@ data class AlphanumericColumn(
    override val frontVector: Vector3d,
    val radius: Size,
    val twistAngle: Angle
-) : Transformable<AlphanumericColumn> {
+) : TransformableDefaultImpl<AlphanumericColumn> {
    /** この列に含まれる[KeySwitch]のリスト。上から順 */
    val keySwitches: List<KeySwitch> get() {
       val keycapTop = referencePoint.translate(bottomVector, radius)

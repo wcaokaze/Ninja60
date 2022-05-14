@@ -10,7 +10,7 @@ data class KeyPlate(
    val size: Size2d,
    override val bottomVector: Vector3d,
    override val frontVector: Vector3d
-) : Transformable<KeyPlate> {
+) : TransformableDefaultImpl<KeyPlate> {
    init {
       val angle = bottomVector angleWith frontVector
 

@@ -15,7 +15,7 @@ data class InternalGear(
    override val referencePoint: Point3d,
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d
-) : Transformable<InternalGear> {
+) : TransformableDefaultImpl<InternalGear> {
    override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
          = InternalGear(module, toothCount, thickness, referencePoint, frontVector, bottomVector)
 }

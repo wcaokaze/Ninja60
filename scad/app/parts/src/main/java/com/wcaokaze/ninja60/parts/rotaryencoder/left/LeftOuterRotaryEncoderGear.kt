@@ -11,7 +11,7 @@ class LeftOuterRotaryEncoderGear(
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
    override val referencePoint: Point3d
-) : Transformable<LeftOuterRotaryEncoderGear> {
+) : TransformableDefaultImpl<LeftOuterRotaryEncoderGear> {
    companion object {
       val HEIGHT = 4.mm
 

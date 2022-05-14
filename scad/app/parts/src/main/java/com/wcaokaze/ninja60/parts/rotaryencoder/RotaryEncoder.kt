@@ -9,7 +9,7 @@ data class RotaryEncoder(
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
    override val referencePoint: Point3d
-) : Transformable<RotaryEncoder> {
+) : TransformableDefaultImpl<RotaryEncoder> {
    companion object {
       val HEIGHT = 22.3.mm
       val BODY_SIZE = Size3d(13.4.mm, 16.3.mm, 6.2.mm)

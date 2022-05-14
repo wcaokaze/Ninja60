@@ -16,7 +16,7 @@ data class FrontRotaryEncoderKey(
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
    override val referencePoint: Point3d
-) : Transformable<FrontRotaryEncoderKey> {
+) : TransformableDefaultImpl<FrontRotaryEncoderKey> {
    companion object {
       val KEY_WIDTH = 19.05.mm
 

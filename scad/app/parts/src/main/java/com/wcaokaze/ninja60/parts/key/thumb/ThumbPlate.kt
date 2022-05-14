@@ -18,7 +18,7 @@ data class ThumbPlate(
    val keyPitch: Size,
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d
-) : Transformable<ThumbPlate> {
+) : TransformableDefaultImpl<ThumbPlate> {
    companion object {
       val KEY_PLATE_SIZE = Size2d(17.5.mm, 24.mm)
    }

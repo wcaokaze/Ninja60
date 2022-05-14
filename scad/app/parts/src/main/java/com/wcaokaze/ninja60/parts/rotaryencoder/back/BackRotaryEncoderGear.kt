@@ -14,7 +14,7 @@ data class BackRotaryEncoderGear(
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
    override val referencePoint: Point3d
-) : Transformable<BackRotaryEncoderGear> {
+) : TransformableDefaultImpl<BackRotaryEncoderGear> {
    object Gear {
       val TOOTH_COUNT = 16
    }

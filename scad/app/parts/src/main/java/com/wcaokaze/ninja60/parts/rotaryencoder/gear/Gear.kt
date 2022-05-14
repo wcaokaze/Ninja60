@@ -16,7 +16,7 @@ data class Gear(
    override val referencePoint: Point3d,
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d
-) : Transformable<Gear> {
+) : TransformableDefaultImpl<Gear> {
    companion object {
       val PROFILE_ANGLE = 20.deg
 

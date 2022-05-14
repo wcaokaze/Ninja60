@@ -14,7 +14,7 @@ data class AlphanumericPlate(
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
    override val referencePoint: Point3d
-) : Transformable<AlphanumericPlate> {
+) : TransformableDefaultImpl<AlphanumericPlate> {
    companion object {
       val KEY_PLATE_SIZE = Size2d(17.5.mm, 17.5.mm)
    }

@@ -11,7 +11,7 @@ data class BackRotaryEncoderMediationGear(
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
    override val referencePoint: Point3d
-) : Transformable<BackRotaryEncoderMediationGear> {
+) : TransformableDefaultImpl<BackRotaryEncoderMediationGear> {
    object SpurGear {
       val MODULE = 1.5.mm
       val TOOTH_COUNT = 17

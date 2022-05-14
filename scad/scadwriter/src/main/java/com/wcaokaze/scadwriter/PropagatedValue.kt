@@ -41,3 +41,7 @@ class PropagatedValues
    operator fun plus(values: Array<out ProvidingPropagatedValue<*>>)
          = PropagatedValues(this.values + values)
 }
+
+interface PropagatedValueProvider {
+   val <T> PropagatedValue<T>.value: T
+}

@@ -23,7 +23,7 @@ internal fun ScadParentObject.backRotaryEncoderGearHolderLeftArm(
       override val frontVector: Vector3d,
       override val bottomVector: Vector3d,
       override val referencePoint: Point3d
-   ) : Transformable<LeftArm> {
+   ) : TransformableDefaultImpl<LeftArm> {
       override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
             = LeftArm(frontVector, bottomVector, referencePoint)
    }

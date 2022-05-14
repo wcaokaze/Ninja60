@@ -10,7 +10,7 @@ class LeftInnerRotaryEncoderKnob(
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
    override val referencePoint: Point3d
-) : Transformable<LeftInnerRotaryEncoderKnob> {
+) : TransformableDefaultImpl<LeftInnerRotaryEncoderKnob> {
    companion object {
       val RADIUS = 10.mm
       val HEIGHT = 13.mm

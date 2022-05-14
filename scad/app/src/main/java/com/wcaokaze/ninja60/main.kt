@@ -38,10 +38,7 @@ fun main(vararg args: String) {
          Case.generateWristRest provides config.generateWristRest,
          Case.generateBackRotaryEncoder provides config.generateBackRotaryEncoder
       ) {
-         val case = Case(
-            gearMargin = PrinterAdjustments.movableMargin.value
-         )
-
+         val case = Case()
          case(case)
 
          /*

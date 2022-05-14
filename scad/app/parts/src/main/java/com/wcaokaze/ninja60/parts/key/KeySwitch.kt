@@ -11,7 +11,7 @@ data class KeySwitch(
 
    override val bottomVector: Vector3d,
    override val frontVector: Vector3d,
-) : Transformable<KeySwitch> {
+) : TransformableDefaultImpl<KeySwitch> {
    companion object {
       val TRAVEL = 4.mm
 

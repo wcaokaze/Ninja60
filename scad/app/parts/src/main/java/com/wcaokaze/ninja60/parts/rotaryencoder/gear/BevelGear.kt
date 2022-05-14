@@ -20,7 +20,7 @@ data class BevelGear(
    override val referencePoint: Point3d,
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d
-) : Transformable<BevelGear> {
+) : TransformableDefaultImpl<BevelGear> {
    companion object {
       val PROFILE_ANGLE = 20.deg
 
@@ -73,9 +73,6 @@ data class BevelGear(
 
    /**
     * 2つの噛み合う歯車の軸の交点。
-    *
-    * この点を中心として[回転移動][Transformable.rotate]する限り
-    * 2つの歯車は噛み合ったまま移動できる。
     */
    val axisIntersectionPoint: Point3d
       get() = referencePoint.translate(topVector, outerDedendumConeHeight)

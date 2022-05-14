@@ -12,7 +12,7 @@ class LeftOuterRotaryEncoderKnob(
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
    override val referencePoint: Point3d
-) : Transformable<LeftOuterRotaryEncoderKnob> {
+) : TransformableDefaultImpl<LeftOuterRotaryEncoderKnob> {
    companion object {
       val MODULE = 1.mm
       val RADIUS = 30.mm
