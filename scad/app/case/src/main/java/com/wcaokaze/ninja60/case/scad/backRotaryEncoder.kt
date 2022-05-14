@@ -23,8 +23,7 @@ internal fun ScadParentObject.backRotaryEncoderGearSideCase(case: Case): ScadObj
             case.backRotaryEncoderGear.rotaryEncoder.referencePoint,
             case.backRotaryEncoderGear.rotaryEncoder.bottomVector
          ).translateNormalVector(RotaryEncoder.BOARD_THICKNESS),
-      bottomPlane = backRotaryEncoderCaseGearSideBottomPlane(
-         case.alphanumericPlate, offset = 0.mm),
+      bottomPlane = alphanumericBackSlopePlane(case.alphanumericPlate, offset = 0.mm),
       topPlane = backRotaryEncoderCaseTopPlane(
          case.alphanumericPlate, case.backRotaryEncoderGear.rotaryEncoder, wallThickness)
    )
@@ -43,7 +42,7 @@ internal fun ScadParentObject.backRotaryEncoderGearSideHollow(case: Case): ScadO
          case.backRotaryEncoderGear.rotaryEncoder.referencePoint,
          case.backRotaryEncoderGear.rotaryEncoder.bottomVector),
       bottomPlane = backRotaryEncoderCaseGearSideBottomPlane(
-         case.alphanumericPlate, offset = -wallThickness),
+         case.alphanumericPlate, case.backRotaryEncoderGear.rotaryEncoder, offset = 0.mm),
       topPlane = backRotaryEncoderCaseTopPlane(
          case.alphanumericPlate, case.backRotaryEncoderGear.rotaryEncoder, offset = 0.mm)
    )
@@ -126,8 +125,23 @@ internal fun backRotaryEncoderCaseCircuitSideBackPlane(
 
 internal fun backRotaryEncoderCaseGearSideBottomPlane(
    alphanumericPlate: AlphanumericPlate,
+   backRotaryEncoder: RotaryEncoder,
    offset: Size
-): Plane3d = alphanumericBackSlopePlane(alphanumericPlate, -offset)
+): Plane3d {
+   val p = alphanumericBackSlopePlane(alphanumericPlate, offset = 0.mm)
+
+   return sequenceOf(
+         backRotaryEncoder.referencePoint
+            .translate(backRotaryEncoder.leftVector, RotaryEncoder.BODY_SIZE.x / 2)
+            .translate(backRotaryEncoder.backVector, RotaryEncoder.BODY_SIZE.y / 2),
+         backRotaryEncoder.referencePoint
+            .translate(backRotaryEncoder.leftVector,  RotaryEncoder.BODY_SIZE.x / 2)
+            .translate(backRotaryEncoder.frontVector, RotaryEncoder.BODY_SIZE.y / 2)
+      )
+      .map { Plane3d(it, -p.normalVector) }
+      .maxWithOrNull(Plane3d::compareTo)!!
+      .translateNormalVector(offset)
+}
 
 internal fun backRotaryEncoderCaseCircuitSideBottomPlane(
    case: Case,
@@ -139,7 +153,7 @@ internal fun backRotaryEncoderCaseTopPlane(
    backRotaryEncoder: RotaryEncoder,
    offset: Size
 ): Plane3d {
-   val p = backRotaryEncoderCaseGearSideBottomPlane(alphanumericPlate, offset = 0.mm)
+   val p = alphanumericBackSlopePlane(alphanumericPlate, offset = 0.mm)
 
    return sequenceOf(
          backRotaryEncoder.referencePoint
