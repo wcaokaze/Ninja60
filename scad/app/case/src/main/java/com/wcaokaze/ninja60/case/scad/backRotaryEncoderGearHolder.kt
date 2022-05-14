@@ -91,7 +91,7 @@ internal fun ScadParentObject.backRotaryEncoderGearHolderLeftArmSupportWall(
       frontPlane = frontPlane,
       backPlane = backRotaryEncoderCaseGearSideFrontPlane(
          case.backRotaryEncoderGear.rotaryEncoder, offset = (-0.1).mm),
-      bottomPlane = alphanumericBackSlopePlane(case.alphanumericPlate, offset = (-0.1).mm),
+      bottomPlane = alphanumericBackSlopePlane(case.alphanumericPlate, offset = 0.mm),
       topPlane = topPlane
    )
 }

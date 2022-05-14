@@ -162,17 +162,6 @@ fun ScadParentObject.case(case: Case): ScadObject {
    scad -= thumbPlateHole(case.thumbPlate, height = KeySwitch.TRAVEL + 0.1.mm)
 
 
-   // ==== 奥側ロータリーエンコーダ ============================================
-
-   if (Case.generateBackRotaryEncoder.value) {
-      scad += backRotaryEncoderGearSideCase(case)
-      scad -= backRotaryEncoderGearSideHollow(case)
-      scad -= rotaryEncoderMountHole(
-         case.backRotaryEncoderGear.rotaryEncoder, RotaryEncoder.BOARD_THICKNESS)
-      scad += backRotaryEncoderGearHolder(case)
-   }
-
-
    // ==== 手前側ロータリーエンコーダ ==========================================
 
    scad += (
@@ -228,6 +217,17 @@ fun ScadParentObject.case(case: Case): ScadObject {
             columnOffset = 1.mm
          )
       )
+   }
+
+
+   // ==== 奥側ロータリーエンコーダ ============================================
+
+   if (Case.generateBackRotaryEncoder.value) {
+      scad += backRotaryEncoderGearSideCase(case)
+      scad -= backRotaryEncoderGearSideHollow(case)
+      scad -= rotaryEncoderMountHole(
+         case.backRotaryEncoderGear.rotaryEncoder, RotaryEncoder.BOARD_THICKNESS)
+      scad += backRotaryEncoderGearHolder(case)
    }
 
 
