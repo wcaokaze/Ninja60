@@ -11,19 +11,18 @@ import com.wcaokaze.scadwriter.foundation.*
  * ロータリーエンコーダに挿すシャフト部分に1枚[BevelGear]がついた形状。
  */
 data class BackRotaryEncoderGear(
+   override val referencePoint: Point3d,
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
-   override val referencePoint: Point3d
+   val shaftHeight: Size,
+   val shaftRadius: Size,
+   val shaftHoleDepth: Size
 ) : TransformableDefaultImpl<BackRotaryEncoderGear> {
    object Gear {
       val TOOTH_COUNT = 16
    }
 
    object Shaft {
-      val HEIGHT = RotaryEncoder.SHAFT_HEIGHT - 2.mm
-      val HOLE_HEIGHT = HEIGHT
-      val RADIUS = RotaryEncoder.SHAFT_RADIUS + 1.5.mm
-
       /**
        * 歯車の位置。[referencePoint]から[topVector]方向の距離
        */
@@ -44,20 +43,24 @@ data class BackRotaryEncoderGear(
          frontVector,
          bottomVector,
          referencePoint
-            .translate(topVector, Shaft.HOLE_HEIGHT)
+            .translate(topVector, shaftHoleDepth)
             .translate(bottomVector, RotaryEncoder.HEIGHT)
       )
       return e.rotate(Line3d(e.referencePoint, e.topVector), 90.deg)
    }
 
-   override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
-         = BackRotaryEncoderGear(frontVector, bottomVector, referencePoint)
+   override fun copy(
+      referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d
+   ) = BackRotaryEncoderGear(
+      referencePoint, frontVector, bottomVector,
+      shaftRadius, shaftRadius, shaftHoleDepth
+   )
 }
 
 fun ScadParentObject.backRotaryEncoderGear(gear: BackRotaryEncoderGear): ScadObject {
    return (
       place(gear) {
-         cylinder(BackRotaryEncoderGear.Shaft.HEIGHT, BackRotaryEncoderGear.Shaft.RADIUS)
+         cylinder(gear.shaftHeight, gear.shaftRadius)
       }
       + bevelGear(gear.gear)
       - rotaryEncoderKnobHole(gear.rotaryEncoder)

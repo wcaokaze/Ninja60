@@ -5,6 +5,7 @@ import com.wcaokaze.ninja60.case.scad.*
 import com.wcaokaze.ninja60.parts.key.*
 import com.wcaokaze.ninja60.parts.key.alphanumeric.*
 import com.wcaokaze.ninja60.parts.key.thumb.*
+import com.wcaokaze.ninja60.parts.rotaryencoder.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.back.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.front.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.gear.*
@@ -241,10 +242,27 @@ class Case private constructor(
                gear = gear.rotate(v, a)
             }
 
+            val shaftHeight: Size
+            val shaftRadius: Size
+            val shaftHoleDepth: Size
+
+            with (propagatedValueProvider) {
+               shaftRadius = RotaryEncoder.SHAFT_RADIUS +
+                     PrinterAdjustments.minWallThickness.value
+               shaftHoleDepth = RotaryEncoder.SHAFT_HEIGHT -
+                     RotaryEncoder.CLICK_TRAVEL -
+                     PrinterAdjustments.movableMargin.value
+               shaftHeight = shaftHoleDepth +
+                     PrinterAdjustments.minWallThickness.value
+            }
+
             BackRotaryEncoderGear(
+               gear.referencePoint.translate(gear.bottomVector, BackRotaryEncoderGear.Shaft.GEAR_POSITION),
                gear.frontVector,
                gear.bottomVector,
-               gear.referencePoint.translate(gear.bottomVector, BackRotaryEncoderGear.Shaft.GEAR_POSITION)
+               shaftHeight,
+               shaftRadius,
+               shaftHoleDepth
             )
          }
 
