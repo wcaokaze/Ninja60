@@ -2,6 +2,7 @@ package com.wcaokaze.ninja60.case.scad
 
 import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.ninja60.case.*
+import com.wcaokaze.ninja60.parts.rotaryencoder.back.*
 import com.wcaokaze.ninja60.shared.*
 import com.wcaokaze.ninja60.shared.calcutil.*
 import com.wcaokaze.scadwriter.*
@@ -13,6 +14,7 @@ internal fun ScadParentObject.backRotaryEncoderGearHolder(
    return union {
       backRotaryEncoderGearHolderLeftArm(case)
       backRotaryEncoderGearHolderLeftArmSupportWall(case)
+      backRotaryEncoderGearHolderRightArm(case)
    }
 }
 
@@ -93,5 +95,89 @@ internal fun ScadParentObject.backRotaryEncoderGearHolderLeftArmSupportWall(
          case.backRotaryEncoderGear.rotaryEncoder, offset = (-0.1).mm),
       bottomPlane = alphanumericBackSlopePlane(case.alphanumericPlate, offset = 0.mm),
       topPlane = topPlane
+   )
+}
+
+internal fun ScadParentObject.backRotaryEncoderGearHolderRightArm(
+   case: Case
+): ScadObject {
+   data class RightArm(
+      override val frontVector: Vector3d,
+      override val bottomVector: Vector3d,
+      override val referencePoint: Point3d
+   ) : TransformableDefaultImpl<RightArm> {
+      override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
+            = RightArm(frontVector, bottomVector, referencePoint)
+   }
+
+   val knob = case.backRotaryEncoderKnob
+   val knobCenterPoint = knob.referencePoint
+      .translate(case.backRotaryEncoderKnob.topVector, BackRotaryEncoderKnob.HEIGHT)
+
+   val armPlane = Plane3d(knobCenterPoint, knob.topVector)
+
+   val armRootLine = armPlane intersection alphanumericBackSlopePlane(
+      case.alphanumericPlate, offset = PrinterAdjustments.minWallThickness.value)
+
+   val startPoint = Plane3d(knobCenterPoint, armRootLine.vector) intersection armRootLine
+
+   val holderRootRadius = BackRotaryEncoderKnob.RADIUS +
+         BackRotaryEncoderKnob.SKIDPROOF_RADIUS +
+         PrinterAdjustments.movableMargin.value
+
+   val armRootPoint = (
+         startPoint
+         ..startPoint.translate(-armRootLine.vector, holderRootRadius * 1.5)
+         step 0.05.mm
+      )
+      .first { it distance knobCenterPoint > holderRootRadius }
+
+   val rightArm = RightArm(
+      frontVector = knob.topVector
+            vectorProduct Vector3d(armRootPoint, knobCenterPoint),
+      bottomVector = knob.topVector,
+      armRootPoint
+   )
+
+   return (
+      intersection {
+         place(rightArm) {
+            minkowski {
+               cube(armRootPoint distance knobCenterPoint, 0.01.mm, 0.01.mm)
+
+               translate(z = -PrinterAdjustments.minWallThickness.value) {
+                  cylinder(
+                     height = PrinterAdjustments.minWallThickness.value
+                           + Case.BACK_ROTARY_ENCODER_GEAR_HOLDER_ARM_WIDTH,
+                     radius = Case.BACK_ROTARY_ENCODER_GEAR_HOLDER_ARM_WIDTH / 2)
+               }
+            }
+         }
+
+         place(knob) {
+            cylinder(
+               height = BackRotaryEncoderKnob.HEIGHT
+                     + PrinterAdjustments.minWallThickness.value,
+               radius = holderRootRadius
+                     + PrinterAdjustments.minWallThickness.value)
+         }
+      }
+      + distortedCube(
+         leftPlane = armPlane.translateNormalVector(
+            -Case.BACK_ROTARY_ENCODER_GEAR_HOLDER_ARM_WIDTH),
+         rightPlane = armPlane.translateNormalVector(
+            PrinterAdjustments.minWallThickness.value),
+         frontPlane = Plane3d(armRootPoint, armRootLine.vector),
+         backPlane = alphanumericBackPlane(case, offset = (-0.1).mm),
+         bottomPlane = alphanumericBackSlopePlane(case.alphanumericPlate,
+            offset = -PrinterAdjustments.minWallThickness.value / 4),
+         topPlane = alphanumericBackSlopePlane(case.alphanumericPlate,
+            offset = PrinterAdjustments.minWallThickness.value)
+      )
+      - place(knob) {
+         cylinder(
+            height = BackRotaryEncoderKnob.HEIGHT,
+            radius = holderRootRadius)
+      }
    )
 }
