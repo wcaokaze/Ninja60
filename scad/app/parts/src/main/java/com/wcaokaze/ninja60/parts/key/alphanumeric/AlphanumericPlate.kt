@@ -196,7 +196,7 @@ private fun getColumnWallPlane(
    return Pair(leftWallPlane, rightWallPlane)
 }
 
-private fun getWallPlane(leftColumn: AlphanumericColumn, rightColumn: AlphanumericColumn): Plane3d {
+fun getWallPlane(leftColumn: AlphanumericColumn, rightColumn: AlphanumericColumn): Plane3d {
    val alignmentVector = run {
       val (lx, ly, lz) = leftColumn .frontVector
       val (rx, ry, rz) = rightColumn.frontVector
