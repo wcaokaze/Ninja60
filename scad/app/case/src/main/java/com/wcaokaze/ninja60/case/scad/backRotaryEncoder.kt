@@ -4,7 +4,6 @@ import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.ninja60.case.*
 import com.wcaokaze.ninja60.parts.key.alphanumeric.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.*
-import com.wcaokaze.ninja60.parts.rotaryencoder.gear.*
 import com.wcaokaze.ninja60.shared.*
 import com.wcaokaze.ninja60.shared.calcutil.*
 import com.wcaokaze.scadwriter.*
@@ -81,7 +80,7 @@ internal fun ScadParentObject.backRotaryEncoderCircuitSideCave(case: Case): Scad
 }
 
 internal fun backRotaryEncoderCaseLeftPlane(case: Case, offset: Size): Plane3d
-      = backRotaryEncoderGearPlane(case, offset)
+      = armPlane(case.backRotaryEncoderGearHolderLeftArm, offset)
 
 internal fun backRotaryEncoderCaseRightPlane(
    backRotaryEncoder: RotaryEncoder,
@@ -166,40 +165,4 @@ internal fun backRotaryEncoderCaseTopPlane(
       .map { Plane3d(it, p.normalVector) }
       .maxWithOrNull(Plane3d::compareTo)!!
       .translateNormalVector(offset)
-}
-
-internal fun backRotaryEncoderGearPlane(case: Case, offset: Size): Plane3d {
-   fun Gear.leftVector() = if (bottomVector isSameDirection case.leftVector) {
-      bottomVector
-   } else {
-      topVector
-   }
-
-   fun Gear.leftPoint() = if (bottomVector isSameDirection case.leftVector) {
-      referencePoint
-   } else {
-      referencePoint.translate(topVector, thickness)
-   }
-
-   fun Gear.leftVectorLine() = Line3d(leftPoint(), leftVector())
-   fun Gear.plane() = Plane3d(leftPoint(), leftVector())
-
-   fun leftmost(vararg gears: Gear): Gear {
-      return gears.first { g ->
-         gears.asSequence()
-            .minusElement(g)
-            .map { it.plane() intersection g.leftVectorLine() }
-            .all {
-               val v = Vector3d(g.leftPoint(), it)
-               v.norm < 0.1.mm || v isSameDirection g.leftVector()
-            }
-      }
-   }
-
-   val leftmostGear = leftmost(
-      case.backRotaryEncoderKnob.gear,
-      case.backRotaryEncoderMediationGear.spurGear
-   )
-
-   return leftmostGear.plane().translateNormalVector(offset)
 }

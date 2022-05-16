@@ -14,44 +14,30 @@ internal fun ScadParentObject.backRotaryEncoderGearHolder(
    case: Case
 ): ScadObject {
    return union {
-      backRotaryEncoderGearHolderLeftArm(case)
+      backRotaryEncoderGearHolderLeftArm(case.backRotaryEncoderGearHolderLeftArm)
       backRotaryEncoderGearHolderLeftArmSupportWall(case)
       backRotaryEncoderGearHolderRightArm(case)
    }
 }
 
+internal fun armPlane(
+   leftArm: BackRotaryEncoderGearHolderLeftArm,
+   offset: Size
+): Plane3d {
+   return Plane3d(
+         leftArm.referencePoint,
+         leftArm.topVector
+      )
+      .translateNormalVector(offset)
+}
+
 internal fun ScadParentObject.backRotaryEncoderGearHolderLeftArm(
-   case: Case
+   backRotaryEncoderGearHolderLeftArm: BackRotaryEncoderGearHolderLeftArm
 ): ScadObject {
-   data class LeftArm(
-      override val frontVector: Vector3d,
-      override val bottomVector: Vector3d,
-      override val referencePoint: Point3d
-   ) : TransformableDefaultImpl<LeftArm> {
-      override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
-            = LeftArm(frontVector, bottomVector, referencePoint)
-   }
-
-   val armRootPoint = backRotaryEncoderCaseGearSideFrontPlane(
-      case.backRotaryEncoderGear.rotaryEncoder, offset = (-0.1).mm
-   ) intersection Line3d(
-      case.backRotaryEncoderMediationGear.referencePoint,
-      case.backRotaryEncoderKnob.gearReferencePoint
-   )
-
-   val topVector = backRotaryEncoderCaseLeftPlane(case, offset = 0.mm).normalVector
-
-   return place(LeftArm(
-      frontVector = Vector3d(
-         case.backRotaryEncoderMediationGear.referencePoint,
-         case.backRotaryEncoderKnob.gearReferencePoint
-      ) vectorProduct topVector,
-      bottomVector = -topVector,
-      armRootPoint
-   )) {
+   return place(backRotaryEncoderGearHolderLeftArm) {
       minkowski {
          cube(
-            armRootPoint distance case.backRotaryEncoderKnob.gearReferencePoint,
+            backRotaryEncoderGearHolderLeftArm.armLength,
             0.01.mm, 0.01.mm
          )
 
@@ -74,7 +60,7 @@ internal fun ScadParentObject.backRotaryEncoderGearHolderLeftArmSupportWall(
       Plane3d(
          keyPlane
             intersection alphanumericBackSlopePlane(case.alphanumericPlate, offset = 0.mm)
-            intersection backRotaryEncoderGearPlane(case, offset = 0.mm),
+            intersection armPlane(case.backRotaryEncoderGearHolderLeftArm, offset = 0.mm),
          case.frontVector
       )
    }
@@ -84,14 +70,15 @@ internal fun ScadParentObject.backRotaryEncoderGearHolderLeftArmSupportWall(
                        case.backRotaryEncoderKnob.gearReferencePoint)
       Plane3d(
          case.backRotaryEncoderKnob.gearReferencePoint,
-         v vectorProduct backRotaryEncoderGearPlane(case, offset = 0.mm).normalVector
+         v vectorProduct armPlane(case.backRotaryEncoderGearHolderLeftArm, offset = 0.mm).normalVector
       )
    }
 
    return distortedCube(
-      leftPlane = backRotaryEncoderGearPlane(
-         case, offset = PrinterAdjustments.minWallThickness.value),
-      rightPlane = backRotaryEncoderGearPlane(case, offset = 0.mm),
+      leftPlane = armPlane(case.backRotaryEncoderGearHolderLeftArm,
+         offset = PrinterAdjustments.minWallThickness.value),
+      rightPlane = armPlane(case.backRotaryEncoderGearHolderLeftArm,
+         offset = 0.mm),
       frontPlane = frontPlane,
       backPlane = backRotaryEncoderCaseGearSideFrontPlane(
          case.backRotaryEncoderGear.rotaryEncoder, offset = (-0.1).mm),
