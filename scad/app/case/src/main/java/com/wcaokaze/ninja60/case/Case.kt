@@ -151,7 +151,11 @@ class Case private constructor(
             BackRotaryEncoderKnob(
                mostBackKey.topVector,
                mostBackKey.leftVector,
-               knobCenter
+               knobCenter,
+               with (propagatedValueProvider) {
+                  BackRotaryEncoderMediationGear.SpurGear.THICKNESS +
+                        PrinterAdjustments.movableMargin.value
+               }
             )
          }
 
