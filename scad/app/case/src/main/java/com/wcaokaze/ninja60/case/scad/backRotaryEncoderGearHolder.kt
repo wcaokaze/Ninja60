@@ -16,7 +16,11 @@ internal fun ScadParentObject.backRotaryEncoderGearHolder(
    return union {
       backRotaryEncoderGearHolderLeftArm(case.backRotaryEncoderGearHolderLeftArm)
       backRotaryEncoderGearHolderLeftArmSupportWall(case)
-      backRotaryEncoderGearHolderRightArm(case)
+      backRotaryEncoderGearHolderRightArm(
+         case.backRotaryEncoderGearHolderRightArm,
+         case.backRotaryEncoderKnob,
+         case.alphanumericPlate
+      )
    }
 }
 
@@ -27,6 +31,17 @@ internal fun armPlane(
    return Plane3d(
          leftArm.referencePoint,
          leftArm.topVector
+      )
+      .translateNormalVector(offset)
+}
+
+internal fun armPlane(
+   rightArm: BackRotaryEncoderGearHolderRightArm,
+   offset: Size
+): Plane3d {
+   return Plane3d(
+         rightArm.referencePoint,
+         rightArm.topVector
       )
       .translateNormalVector(offset)
 }
@@ -88,91 +103,61 @@ internal fun ScadParentObject.backRotaryEncoderGearHolderLeftArmSupportWall(
 }
 
 internal fun ScadParentObject.backRotaryEncoderGearHolderRightArm(
-   case: Case
+   backRotaryEncoderGearHolderRightArm: BackRotaryEncoderGearHolderRightArm,
+   backRotaryEncoderKnob: BackRotaryEncoderKnob,
+   alphanumericPlate: AlphanumericPlate
 ): ScadObject {
-   data class RightArm(
-      override val frontVector: Vector3d,
-      override val bottomVector: Vector3d,
-      override val referencePoint: Point3d
-   ) : TransformableDefaultImpl<RightArm> {
-      override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
-            = RightArm(frontVector, bottomVector, referencePoint)
-   }
-
-   val knob = case.backRotaryEncoderKnob
-   val knobCenterPoint = knob.referencePoint
-      .translate(case.backRotaryEncoderKnob.topVector, BackRotaryEncoderKnob.HEIGHT)
-
-   val armPlane = Plane3d(knobCenterPoint, knob.topVector)
-
-   val armRootLine = armPlane intersection alphanumericBackSlopePlane(
-      case.alphanumericPlate, offset = PrinterAdjustments.minWallThickness.value)
-
-   val startPoint = Plane3d(knobCenterPoint, armRootLine.vector) intersection armRootLine
-
-   val holderRootRadius = BackRotaryEncoderKnob.RADIUS +
+   val knobHollowRadius = BackRotaryEncoderKnob.RADIUS +
          BackRotaryEncoderKnob.SKIDPROOF_RADIUS +
          PrinterAdjustments.movableMargin.value
 
-   val armRootPoint = (
-         startPoint
-         ..startPoint.translate(-armRootLine.vector, holderRootRadius * 1.5)
-         step 0.05.mm
-      )
-      .first { it distance knobCenterPoint > holderRootRadius }
-
-   val rightArm = RightArm(
-      frontVector = knob.topVector
-            vectorProduct Vector3d(armRootPoint, knobCenterPoint),
-      bottomVector = knob.topVector,
-      armRootPoint
-   )
-
    var scad: ScadObject = intersection {
-      place(rightArm) {
+      place(backRotaryEncoderGearHolderRightArm) {
          minkowski {
-            cube(armRootPoint distance knobCenterPoint, 0.01.mm, 0.01.mm)
+            cube(backRotaryEncoderGearHolderRightArm.armLength, 0.01.mm, 0.01.mm)
 
-            translate(z = -PrinterAdjustments.minWallThickness.value) {
+            translate(z = -Case.BACK_ROTARY_ENCODER_GEAR_HOLDER_ARM_WIDTH) {
                cylinder(
-                  height = PrinterAdjustments.minWallThickness.value
-                        + Case.BACK_ROTARY_ENCODER_GEAR_HOLDER_ARM_WIDTH,
+                  height = Case.BACK_ROTARY_ENCODER_GEAR_HOLDER_ARM_WIDTH
+                        + PrinterAdjustments.minWallThickness.value,
                   radius = Case.BACK_ROTARY_ENCODER_GEAR_HOLDER_ARM_WIDTH / 2)
             }
          }
       }
 
-      place(knob) {
+      place(backRotaryEncoderKnob) {
          cylinder(
             height = BackRotaryEncoderKnob.HEIGHT
                   + PrinterAdjustments.minWallThickness.value,
-            radius = holderRootRadius
+            radius = knobHollowRadius
                   + PrinterAdjustments.minWallThickness.value)
       }
    }
 
    // ---- rightArmとalphanumericBackSlopeをつなぐ壁
-   val encoderColumn = case.alphanumericPlate
+   val encoderColumn = alphanumericPlate
       .columns[Case.BACK_ROTARY_ENCODER_COLUMN_INDEX]
    val encoderKey = encoderColumn.keySwitches.first()
    val encoderKeyBottomPlane = Plane3d(encoderKey.referencePoint, encoderKey.bottomVector)
       .translateNormalVector(KeySwitch.BOTTOM_HEIGHT)
 
    scad += distortedCube(
-      leftPlane = armPlane.translateNormalVector(
-         -Case.BACK_ROTARY_ENCODER_GEAR_HOLDER_ARM_WIDTH),
-      rightPlane = armPlane.translateNormalVector(
-         PrinterAdjustments.minWallThickness.value),
-      frontPlane = Plane3d(armRootPoint, armRootLine.vector),
+      leftPlane = armPlane(backRotaryEncoderGearHolderRightArm,
+         offset = -Case.BACK_ROTARY_ENCODER_GEAR_HOLDER_ARM_WIDTH),
+      rightPlane = armPlane(backRotaryEncoderGearHolderRightArm,
+         offset = PrinterAdjustments.minWallThickness.value),
+      frontPlane = Plane3d(
+         backRotaryEncoderGearHolderRightArm.referencePoint,
+         backRotaryEncoderGearHolderRightArm.frontVector),
       backPlane = encoderKeyBottomPlane,
-      bottomPlane = alphanumericBackSlopePlane(case.alphanumericPlate,
+      bottomPlane = alphanumericBackSlopePlane(alphanumericPlate,
          offset = -PrinterAdjustments.minWallThickness.value / 4),
-      topPlane = alphanumericBackSlopePlane(case.alphanumericPlate,
+      topPlane = alphanumericBackSlopePlane(alphanumericPlate,
          offset = PrinterAdjustments.minWallThickness.value)
    )
 
    // ---- ↑の壁と右隣のキーとの間にできる隙間埋め
-   val rightColumn = case.alphanumericPlate
+   val rightColumn = alphanumericPlate
       .columns.getOrNull(Case.BACK_ROTARY_ENCODER_COLUMN_INDEX + 1)
 
    if (rightColumn != null) {
@@ -184,7 +169,7 @@ internal fun ScadParentObject.backRotaryEncoderGearHolderRightArm(
 
       if (encoderColumnPlane < rightColumnPlane) {
          scad += distortedCube(
-            leftPlane = armPlane,
+            leftPlane = armPlane(backRotaryEncoderGearHolderRightArm, offset = (-0.1).mm),
             rightPlane = getWallPlane(encoderColumn, rightColumn),
             frontPlane = rightColumnPlane,
             backPlane = encoderKeyBottomPlane,
@@ -192,17 +177,17 @@ internal fun ScadParentObject.backRotaryEncoderGearHolderRightArm(
                rightKey.plate(AlphanumericPlate.KEY_PLATE_SIZE).backLeft,
                rightKey.frontVector
             ),
-            topPlane = alphanumericBackSlopePlane(case.alphanumericPlate,
+            topPlane = alphanumericBackSlopePlane(alphanumericPlate,
                offset = PrinterAdjustments.minWallThickness.value)
          )
       }
    }
 
    // ---- ノブが入る部分ごっそり削る
-   scad -= place(knob) {
+   scad -= place(backRotaryEncoderKnob) {
       cylinder(
-         height = BackRotaryEncoderKnob.HEIGHT,
-         radius = holderRootRadius)
+         BackRotaryEncoderKnob.HEIGHT,
+         knobHollowRadius)
    }
 
    return scad

@@ -30,6 +30,7 @@ class Case private constructor(
    val backRotaryEncoderMediationGear: BackRotaryEncoderMediationGear,
    val backRotaryEncoderGear: BackRotaryEncoderGear,
    val backRotaryEncoderGearHolderLeftArm: BackRotaryEncoderGearHolderLeftArm,
+   val backRotaryEncoderGearHolderRightArm: BackRotaryEncoderGearHolderRightArm,
    val leftOuterRotaryEncoderKnob: LeftOuterRotaryEncoderKnob,
    val leftInnerRotaryEncoderKnob: LeftInnerRotaryEncoderKnob,
    val frontRotaryEncoderKey: FrontRotaryEncoderKey,
@@ -275,6 +276,10 @@ class Case private constructor(
             caseLeftVector, backRotaryEncoderKnob, backRotaryEncoderMediationGear, backRotaryEncoderGear
          )
 
+         val backRotaryEncoderGearHolderRightArm = with (propagatedValueProvider) {
+            BackRotaryEncoderGearHolderRightArm(alphanumericPlate, backRotaryEncoderKnob)
+         }
+
          val leftOuterRotaryEncoderKnob = run {
             val leftmostColumn = alphanumericPlate.columns.first()
             val keySwitch = leftmostColumn.keySwitches[LEFT_ROTARY_ENCODER_ROW_INDEX]
@@ -317,8 +322,8 @@ class Case private constructor(
             caseReferencePoint, caseFrontVector, caseBottomVector, alphanumericPlate,
             thumbHomeKey, thumbPlate, frontRotaryEncoderKnob, backRotaryEncoderKnob,
             backRotaryEncoderMediationGear, backRotaryEncoderGear,
-            backRotaryEncoderGearHolderLeftArm, leftOuterRotaryEncoderKnob,
-            leftInnerRotaryEncoderKnob, frontRotaryEncoderKey,
+            backRotaryEncoderGearHolderLeftArm, backRotaryEncoderGearHolderRightArm,
+            leftOuterRotaryEncoderKnob, leftInnerRotaryEncoderKnob, frontRotaryEncoderKey,
          )
       }
    }
@@ -327,17 +332,18 @@ class Case private constructor(
       referencePoint.translate(distance),
       frontVector,
       bottomVector,
-      alphanumericPlate                 .translate(distance),
-      thumbHomeKey                      .translate(distance),
-      thumbPlate                        .translate(distance),
-      frontRotaryEncoderKnob            .translate(distance),
-      backRotaryEncoderKnob             .translate(distance),
-      backRotaryEncoderMediationGear    .translate(distance),
-      backRotaryEncoderGear             .translate(distance),
-      backRotaryEncoderGearHolderLeftArm.translate(distance),
-      leftOuterRotaryEncoderKnob        .translate(distance),
-      leftInnerRotaryEncoderKnob        .translate(distance),
-      frontRotaryEncoderKey             .translate(distance),
+      alphanumericPlate                  .translate(distance),
+      thumbHomeKey                       .translate(distance),
+      thumbPlate                         .translate(distance),
+      frontRotaryEncoderKnob             .translate(distance),
+      backRotaryEncoderKnob              .translate(distance),
+      backRotaryEncoderMediationGear     .translate(distance),
+      backRotaryEncoderGear              .translate(distance),
+      backRotaryEncoderGearHolderLeftArm .translate(distance),
+      backRotaryEncoderGearHolderRightArm.translate(distance),
+      leftOuterRotaryEncoderKnob         .translate(distance),
+      leftInnerRotaryEncoderKnob         .translate(distance),
+      frontRotaryEncoderKey              .translate(distance),
    )
 
    override fun translate(distance: Vector3d): Case
@@ -350,16 +356,17 @@ class Case private constructor(
       referencePoint,
       frontVector .rotate(axis.vector, angle),
       bottomVector.rotate(axis.vector, angle),
-      alphanumericPlate                 .rotate(axis, angle),
-      thumbHomeKey                      .rotate(axis, angle),
-      thumbPlate                        .rotate(axis, angle),
-      frontRotaryEncoderKnob            .rotate(axis, angle),
-      backRotaryEncoderKnob             .rotate(axis, angle),
-      backRotaryEncoderMediationGear    .rotate(axis, angle),
-      backRotaryEncoderGear             .rotate(axis, angle),
-      backRotaryEncoderGearHolderLeftArm.rotate(axis, angle),
-      leftOuterRotaryEncoderKnob        .rotate(axis, angle),
-      leftInnerRotaryEncoderKnob        .rotate(axis, angle),
-      frontRotaryEncoderKey             .rotate(axis, angle),
+      alphanumericPlate                  .rotate(axis, angle),
+      thumbHomeKey                       .rotate(axis, angle),
+      thumbPlate                         .rotate(axis, angle),
+      frontRotaryEncoderKnob             .rotate(axis, angle),
+      backRotaryEncoderKnob              .rotate(axis, angle),
+      backRotaryEncoderMediationGear     .rotate(axis, angle),
+      backRotaryEncoderGear              .rotate(axis, angle),
+      backRotaryEncoderGearHolderLeftArm .rotate(axis, angle),
+      backRotaryEncoderGearHolderRightArm.rotate(axis, angle),
+      leftOuterRotaryEncoderKnob         .rotate(axis, angle),
+      leftInnerRotaryEncoderKnob         .rotate(axis, angle),
+      frontRotaryEncoderKey              .rotate(axis, angle),
    )
 }
