@@ -4,17 +4,31 @@ import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.back.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.gear.*
+import com.wcaokaze.ninja60.shared.*
 import com.wcaokaze.ninja60.shared.calcutil.*
+import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
+
+fun PropagatedValueProvider.BackRotaryEncoderGearHolderLeftArm(
+   caseLeftVector: Vector3d,
+   backRotaryEncoderKnob: BackRotaryEncoderKnob,
+   backRotaryEncoderMediationGear: BackRotaryEncoderMediationGear,
+   backRotaryEncoderGear: BackRotaryEncoderGear
+) = BackRotaryEncoderGearHolderLeftArm(
+   this, caseLeftVector, backRotaryEncoderKnob, backRotaryEncoderMediationGear,
+   backRotaryEncoderGear
+)
 
 data class BackRotaryEncoderGearHolderLeftArm(
    override val referencePoint: Point3d,
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
-   val armLength: Size
+   val armLength: Size,
+   val protuberanceSize: Size3d
 ) : TransformableDefaultImpl<BackRotaryEncoderGearHolderLeftArm> {
    companion object {
       operator fun invoke(
+         propagatedValueProvider: PropagatedValueProvider,
          caseLeftVector: Vector3d,
          backRotaryEncoderKnob: BackRotaryEncoderKnob,
          backRotaryEncoderMediationGear: BackRotaryEncoderMediationGear,
@@ -43,15 +57,21 @@ data class BackRotaryEncoderGearHolderLeftArm(
          val armRootPoint = rotaryEncoderPlane intersection
                gearPlane intersection gearPerpendicularityPlane
 
+         val protuberanceSize = with (propagatedValueProvider) {
+            PrinterAdjustments.minProtuberanceSize.value
+         }
+
          return BackRotaryEncoderGearHolderLeftArm(
-            referencePoint = armRootPoint,
+            referencePoint = armRootPoint
+               .translate(gearPlane.normalVector, protuberanceSize.z),
             frontVector = Vector3d(
                backRotaryEncoderMediationGear.referencePoint,
                backRotaryEncoderKnob.gearReferencePoint
             ) vectorProduct gearPlane.normalVector,
             bottomVector = -gearPlane.normalVector,
             armLength = armRootPoint
-                  distance backRotaryEncoderKnob.gearReferencePoint
+                  distance backRotaryEncoderKnob.gearReferencePoint,
+            protuberanceSize
          )
       }
 
@@ -96,6 +116,9 @@ data class BackRotaryEncoderGearHolderLeftArm(
       }
    }
 
-   override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
-         = BackRotaryEncoderGearHolderLeftArm(referencePoint, frontVector, bottomVector, armLength)
+   override fun copy(
+      referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d
+   ) = BackRotaryEncoderGearHolderLeftArm(
+      referencePoint, frontVector, bottomVector, armLength, protuberanceSize
+   )
 }

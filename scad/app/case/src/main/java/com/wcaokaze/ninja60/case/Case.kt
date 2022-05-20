@@ -272,9 +272,11 @@ class Case private constructor(
             )
          }
 
-         val backRotaryEncoderGearHolderLeftArm = BackRotaryEncoderGearHolderLeftArm(
-            caseLeftVector, backRotaryEncoderKnob, backRotaryEncoderMediationGear, backRotaryEncoderGear
-         )
+         val backRotaryEncoderGearHolderLeftArm = with (propagatedValueProvider) {
+            BackRotaryEncoderGearHolderLeftArm(caseLeftVector,
+               backRotaryEncoderKnob, backRotaryEncoderMediationGear,
+               backRotaryEncoderGear)
+         }
 
          val backRotaryEncoderGearHolderRightArm = with (propagatedValueProvider) {
             BackRotaryEncoderGearHolderRightArm(alphanumericPlate, backRotaryEncoderKnob)

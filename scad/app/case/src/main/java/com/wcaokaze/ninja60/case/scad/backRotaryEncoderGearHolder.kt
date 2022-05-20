@@ -46,9 +46,18 @@ internal fun armPlane(
       .translateNormalVector(offset)
 }
 
+private val PropagatedValueProvider.holeMargin: Size
+   get() = PrinterAdjustments.movableMargin.value / 2
+private val PropagatedValueProvider.knobShaftHoleRadius: Size
+   get() = BackRotaryEncoderKnob.SHAFT_HOLE_RADIUS + holeMargin
+private val PropagatedValueProvider.mediationGearShaftHoleRadius: Size
+   get() = BackRotaryEncoderMediationGear.SHAFT_HOLE_RADIUS + holeMargin
+
 internal fun ScadParentObject.backRotaryEncoderGearHolderLeftArm(
    backRotaryEncoderGearHolderLeftArm: BackRotaryEncoderGearHolderLeftArm
 ): ScadObject {
+   val armThickness = PrinterAdjustments.minWallThickness.value
+
    return place(backRotaryEncoderGearHolderLeftArm) {
       minkowski {
          cube(
@@ -56,8 +65,20 @@ internal fun ScadParentObject.backRotaryEncoderGearHolderLeftArm(
             0.01.mm, 0.01.mm
          )
 
-         cylinder(PrinterAdjustments.minWallThickness.value,
-            Case.BACK_ROTARY_ENCODER_GEAR_HOLDER_ARM_WIDTH / 2)
+         cylinder(armThickness, Case.BACK_ROTARY_ENCODER_GEAR_HOLDER_ARM_WIDTH / 2)
+      }
+
+      translate(
+         x = backRotaryEncoderGearHolderLeftArm.armLength,
+         z = -backRotaryEncoderGearHolderLeftArm.protuberanceSize.z
+      ) {
+         difference {
+            cylinder(
+               backRotaryEncoderGearHolderLeftArm.protuberanceSize.z + 0.1.mm,
+               knobShaftHoleRadius
+                     + backRotaryEncoderGearHolderLeftArm.protuberanceSize.x
+            )
+         }
       }
    }
 }
