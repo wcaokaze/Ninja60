@@ -63,7 +63,11 @@ data class BackRotaryEncoderGearHolderLeftArm(
 
          return BackRotaryEncoderGearHolderLeftArm(
             referencePoint = armRootPoint
-               .translate(gearPlane.normalVector, protuberanceSize.z),
+               .translate(gearPlane.normalVector,
+                  with (propagatedValueProvider) {
+                     protuberanceSize.z + PrinterAdjustments.movableMargin.value / 2
+                  }
+               ),
             frontVector = Vector3d(
                backRotaryEncoderMediationGear.referencePoint,
                backRotaryEncoderKnob.gearReferencePoint
