@@ -22,7 +22,8 @@ data class BackRotaryEncoderGearHolderRightArm(
    override val referencePoint: Point3d,
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
-   val armLength: Size
+   val armLength: Size,
+   val protuberanceSize: Size
 ) : TransformableDefaultImpl<BackRotaryEncoderGearHolderRightArm> {
    companion object {
       operator fun invoke(
@@ -57,16 +58,29 @@ data class BackRotaryEncoderGearHolderRightArm(
             )
             .first { it distance knobCenterPoint > holderRootRadius }
 
+         val protuberanceSize = with (propagatedValueProvider) {
+            PrinterAdjustments.minProtuberanceSize.value
+         }
+
          return BackRotaryEncoderGearHolderRightArm(
-            armRootPoint,
+            armRootPoint
+               .translate(backRotaryEncoderKnob.topVector,
+                  with (propagatedValueProvider) {
+                     protuberanceSize.z + PrinterAdjustments.movableMargin.value / 2
+                  }
+               ),
             frontVector = -backRotaryEncoderKnob.topVector
                   vectorProduct Vector3d(armRootPoint, knobCenterPoint),
             bottomVector = -backRotaryEncoderKnob.topVector,
-            armLength = armRootPoint distance knobCenterPoint
+            armLength = armRootPoint distance knobCenterPoint,
+            protuberanceSize.x
          )
       }
    }
 
-   override fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d)
-         = BackRotaryEncoderGearHolderRightArm(referencePoint, frontVector, bottomVector, armLength)
+   override fun copy(
+      referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d
+   ) = BackRotaryEncoderGearHolderRightArm(
+      referencePoint, frontVector, bottomVector, armLength, protuberanceSize
+   )
 }

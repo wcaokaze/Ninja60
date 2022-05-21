@@ -18,6 +18,7 @@ internal fun ScadParentObject.backRotaryEncoderGearHolder(
       backRotaryEncoderGearHolderLeftArmSupportWall(case)
       backRotaryEncoderGearHolderRightArm(
          case.backRotaryEncoderGearHolderRightArm,
+         case.backRotaryEncoderKnob,
          case.alphanumericPlate
       )
    }
@@ -121,6 +122,7 @@ internal fun ScadParentObject.backRotaryEncoderGearHolderLeftArmSupportWall(
 
 internal fun ScadParentObject.backRotaryEncoderGearHolderRightArm(
    backRotaryEncoderGearHolderRightArm: BackRotaryEncoderGearHolderRightArm,
+   backRotaryEncoderKnob: BackRotaryEncoderKnob,
    alphanumericPlate: AlphanumericPlate
 ): ScadObject {
    val armRootWidth = Case.BACK_ROTARY_ENCODER_GEAR_HOLDER_ARM_WIDTH
@@ -207,6 +209,24 @@ internal fun ScadParentObject.backRotaryEncoderGearHolderRightArm(
          z = -(armRootWidth + 0.1.mm)
       ) {
          cylinder(armRootWidth + 0.1.mm, knobHollowRadius)
+      }
+   }
+
+   scad += place(backRotaryEncoderKnob) {
+      val protuberancePosition = BackRotaryEncoderKnob.HEIGHT +
+            PrinterAdjustments.movableMargin.value / 2
+      val protuberanceStartPoint = backRotaryEncoderKnob.let {
+         it.referencePoint.translate(it.topVector, protuberancePosition)
+      }
+      val protuberanceEndPoint = backRotaryEncoderGearHolderRightArm.let {
+         it.referencePoint.translate(it.rightVector, it.armLength)
+      }
+
+      translate(z = protuberancePosition) {
+         cylinder(
+            (protuberanceStartPoint distance protuberanceEndPoint) + 0.1.mm,
+            knobShaftHoleRadius + backRotaryEncoderGearHolderRightArm.protuberanceSize
+         )
       }
    }
 
