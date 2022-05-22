@@ -10,6 +10,14 @@ data class Location(
    val frontVector: Vector3d,
    val bottomVector: Vector3d
 ) : Transformable<Location> {
+   init {
+      val angle = bottomVector angleWith frontVector
+
+      require(angle in (90 - 0.01).deg .. (90 + 0.01).deg) {
+         "The angle formed by normalVector and frontVector must be 90 degrees"
+      }
+   }
+
    val topVector:   Vector3d get() = -bottomVector
    val backVector:  Vector3d get() = -frontVector
    val rightVector: Vector3d get() = frontVector vectorProduct bottomVector
@@ -35,6 +43,13 @@ val Location.frontVectorLine  get() = Line3d(point, frontVector)
 val Location.backVectorLine   get() = Line3d(point, backVector)
 val Location.rightVectorLine  get() = Line3d(point, rightVector)
 val Location.leftVectorLine   get() = Line3d(point, leftVector)
+
+fun ScadParentObject.locate(
+   point: Point3d = Point3d.ORIGIN,
+   frontVector: Vector3d = -Vector3d.Y_UNIT_VECTOR,
+   bottomVector: Vector3d = -Vector3d.Z_UNIT_VECTOR,
+   children: ScadParentObject.() -> Unit
+): ScadObject = locate(Location(point, frontVector, bottomVector), children)
 
 fun ScadParentObject.locate(
    location: Location,
