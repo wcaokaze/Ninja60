@@ -7,6 +7,7 @@ import com.wcaokaze.ninja60.parts.key.alphanumeric.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.back.*
 import com.wcaokaze.ninja60.shared.*
 import com.wcaokaze.ninja60.shared.calcutil.*
+import com.wcaokaze.ninja60.shared.scadutil.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 

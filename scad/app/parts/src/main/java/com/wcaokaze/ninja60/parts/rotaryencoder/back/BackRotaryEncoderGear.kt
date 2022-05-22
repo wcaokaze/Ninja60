@@ -4,6 +4,7 @@ import com.wcaokaze.linearalgebra.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.gear.*
 import com.wcaokaze.ninja60.shared.calcutil.*
+import com.wcaokaze.ninja60.shared.scadutil.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
