@@ -24,9 +24,11 @@ data class BackRotaryEncoderGearHolderLeftArm(
    override val frontVector: Vector3d,
    override val bottomVector: Vector3d,
    val armLength: Size,
-   val protuberanceSize: Size3d
+   val protuberanceSize: Size
 ) : TransformableDefaultImpl<BackRotaryEncoderGearHolderLeftArm> {
    companion object {
+      val GEAR_SHAFT_HOLE_DEPTH = 3.mm
+
       operator fun invoke(
          propagatedValueProvider: PropagatedValueProvider,
          caseLeftVector: Vector3d,
@@ -75,7 +77,7 @@ data class BackRotaryEncoderGearHolderLeftArm(
             bottomVector = -gearPlane.normalVector,
             armLength = armRootPoint
                   distance backRotaryEncoderKnob.gearReferencePoint,
-            protuberanceSize
+            protuberanceSize.x
          )
       }
 

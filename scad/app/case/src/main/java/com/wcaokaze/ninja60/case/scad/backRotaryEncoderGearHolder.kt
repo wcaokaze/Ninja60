@@ -15,8 +15,7 @@ internal fun ScadParentObject.backRotaryEncoderGearHolder(
    case: Case
 ): ScadObject {
    return union {
-      backRotaryEncoderGearHolderLeftArm(case.backRotaryEncoderGearHolderLeftArm)
-      backRotaryEncoderGearHolderLeftArmSupportWall(case)
+      backRotaryEncoderGearHolderLeftArm(case)
       backRotaryEncoderGearHolderRightArm(
          case.backRotaryEncoderGearHolderRightArm,
          case.backRotaryEncoderKnob,
@@ -55,30 +54,54 @@ private val PropagatedValueProvider.mediationGearShaftHoleRadius: Size
    get() = BackRotaryEncoderMediationGear.SHAFT_HOLE_RADIUS + holeMargin
 
 internal fun ScadParentObject.backRotaryEncoderGearHolderLeftArm(
-   backRotaryEncoderGearHolderLeftArm: BackRotaryEncoderGearHolderLeftArm
+   case: Case
 ): ScadObject {
-   return place(backRotaryEncoderGearHolderLeftArm) {
-      minkowski {
-         cube(
-            backRotaryEncoderGearHolderLeftArm.armLength,
-            0.01.mm, 0.01.mm
-         )
+   val leftArm = case.backRotaryEncoderGearHolderLeftArm
+   val knob = case.backRotaryEncoderKnob
+   val mediationGear = case.backRotaryEncoderMediationGear
 
-         cylinder(PrinterAdjustments.minWallThickness.value,
-            Case.BACK_ROTARY_ENCODER_GEAR_HOLDER_ARM_WIDTH / 2)
-      }
-
-      translate(
-         x = backRotaryEncoderGearHolderLeftArm.armLength,
-         z = -backRotaryEncoderGearHolderLeftArm.protuberanceSize.z
-      ) {
+   fun ScadParentObject.shaft(radius: Size): ScadObject {
+      return translate(z = PrinterAdjustments.movableMargin.value / 2) {
          cylinder(
-            backRotaryEncoderGearHolderLeftArm.protuberanceSize.z + 0.1.mm,
-            knobShaftHoleRadius
-                  + backRotaryEncoderGearHolderLeftArm.protuberanceSize.x
+            height = BackRotaryEncoderGearHolderLeftArm.GEAR_SHAFT_HOLE_DEPTH
+                  + PrinterAdjustments.minWallThickness.value,
+            radius + leftArm.protuberanceSize
          )
       }
    }
+
+   fun ScadParentObject.shaftHole(radius: Size): ScadObject {
+      return translate(z = PrinterAdjustments.movableMargin.value / 2 - 0.1.mm) {
+         cylinder(
+            height = BackRotaryEncoderGearHolderLeftArm.GEAR_SHAFT_HOLE_DEPTH + 0.1.mm,
+            radius
+         )
+      }
+   }
+
+   return (
+      place(leftArm) {
+         minkowski {
+            cube(leftArm.armLength, 0.01.mm, 0.01.mm)
+
+            cylinder(PrinterAdjustments.minWallThickness.value,
+               Case.BACK_ROTARY_ENCODER_GEAR_HOLDER_ARM_WIDTH / 2)
+         }
+      }
+      + backRotaryEncoderGearHolderLeftArmSupportWall(case)
+      + locate(knob.gearReferencePoint, knob.frontVector, -knob.bottomVector) {
+         shaft(knobShaftHoleRadius)
+      }
+      + locate(mediationGear.referencePoint, mediationGear.frontVector, -mediationGear.bottomVector) {
+         shaft(mediationGearShaftHoleRadius)
+      }
+      - locate(knob.gearReferencePoint, knob.frontVector, -knob.bottomVector) {
+         shaftHole(knobShaftHoleRadius)
+      }
+      - locate(mediationGear.referencePoint, mediationGear.frontVector, -mediationGear.bottomVector) {
+         shaftHole(mediationGearShaftHoleRadius)
+      }
+   )
 }
 
 internal fun ScadParentObject.backRotaryEncoderGearHolderLeftArmSupportWall(
