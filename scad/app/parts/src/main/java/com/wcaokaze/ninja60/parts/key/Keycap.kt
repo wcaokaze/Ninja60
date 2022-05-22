@@ -110,7 +110,7 @@ fun ScadParentObject.thumbKeycap(
             }
       )
 
-      return locale(z = z) {
+      return translate(z = z.distanceFromOrigin) {
          linearExtrude(0.01.mm) {
             polygon(points.flatten())
          }
@@ -180,7 +180,7 @@ fun ScadParentObject.thumbKeycap(
             hull {
                cylinder(height = 0.01.mm, radius = bottomInnerR)
 
-               locale(z = topZ) {
+               translate(z = topZ.distanceFromOrigin) {
                   cube(bottomCenterR * 2 - topH, topW, 0.01.mm, center = true)
                }
             }
@@ -219,7 +219,7 @@ fun ScadParentObject.thumbKeycap(
                   radius = bottomInnerR + Keycap.THICKNESS
                )
 
-               locale(z = topZ - Keycap.THICKNESS) {
+               translate(z = topZ.distanceFromOrigin - Keycap.THICKNESS) {
                   cube(
                      bottomCenterR * 2 - (topH - Keycap.THICKNESS * 2),
                      topW - Keycap.THICKNESS * 2,
@@ -509,7 +509,7 @@ fun ScadParentObject.keycap(
                val step = 0.5.mm
                for (z in bottomZ..topZ step step) {
                   hull {
-                     locale(z = z) {
+                     translate(z = z.distanceFromOrigin) {
                         minkowski {
                            polygonFrom3d(
                               (bottomPoints zip topPoints)
@@ -520,7 +520,7 @@ fun ScadParentObject.keycap(
                         }
                      }
 
-                     locale(z = z + step) {
+                     translate(z = z.distanceFromOrigin + step) {
                         minkowski {
                            polygonFrom3d(
                               (bottomPoints zip topPoints)
@@ -554,7 +554,7 @@ fun ScadParentObject.keycap(
          return hull {
             val topZ = Point(keycapHeight)
 
-            locale(z = topZ) {
+            translate(z = topZ.distanceFromOrigin) {
                rotateForTilt {
                   cube(
                      topW - Keycap.THICKNESS * 2,
@@ -565,7 +565,7 @@ fun ScadParentObject.keycap(
                }
             }
 
-            locale(z = bottomZ) {
+            translate(z = bottomZ.distanceFromOrigin) {
                linearExtrude(0.01.mm) {
                   polygon(listOf(
                      Point2d(bottomNorthLeftX  + Keycap.THICKNESS, bottomNorthY - Keycap.THICKNESS),

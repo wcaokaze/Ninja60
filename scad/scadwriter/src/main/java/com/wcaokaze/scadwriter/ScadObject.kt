@@ -147,24 +147,4 @@ abstract class ScadParentObject : ScadObject() {
          addChild(this@translate)
       }
    }
-
-   fun ScadObject.locale(
-      x: Point = Point.ORIGIN,
-      y: Point = Point.ORIGIN,
-      z: Point = Point.ORIGIN
-   ): Translate {
-      _children -= this
-
-      return locale(x, y, z) {
-         addChild(this@locale)
-      }
-   }
-
-   fun ScadObject.locale(point: Point3d): Translate {
-      _children -= this
-
-      return locale(point) {
-         addChild(this@locale)
-      }
-   }
 }
