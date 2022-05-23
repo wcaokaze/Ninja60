@@ -1,7 +1,6 @@
-package com.wcaokaze.ninja60.shared.calcutil
+package com.wcaokaze.scadwriter
 
 import com.wcaokaze.scadwriter.linearalgebra.*
-import com.wcaokaze.ninja60.shared.scadutil.*
 import com.wcaokaze.scadwriter.foundation.*
 
 /**

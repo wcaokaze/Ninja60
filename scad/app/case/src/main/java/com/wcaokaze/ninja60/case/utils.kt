@@ -2,7 +2,7 @@ package com.wcaokaze.ninja60.case
 
 import com.wcaokaze.scadwriter.linearalgebra.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.gear.*
-import com.wcaokaze.ninja60.shared.calcutil.*
+import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
 internal fun <T : Transformable<T>> T.transform(transformer: T.() -> T): T {

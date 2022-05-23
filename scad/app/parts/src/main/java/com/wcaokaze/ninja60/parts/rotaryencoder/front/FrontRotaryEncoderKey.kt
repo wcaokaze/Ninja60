@@ -2,7 +2,7 @@ package com.wcaokaze.ninja60.parts.rotaryencoder.front
 
 import com.wcaokaze.scadwriter.linearalgebra.*
 import com.wcaokaze.ninja60.parts.key.*
-import com.wcaokaze.ninja60.shared.calcutil.*
+import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 import kotlin.math.*
 

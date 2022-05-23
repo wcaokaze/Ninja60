@@ -1,7 +1,7 @@
 package com.wcaokaze.ninja60.parts.key
 
 import com.wcaokaze.scadwriter.linearalgebra.*
-import com.wcaokaze.ninja60.shared.calcutil.*
+import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
 /** 基板や各種プレートでキーひとつに当てられる領域 */
