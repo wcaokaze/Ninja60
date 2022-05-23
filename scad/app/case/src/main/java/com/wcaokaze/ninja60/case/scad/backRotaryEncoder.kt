@@ -1,6 +1,6 @@
 package com.wcaokaze.ninja60.case.scad
 
-import com.wcaokaze.linearalgebra.*
+import com.wcaokaze.scadwriter.linearalgebra.*
 import com.wcaokaze.ninja60.case.*
 import com.wcaokaze.ninja60.parts.key.alphanumeric.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.*

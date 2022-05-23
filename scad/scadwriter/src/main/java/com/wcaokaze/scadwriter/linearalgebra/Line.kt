@@ -1,4 +1,4 @@
-package com.wcaokaze.linearalgebra
+package com.wcaokaze.scadwriter.linearalgebra
 
 import com.wcaokaze.scadwriter.foundation.*
 

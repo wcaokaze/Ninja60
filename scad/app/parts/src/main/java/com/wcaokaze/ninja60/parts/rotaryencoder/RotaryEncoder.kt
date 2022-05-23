@@ -1,6 +1,6 @@
 package com.wcaokaze.ninja60.parts.rotaryencoder
 
-import com.wcaokaze.linearalgebra.*
+import com.wcaokaze.scadwriter.linearalgebra.*
 import com.wcaokaze.ninja60.shared.calcutil.*
 import com.wcaokaze.ninja60.shared.scadutil.*
 import com.wcaokaze.scadwriter.*

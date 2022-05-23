@@ -9,5 +9,4 @@ repositories {
 
 dependencies {
    implementation(project(":scadwriter"))
-   implementation(project(":linearalgebra"))
 }

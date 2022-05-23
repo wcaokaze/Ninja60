@@ -1,6 +1,6 @@
 package com.wcaokaze.ninja60.parts.rotaryencoder.back
 
-import com.wcaokaze.linearalgebra.*
+import com.wcaokaze.scadwriter.linearalgebra.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.gear.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.gear.BevelGear as Bevel
 import com.wcaokaze.ninja60.shared.calcutil.*

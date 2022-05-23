@@ -9,7 +9,6 @@ repositories {
 
 dependencies {
    implementation(project(":scadwriter"))
-   implementation(project(":linearalgebra"))
    implementation(project(":app:shared"))
    implementation(project(":app:parts"))
 }
