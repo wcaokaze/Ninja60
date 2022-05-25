@@ -7,7 +7,6 @@ import com.wcaokaze.scadwriter.foundation.*
  * 回転や移動が可能なモデル。
  */
 interface Transformable<T : Transformable<T>> {
-   fun translate(distance: Size3d): T
    fun translate(distance: Vector3d): T
    fun translate(direction: Vector3d, distance: Size): T
 
@@ -15,7 +14,7 @@ interface Transformable<T : Transformable<T>> {
       x: Size = 0.mm,
       y: Size = 0.mm,
       z: Size = 0.mm
-   ): T = translate(Size3d(x, y, z))
+   ): T = translate(Vector3d(x, y, z))
 
    fun rotate(axis: Line3d, angle: Angle): T
 }
@@ -24,9 +23,6 @@ interface TransformableDefaultImpl<P : TransformableDefaultImpl<P>>
    : Transformable<P>, Placeable<P>
 {
    fun copy(referencePoint: Point3d, frontVector: Vector3d, bottomVector: Vector3d): P
-
-   override fun translate(distance: Size3d): P
-         = copy(referencePoint.translate(distance), frontVector, bottomVector)
 
    override fun translate(distance: Vector3d): P
          = copy(referencePoint.translate(distance), frontVector, bottomVector)

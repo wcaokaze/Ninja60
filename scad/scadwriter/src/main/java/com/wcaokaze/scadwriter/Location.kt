@@ -21,8 +21,6 @@ data class Location(
    val rightVector: Vector3d get() = frontVector vectorProduct bottomVector
    val leftVector: Vector3d get() = -rightVector
 
-   override fun translate(distance: Size3d)
-         = Location(point.translate(distance), frontVector, bottomVector)
    override fun translate(distance: Vector3d)
          = Location(point.translate(distance), frontVector, bottomVector)
    override fun translate(direction: Vector3d, distance: Size)

@@ -11,7 +11,6 @@ import com.wcaokaze.ninja60.parts.rotaryencoder.front.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.gear.*
 import com.wcaokaze.ninja60.parts.rotaryencoder.left.*
 import com.wcaokaze.ninja60.shared.*
-import com.wcaokaze.ninja60.shared.calcutil.*
 import com.wcaokaze.ninja60.shared.scadutil.*
 import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
@@ -223,9 +222,12 @@ class Case private constructor(
                BackRotaryEncoderMediationGear.BevelGear.createPair()
 
             run {
-               val d = mediationGear.bevelGear.referencePoint - mediationGearPositionRef.referencePoint
-               mediationGearPositionRef = mediationGearPositionRef.translate(d)
-               gear = gear.translate(d)
+               val v = Vector3d(
+                  mediationGearPositionRef.referencePoint,
+                  mediationGear.bevelGear.referencePoint)
+
+               mediationGearPositionRef = mediationGearPositionRef.translate(v)
+               gear = gear.translate(v)
             }
 
             run {
@@ -330,7 +332,7 @@ class Case private constructor(
       }
    }
 
-   override fun translate(distance: Size3d) = Case(
+   override fun translate(distance: Vector3d) = Case(
       referencePoint.translate(distance),
       frontVector,
       bottomVector,
@@ -347,9 +349,6 @@ class Case private constructor(
       leftInnerRotaryEncoderKnob         .translate(distance),
       frontRotaryEncoderKey              .translate(distance),
    )
-
-   override fun translate(distance: Vector3d): Case
-         = translate(Size3d(distance.x, distance.y, distance.z))
 
    override fun translate(direction: Vector3d, distance: Size): Case
          = translate(direction.toUnitVector() * distance.numberAsMilliMeter)

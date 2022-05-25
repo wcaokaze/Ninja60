@@ -59,11 +59,8 @@ class Line3d
    /** 2点を通る直線 */
    constructor(a: Point3d, b: Point3d) : this(a, Vector3d(a, b))
 
-   override fun translate(distance: Size3d)
+   override fun translate(distance: Vector3d)
          = Line3d(somePoint.translate(distance), vector)
-
-   override fun translate(distance: Vector3d): Line3d
-         = translate(Size3d(distance.x, distance.y, distance.z))
 
    override fun translate(direction: Vector3d, distance: Size): Line3d
          = translate(direction.toUnitVector() * distance.numberAsMilliMeter)

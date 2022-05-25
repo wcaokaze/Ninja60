@@ -17,11 +17,8 @@ class Plane3d
       val ZX_PLANE = Plane3d(Point3d.ORIGIN, Vector3d.Y_UNIT_VECTOR)
    }
 
-   override fun translate(distance: Size3d)
+   override fun translate(distance: Vector3d)
          = Plane3d(somePoint.translate(distance), normalVector)
-
-   override fun translate(distance: Vector3d): Plane3d
-         = translate(Size3d(distance.x, distance.y, distance.z))
 
    override fun translate(direction: Vector3d, distance: Size): Plane3d
          = translate(direction.toUnitVector() * distance.numberAsMilliMeter)

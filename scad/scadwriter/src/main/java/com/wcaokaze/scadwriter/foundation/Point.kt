@@ -110,14 +110,11 @@ data class Point3d(val x: Point, val y: Point, val z: Point)
       val ORIGIN = Point3d(Point.ORIGIN, Point.ORIGIN, Point.ORIGIN)
    }
 
-   override fun translate(distance: Size3d) = Point3d(
+   override fun translate(distance: Vector3d) = Point3d(
       x + distance.x,
       y + distance.y,
       z + distance.z
    )
-
-   override fun translate(distance: Vector3d): Point3d
-         = translate(Size3d(distance.x, distance.y, distance.z))
 
    override fun translate(direction: Vector3d, distance: Size): Point3d
          = translate(direction.toUnitVector() * distance.numberAsMilliMeter)
