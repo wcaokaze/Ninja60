@@ -1,10 +1,12 @@
 package com.wcaokaze.scadwriter.linearalgebra
 
+import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
 class Plane3d
    /** pointを通りnormalVectorを法線ベクトルとする平面 */
    constructor(private val point: Point3d, val normalVector: Vector3d)
+   : Transformable<Plane3d>
 {
    companion object {
       /** X軸とY軸の両方を含む平面 */
@@ -14,6 +16,20 @@ class Plane3d
       /** Z軸とX軸の両方を含む平面 */
       val ZX_PLANE = Plane3d(Point3d.ORIGIN, Vector3d.Y_UNIT_VECTOR)
    }
+
+   override fun translate(distance: Size3d)
+         = Plane3d(somePoint.translate(distance), normalVector)
+
+   override fun translate(distance: Vector3d): Plane3d
+         = translate(Size3d(distance.x, distance.y, distance.z))
+
+   override fun translate(direction: Vector3d, distance: Size): Plane3d
+         = translate(direction.toUnitVector() * distance.numberAsMilliMeter)
+
+   override fun rotate(axis: Line3d, angle: Angle) = Plane3d(
+      somePoint.rotate(axis, angle),
+      normalVector.rotate(axis.vector, angle)
+   )
 
    /**
     * この平面上の一点を返す。
@@ -94,23 +110,3 @@ class Plane3d
 }
 
 infix fun Line3d.intersection(plane: Plane3d): Point3d = plane intersection this
-
-fun Plane3d.translate(distance: Size3d)
-      = Plane3d(somePoint.translate(distance), normalVector)
-
-fun Plane3d.translate(distance: Vector3d): Plane3d
-      = translate(Size3d(distance.x, distance.y, distance.z))
-
-fun Plane3d.translate(direction: Vector3d, distance: Size): Plane3d
-      = translate(direction.toUnitVector() * distance.numberAsMilliMeter)
-
-fun Plane3d.translate(
-   x: Size = 0.mm,
-   y: Size = 0.mm,
-   z: Size = 0.mm
-): Plane3d = translate(Size3d(x, y, z))
-
-fun Plane3d.rotate(axis: Line3d, angle: Angle) = Plane3d(
-   somePoint.rotate(axis, angle),
-   normalVector.rotate(axis.vector, angle)
-)
