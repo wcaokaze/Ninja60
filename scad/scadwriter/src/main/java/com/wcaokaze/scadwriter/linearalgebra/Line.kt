@@ -1,5 +1,6 @@
 package com.wcaokaze.scadwriter.linearalgebra
 
+import com.wcaokaze.scadwriter.*
 import com.wcaokaze.scadwriter.foundation.*
 
 class Line2d
@@ -47,6 +48,7 @@ class Line2d
 class Line3d
    /** pointを通りdirectionと平行な直線 */
    constructor(private val point: Point3d, private val direction: Vector3d)
+   : Transformable<Line3d>
 {
    companion object {
       val X_AXIS = Line3d(Point3d.ORIGIN, Vector3d.X_UNIT_VECTOR)
@@ -56,6 +58,20 @@ class Line3d
 
    /** 2点を通る直線 */
    constructor(a: Point3d, b: Point3d) : this(a, Vector3d(a, b))
+
+   override fun translate(distance: Size3d)
+         = Line3d(somePoint.translate(distance), vector)
+
+   override fun translate(distance: Vector3d): Line3d
+         = translate(Size3d(distance.x, distance.y, distance.z))
+
+   override fun translate(direction: Vector3d, distance: Size): Line3d
+         = translate(direction.toUnitVector() * distance.numberAsMilliMeter)
+
+   override fun rotate(axis: Line3d, angle: Angle) = Line3d(
+      somePoint.rotate(axis, angle),
+      vector.rotate(axis.vector, angle)
+   )
 
    /**
     * この直線上の一点を返す。
@@ -107,23 +123,3 @@ class Line3d
     */
    val vector: Vector3d get() = direction.toUnitVector()
 }
-
-fun Line3d.translate(distance: Size3d)
-      = Line3d(somePoint.translate(distance), vector)
-
-fun Line3d.translate(distance: Vector3d): Line3d
-      = translate(Size3d(distance.x, distance.y, distance.z))
-
-fun Line3d.translate(direction: Vector3d, distance: Size): Line3d
-      = translate(direction.toUnitVector() * distance.numberAsMilliMeter)
-
-fun Line3d.translate(
-   x: Size = 0.mm,
-   y: Size = 0.mm,
-   z: Size = 0.mm
-): Line3d = translate(Size3d(x, y, z))
-
-fun Line3d.rotate(axis: Line3d, angle: Angle) = Line3d(
-   somePoint.rotate(axis, angle),
-   vector.rotate(axis.vector, angle)
-)
