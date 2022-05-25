@@ -1,5 +1,7 @@
 package com.wcaokaze.scadwriter.foundation
 
+import com.wcaokaze.scadwriter.*
+import com.wcaokaze.scadwriter.linearalgebra.*
 import kotlin.math.*
 
 data class Point(val distanceFromOrigin: Size)
@@ -50,6 +52,19 @@ data class Point2d(val x: Point, val y: Point) : ScadValue() {
       val ORIGIN = Point2d(Point.ORIGIN, Point.ORIGIN)
    }
 
+   fun rotate(axis: Point2d, angle: Angle): Point2d {
+      val px = axis.x
+      val py = axis.y
+
+      val tx = x - px
+      val ty = y - py
+
+      return Point2d(
+         x = px + tx * cos(angle) - ty * sin(angle),
+         y = py + tx * sin(angle) + ty * cos(angle)
+      )
+   }
+
    override fun toString() = "Point(${x.distanceFromOrigin}, ${y.distanceFromOrigin})"
 
    override fun toScadRepresentation()
@@ -87,10 +102,50 @@ data class Point2dRange(val start: Point2d,
    }
 }
 
-data class Point3d(val x: Point, val y: Point, val z: Point) : ScadValue() {
+data class Point3d(val x: Point, val y: Point, val z: Point)
+   : ScadValue(), Transformable<Point3d>
+{
    companion object {
       /** 原点 */
       val ORIGIN = Point3d(Point.ORIGIN, Point.ORIGIN, Point.ORIGIN)
+   }
+
+   override fun translate(distance: Size3d) = Point3d(
+      x + distance.x,
+      y + distance.y,
+      z + distance.z
+   )
+
+   override fun translate(distance: Vector3d): Point3d
+         = translate(Size3d(distance.x, distance.y, distance.z))
+
+   override fun translate(direction: Vector3d, distance: Size): Point3d
+         = translate(direction.toUnitVector() * distance.numberAsMilliMeter)
+
+   override fun rotate(axis: Line3d, angle: Angle): Point3d {
+      val ax = axis.vector.x.numberAsMilliMeter
+      val ay = axis.vector.y.numberAsMilliMeter
+      val az = axis.vector.z.numberAsMilliMeter
+
+      val (px, py, pz) = axis.somePoint
+
+      val tx = x - px
+      val ty = y - py
+      val tz = z - pz
+
+      return Point3d(
+         x = px + tx * (cos(angle) + ax * ax * (1.0 - cos(angle)))
+                + ty * (ax * ay * (1.0 - cos(angle)) - az * sin(angle))
+                + tz * (az * ax * (1.0 - cos(angle)) + ay * sin(angle)),
+
+         y = py + tx * (ax * ay * (1.0 - cos(angle)) + az * sin(angle))
+                + ty * (cos(angle) + ay * ay * (1.0 - cos(angle)))
+                + tz * (ay * az * (1.0 - cos(angle)) - ax * sin(angle)),
+
+         z = pz + tx * (az * ax * (1.0 - cos(angle)) - ay * sin(angle))
+                + ty * (ay * az * (1.0 - cos(angle)) + ax * sin(angle))
+                + tz * (cos(angle) + az * az * (1.0 - cos(angle)))
+      )
    }
 
    override fun toString()
