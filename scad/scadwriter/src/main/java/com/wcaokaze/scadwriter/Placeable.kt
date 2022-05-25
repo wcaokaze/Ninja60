@@ -57,5 +57,6 @@ fun ScadParentObject.place(
          .rotate(Line3d(rotationReference.referencePoint, axis), angle)
    }
 
-   return c.translate(placable.referencePoint - rotationReference.referencePoint)
+   return c.translate(
+      Vector3d(rotationReference.referencePoint, placable.referencePoint))
 }

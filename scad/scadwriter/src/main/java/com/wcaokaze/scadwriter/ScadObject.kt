@@ -1,6 +1,7 @@
 package com.wcaokaze.scadwriter
 
 import com.wcaokaze.scadwriter.foundation.*
+import com.wcaokaze.scadwriter.linearalgebra.*
 
 /**
  * OpenSCADのコードとして出力される物体。
@@ -140,7 +141,7 @@ abstract class ScadParentObject : ScadObject() {
       }
    }
 
-   fun ScadObject.translate(distance: Size3d): Translate {
+   fun ScadObject.translate(distance: Vector3d): Translate {
       _children -= this
 
       return translate(distance) {

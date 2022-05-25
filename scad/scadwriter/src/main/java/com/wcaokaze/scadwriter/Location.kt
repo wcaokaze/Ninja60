@@ -67,5 +67,6 @@ fun ScadParentObject.locate(
          .rotate(Line3d(rotationReference.point, axis), angle)
    }
 
-   return c.translate(location.point - rotationReference.point)
+   return c.translate(
+      Vector3d(rotationReference.point, location.point))
 }
