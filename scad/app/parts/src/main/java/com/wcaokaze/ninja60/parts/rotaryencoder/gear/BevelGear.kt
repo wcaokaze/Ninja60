@@ -189,7 +189,7 @@ private fun ScadParentObject.tooth(gear: BevelGear): ScadObject {
             }
       }
 
-      mirror(0.mm, 1.mm, 0.mm) {
+      mirror(Plane3d.ZX_PLANE) {
          addChild(half)
       }
    }

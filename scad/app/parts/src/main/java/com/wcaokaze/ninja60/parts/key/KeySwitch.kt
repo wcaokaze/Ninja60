@@ -109,6 +109,6 @@ fun ScadParentObject.switchSideHolder(): ScadObject {
 
    return union {
       holder()
-      mirror(x = 1.mm, y = 0.mm, z = 0.mm) { holder() }
+      mirror(Plane3d.YZ_PLANE) { holder() }
    }
 }
